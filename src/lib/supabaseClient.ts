@@ -6,3 +6,6 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Exportamos o cliente para usar em qualquer parte do app
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Log temporário para debug - Remova depois!
+// console.log("Conectando ao Supabase na URL:", supabaseUrl);
