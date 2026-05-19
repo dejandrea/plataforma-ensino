@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabaseClient";
 import { TabContent } from "../components/management/TabContent";
 import { TabLinks } from "../components/management/TabLinks";
 import { TabUsers } from "../components/management/TabUsers";
+import { BackLink } from "../components/BackLink";
 
 export const SystemManagement = () => {
   const [tab, setTab] = useState<"users" | "content" | "links">("users");
@@ -22,6 +23,8 @@ export const SystemManagement = () => {
   return (
     <div className="app-bg min-h-screen text-white">
       <div className="mx-auto max-w-6xl px-4 py-8">
+        <BackLink to="/dashboard-professor" label="Voltar para o painel" />
+
         {/* HEADER SIMPLIFICADO */}
         <header className="mb-8 flex justify-between items-center bg-white/5 p-6 rounded-3xl ring-1 ring-white/10 backdrop-blur">
           <h1 className="text-3xl font-extrabold italic italic">Torre de Controle 🏗️</h1>

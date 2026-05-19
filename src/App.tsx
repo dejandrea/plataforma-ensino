@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "./lib/supabaseClient";
-
-// Importações de Componentes e Páginas
 import { Login } from "./components/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { LessonView } from "./pages/LessonView";
@@ -14,11 +12,10 @@ import { StudentHistory } from "./pages/StudentHistory";
 import { LinkStudent } from "./pages/LinkStudent";
 import { SystemManagement } from "./pages/SystemManagement";
 
-// --- COMPONENTE DE PROTEÇÃO DE ROTA ATUALIZADO ---
 const RoleRoute = ({
   children,
   allowedRole,
-  allowedRoles = []
+  allowedRoles = [],
 }: {
   children: ReactNode;
   allowedRole?: "admin" | "student" | "professor";
@@ -29,29 +26,42 @@ const RoleRoute = ({
 
   useEffect(() => {
     async function getRole() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (user) {
         const { data } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", user.id)
           .single();
+
         setUserRole(data?.role || null);
       }
+
       setLoading(false);
     }
+
     getRole();
   }, []);
 
-  if (loading)
-    return <div className="p-10 text-center font-bold text-blue-600">Verificando permissões...</div>;
+  if (loading) {
+    return (
+      <div className="app-bg">
+        <div className="mx-auto max-w-4xl px-4 py-10">
+          <div className="rounded-3xl bg-white/5 p-10 text-center font-bold text-white/70 ring-1 ring-white/10">
+            Verificando permissoes...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // Lógica de Verificação:
-  // Se houver uma lista (allowedRoles), verifica se o cargo do usuário está nela.
-  // Se houver apenas um cargo (allowedRole), verifica se é igual.
-  const hasAccess = allowedRoles.length > 0 
-    ? (userRole && allowedRoles.includes(userRole))
-    : userRole === allowedRole;
+  const hasAccess =
+    allowedRoles.length > 0
+      ? Boolean(userRole && allowedRoles.includes(userRole))
+      : userRole === allowedRole;
 
   if (!hasAccess) {
     return <Navigate to="/" replace />;
@@ -60,58 +70,87 @@ const RoleRoute = ({
   return children;
 };
 
-// --- APP PRINCIPAL ---
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
 
-        {/* --- ROTAS DO ALUNO --- */}
-        <Route path="/dashboard" element={
-          <RoleRoute allowedRole="student">
-            <><Navbar /><Dashboard /></>
-          </RoleRoute>
-        } />
-        <Route path="/lesson/:id" element={
-          <RoleRoute allowedRole="student">
-            <><Navbar /><LessonView /></>
-          </RoleRoute>
-        } />
-        <Route path="/meu-boletim" element={
-          <RoleRoute allowedRole="student">
-            <><Navbar /><StudentReport /></>
-          </RoleRoute>
-        } />
+        <Route
+          path="/dashboard"
+          element={
+            <RoleRoute allowedRole="student">
+              <>
+                <Navbar />
+                <Dashboard />
+              </>
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/lesson/:id"
+          element={
+            <RoleRoute allowedRole="student">
+              <>
+                <Navbar />
+                <LessonView />
+              </>
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/meu-boletim"
+          element={
+            <RoleRoute allowedRole="student">
+              <>
+                <Navbar />
+                <StudentReport />
+              </>
+            </RoleRoute>
+          }
+        />
 
-        {/* --- ROTAS DO PROFESSOR (Acessíveis por Admin e Professor) --- */}
-        <Route path="/dashboard-professor" element={
-          <RoleRoute allowedRoles={['admin', 'professor']}>
-            <TeacherDashboard />
-          </RoleRoute>
-        } />
-        <Route path="/admin/avaliar" element={
-          <RoleRoute allowedRoles={['admin', 'professor']}>
-            <AdminEvaluations />
-          </RoleRoute>
-        } />
-        <Route path="/historico/:studentId" element={
-          <RoleRoute allowedRoles={['admin', 'professor']}>
-            <StudentHistory />
-          </RoleRoute>
-        } />
+        <Route
+          path="/dashboard-professor"
+          element={
+            <RoleRoute allowedRoles={["admin", "professor"]}>
+              <TeacherDashboard />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/avaliar"
+          element={
+            <RoleRoute allowedRoles={["admin", "professor"]}>
+              <AdminEvaluations />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/historico/:studentId"
+          element={
+            <RoleRoute allowedRoles={["admin", "professor"]}>
+              <StudentHistory />
+            </RoleRoute>
+          }
+        />
 
-        {/* --- ROTAS EXCLUSIVAS DO ADMIN (Só você) --- */}
-        <Route path="/gestao" element={
-          <RoleRoute allowedRole="admin">
-            <SystemManagement />
-          </RoleRoute>
-        } />
-        <Route path="/vincular-aluno" element={
-          <RoleRoute allowedRole="admin">
-            <LinkStudent />
-          </RoleRoute>
-        } />
+        <Route
+          path="/gestao"
+          element={
+            <RoleRoute allowedRole="admin">
+              <SystemManagement />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/vincular-aluno"
+          element={
+            <RoleRoute allowedRole="admin">
+              <LinkStudent />
+            </RoleRoute>
+          }
+        />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

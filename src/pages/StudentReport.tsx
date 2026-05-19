@@ -1,5 +1,17 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import { BackLink } from "../components/BackLink";
+
+const criteriaLabels: Record<string, string> = {
+  score_technical: "Tech",
+  score_logic: "Logica",
+  score_creativity: "Criatividade",
+  score_autonomy: "Autonomia",
+  score_communication: "Troca",
+  score_organization: "Organizacao",
+  score_engagement: "Atitude",
+  score_patience: "Paciencia",
+};
 
 export const StudentReport = () => {
   const [evaluations, setEvaluations] = useState<any[]>([]);
@@ -10,101 +22,173 @@ export const StudentReport = () => {
   }, []);
 
   async function fetchMyEvaluations() {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) return;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    // Buscamos as avaliações e os dados do módulo relacionado
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
-      .from('module_evaluations')
-      .select(`
-        *,
-        modules ( title )
-      `)
-      .eq('student_id', user.id)
-      .order('created_at', { ascending: false });
+      .from("module_evaluations")
+      .select(
+        `
+          *,
+          modules ( title )
+        `,
+      )
+      .eq("student_id", user.id)
+      .order("created_at", { ascending: false });
 
-    if (error) console.error(error);
-    else setEvaluations(data || []);
+    if (error) {
+      console.error(error);
+    } else {
+      setEvaluations(data || []);
+    }
+
     setLoading(false);
   }
 
-  if (loading) return <div className="p-10 text-center">Abrindo seu baú de conquistas... 🗝️</div>;
+  if (loading) {
+    return (
+      <div className="app-bg">
+        <div className="mx-auto max-w-6xl px-4 py-10">
+          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+            Abrindo seu boletim...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-blue-600 mb-8">Meu Boletim de Inventor 🚀</h1>
-      
-      {evaluations.length === 0 ? (
-        <div className="bg-white p-8 rounded-2xl border-2 border-dashed text-center text-gray-400">
-          Sua primeira avaliação aparecerá aqui assim que você completar o primeiro módulo!
-        </div>
-      ) : (
-        <div className="grid gap-8">
-          {evaluations.map((ev) => (
-            <EvaluationCard key={ev.id} evaluation={ev} />
-          ))}
-        </div>
-      )}
+    <div className="app-bg">
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <BackLink to="/dashboard" label="Voltar para a jornada" />
+
+        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+          <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
+
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-white/40">
+                Seu acompanhamento
+              </p>
+              <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+                Meu boletim
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
+                Aqui ficam suas avaliacoes por modulo, com notas, observacoes e
+                feedback consolidado.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-white/5 px-5 py-4 text-center ring-1 ring-white/10">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                Avaliacoes
+              </p>
+              <p className="mt-2 text-3xl font-extrabold text-white">
+                {evaluations.length}
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <section className="mt-8">
+          {evaluations.length === 0 ? (
+            <div className="rounded-3xl bg-white/5 p-10 text-center ring-1 ring-white/10">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                Nada por aqui ainda
+              </p>
+              <h2 className="mt-3 text-2xl font-bold text-white">
+                Sua primeira avaliacao vai aparecer neste painel.
+              </h2>
+              <p className="mt-3 text-sm text-white/60">
+                Assim que um modulo for finalizado e avaliado, o resultado fica
+                salvo aqui para consulta.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-8">
+              {evaluations.map((evaluation) => (
+                <EvaluationCard key={evaluation.id} evaluation={evaluation} />
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 };
 
 const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
-  // Mapeamento de nomes internos para nomes bonitos
-  const criteriaLabels: any = {
-    score_technical: "Tech",
-    score_logic: "Lógica",
-    score_creativity: "Criatividade",
-    score_autonomy: "Autonomia",
-    score_communication: "Troca",
-    score_organization: "Organização",
-    score_engagement: "Atitude",
-    score_patience: "Paciência"
-  };
+  const feedbackEntries = evaluation.ai_feedback_json
+    ? Object.values(evaluation.ai_feedback_json)
+    : [];
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-blue-100">
-      <div className="bg-blue-600 p-4 text-white flex justify-between items-center">
-        <h2 className="text-xl font-bold">{evaluation.modules?.title}</h2>
-        <span className="bg-blue-400 px-3 py-1 rounded-full text-xs">Finalizado em {new Date(evaluation.created_at).toLocaleDateString()}</span>
+    <article className="overflow-hidden rounded-[2rem] bg-white/5 shadow-soft ring-1 ring-white/10">
+      <div className="bg-gradient-to-r from-brand-purple/80 to-brand-pink/80 p-5 text-white">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/60">
+              Modulo avaliado
+            </p>
+            <h2 className="mt-2 text-2xl font-bold">
+              {evaluation.modules?.title || "Modulo"}
+            </h2>
+          </div>
+
+          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ring-1 ring-white/15">
+            {new Date(evaluation.created_at).toLocaleDateString()}
+          </span>
+        </div>
       </div>
 
-      <div className="p-6">
-        {/* Notas em Estilo Badge */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {Object.keys(criteriaLabels).map((key) => (
-            <div key={key} className="bg-gray-50 p-2 rounded-xl text-center border border-gray-100">
-              <p className="text-[10px] uppercase font-bold text-gray-400">{criteriaLabels[key]}</p>
-              <div className="text-yellow-500 font-bold">
-                {"⭐".repeat(evaluation[key])}
-              </div>
+      <div className="space-y-6 p-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {Object.entries(criteriaLabels).map(([key, label]) => (
+            <div
+              key={key}
+              className="rounded-2xl bg-white/5 p-4 text-center ring-1 ring-white/10"
+            >
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">
+                {label}
+              </p>
+              <p className="mt-2 text-lg font-bold text-brand-ice">
+                {Number(evaluation[key] || 0)}/5
+              </p>
             </div>
           ))}
         </div>
 
-        {/* Feedback da IA (Onde a mágica do texto aparece) */}
-        <div className="bg-purple-50 p-5 rounded-2xl border border-purple-100 mb-4">
-          <h3 className="text-purple-700 font-bold mb-2 flex items-center gap-2">
-            ✨ Feedback da Inteligência Artificial
-          </h3>
-          <div className="text-purple-900 text-sm leading-relaxed space-y-2">
-            {evaluation.ai_feedback_json ? (
-              Object.values(evaluation.ai_feedback_json).map((text: any, i) => (
-                <p key={i}>• {text}</p>
-              ))
+        <div className="rounded-3xl bg-brand-lavender/10 p-5 ring-1 ring-brand-lavender/20">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-ice/70">
+            Feedback consolidado
+          </p>
+
+          <div className="mt-4 space-y-3 text-sm leading-7 text-brand-ice">
+            {feedbackEntries.length > 0 ? (
+              feedbackEntries.map((text, index) => <p key={index}>{String(text)}</p>)
             ) : (
-              <p className="italic opacity-60">A IA está processando seus comentários...</p>
+              <p className="text-brand-ice/60">
+                O feedback automatico ainda esta sendo processado.
+              </p>
             )}
           </div>
         </div>
 
-        {/* Comentário da Professora */}
-        <div className="border-t pt-4">
-          <p className="text-xs font-bold text-gray-400 uppercase mb-1">Recado da Professora 👩‍🏫</p>
-          <p className="text-gray-700 italic">"{evaluation.teacher_comment}"</p>
+        <div className="rounded-3xl bg-white/5 p-5 ring-1 ring-white/10">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+            Comentario da professora
+          </p>
+          <p className="mt-4 text-sm leading-7 text-white/75">
+            {evaluation.teacher_comment || "Nenhum comentario adicional foi registrado."}
+          </p>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
