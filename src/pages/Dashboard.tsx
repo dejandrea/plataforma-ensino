@@ -135,11 +135,21 @@ export const Dashboard = () => {
             </div>
           ) : (
             modules.map((module) => (
-              <section
-                key={module.id}
-                className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur"
-              >
-                <div className="flex flex-col gap-3 border-b border-white/10 pb-5 md:flex-row md:items-center md:justify-between">
+              (() => {
+                const moduleLessons = module.lessons || [];
+                const completedModuleLessons = moduleLessons.filter((lesson: any) =>
+                  completedLessonIds.includes(lesson.id),
+                ).length;
+                const moduleProgress = moduleLessons.length
+                  ? Math.round((completedModuleLessons / moduleLessons.length) * 100)
+                  : 0;
+
+                return (
+                  <section
+                    key={module.id}
+                    className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur"
+                  >
+                <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-center md:justify-between">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-lavender">
                       {module.is_locked ? "Modulo bloqueado" : "Modulo liberado"}
@@ -149,13 +159,35 @@ export const Dashboard = () => {
                     </h2>
                   </div>
 
-                  <div className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/65 ring-1 ring-white/10">
-                    {module.lessons?.length || 0} aulas nesta etapa
+                  <div className="w-full max-w-2xl rounded-2xl bg-white/5 px-4 py-4 ring-1 ring-white/10">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                      <div className="flex shrink-0 items-center justify-between gap-3 lg:min-w-[220px]">
+                        <span className="font-semibold text-sm text-white/70">
+                          {moduleLessons.length} aulas nesta etapa
+                        </span>
+                        <span className="rounded-full bg-white/5 px-2.5 py-1 text-xs font-black uppercase tracking-[0.18em] text-brand-ice ring-1 ring-white/10">
+                          {moduleProgress}%
+                        </span>
+                      </div>
+
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-brand-900/80 ring-1 ring-white/10">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-brand-lavender via-brand-pink to-brand-magenta transition-[width] duration-500"
+                            style={{ width: `${moduleProgress}%` }}
+                          />
+                        </div>
+
+                        <p className="shrink-0 text-xs font-medium text-white/50">
+                          {completedModuleLessons}/{moduleLessons.length}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <div className="mt-6 grid gap-4">
-                  {module.lessons?.map((lesson: any) => {
+                  {moduleLessons.map((lesson: any) => {
                     const isCompleted = completedLessonIds.includes(lesson.id);
 
                     return (
@@ -169,7 +201,9 @@ export const Dashboard = () => {
                     );
                   })}
                 </div>
-              </section>
+                  </section>
+                );
+              })()
             ))
           )}
         </section>
