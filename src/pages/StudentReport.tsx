@@ -124,9 +124,17 @@ export const StudentReport = () => {
 };
 
 const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
-  const feedbackEntries = evaluation.ai_feedback_json
-    ? Object.values(evaluation.ai_feedback_json)
-    : [];
+  const feedbackError =
+    evaluation.ai_feedback_json &&
+    typeof evaluation.ai_feedback_json === "object" &&
+    "error" in evaluation.ai_feedback_json
+      ? String(evaluation.ai_feedback_json.error)
+      : null;
+
+  const feedbackEntries =
+    evaluation.ai_feedback_json && !feedbackError
+      ? Object.values(evaluation.ai_feedback_json)
+      : [];
 
   return (
     <article className="overflow-hidden rounded-[2rem] bg-white/5 shadow-soft ring-1 ring-white/10">
@@ -170,7 +178,11 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
           </p>
 
           <div className="mt-4 space-y-3 text-sm leading-7 text-brand-ice">
-            {feedbackEntries.length > 0 ? (
+            {feedbackError ? (
+              <p className="text-rose-200">
+                O feedback da IA nao foi gerado corretamente: {feedbackError}
+              </p>
+            ) : feedbackEntries.length > 0 ? (
               feedbackEntries.map((text, index) => <p key={index}>{String(text)}</p>)
             ) : (
               <p className="text-brand-ice/60">
