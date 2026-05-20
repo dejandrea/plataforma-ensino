@@ -80,6 +80,7 @@ export const StudentHistory = () => {
               </p>
               <Link
                 to="/admin/avaliar"
+                state={{ from: `/historico/${studentId}` }}
                 className="mt-4 inline-block font-bold text-brand-lavender"
               >
                 Avaliar agora &gt;

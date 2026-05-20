@@ -66,6 +66,7 @@ export const StudentCard = ({
     <div className="flex gap-3">
       <Link
         to={`/admin/avaliar?studentId=${student.id}`}
+        state={{ from: "/dashboard-professor" }}
         className="inline-flex flex-[2] items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-3 text-sm font-bold text-white shadow-soft ring-1 ring-white/10 transition hover:brightness-110 active:brightness-95"
       >
         Avaliar

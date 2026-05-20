@@ -124,17 +124,14 @@ export const StudentReport = () => {
 };
 
 const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
-  const feedbackError =
+  const feedbackEntries =
     evaluation.ai_feedback_json &&
     typeof evaluation.ai_feedback_json === "object" &&
-    "error" in evaluation.ai_feedback_json
-      ? String(evaluation.ai_feedback_json.error)
-      : null;
-
-  const feedbackEntries =
-    evaluation.ai_feedback_json && !feedbackError
+    !("error" in evaluation.ai_feedback_json)
       ? Object.values(evaluation.ai_feedback_json)
       : [];
+
+  const shouldUseTeacherFallback = feedbackEntries.length === 0;
 
   return (
     <article className="overflow-hidden rounded-[2rem] bg-white/5 shadow-soft ring-1 ring-white/10">
@@ -174,20 +171,19 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
 
         <div className="rounded-3xl bg-brand-lavender/10 p-5 ring-1 ring-brand-lavender/20">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-ice/70">
-            Feedback consolidado
+            {shouldUseTeacherFallback
+              ? "Feedback da professora"
+              : "Feedback consolidado"}
           </p>
 
           <div className="mt-4 space-y-3 text-sm leading-7 text-brand-ice">
-            {feedbackError ? (
-              <p className="text-rose-200">
-                O feedback da IA nao foi gerado corretamente: {feedbackError}
+            {shouldUseTeacherFallback ? (
+              <p>
+                {evaluation.teacher_comment ||
+                  "Nenhum comentario adicional foi registrado."}
               </p>
-            ) : feedbackEntries.length > 0 ? (
-              feedbackEntries.map((text, index) => <p key={index}>{String(text)}</p>)
             ) : (
-              <p className="text-brand-ice/60">
-                O feedback automatico ainda esta sendo processado.
-              </p>
+              feedbackEntries.map((text, index) => <p key={index}>{String(text)}</p>)
             )}
           </div>
         </div>
