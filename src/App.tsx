@@ -11,6 +11,7 @@ import { TeacherDashboard } from "./pages/TeacherDashboard";
 import { StudentHistory } from "./pages/StudentHistory";
 import { LinkStudent } from "./pages/LinkStudent";
 import { SystemManagement } from "./pages/SystemManagement";
+import { ResetPassword } from "./pages/ResetPassword";
 
 const RoleRoute = ({
   children,
@@ -75,6 +76,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/redefinir-senha" element={<ResetPassword />} />
 
         <Route
           path="/dashboard"
