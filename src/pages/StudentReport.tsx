@@ -36,7 +36,11 @@ export const StudentReport = () => {
       .select(
         `
           *,
-          modules ( title )
+          modules (
+            title,
+            is_active,
+            courses ( is_active )
+          )
         `,
       )
       .eq("student_id", user.id)
@@ -45,7 +49,17 @@ export const StudentReport = () => {
     if (error) {
       console.error(error);
     } else {
-      setEvaluations(data || []);
+      const visibleEvaluations = (data || []).filter((evaluation) => {
+        if (!evaluation.modules?.is_active) return false;
+
+        const relatedCourse = Array.isArray(evaluation.modules.courses)
+          ? evaluation.modules.courses[0]
+          : evaluation.modules.courses;
+
+        return relatedCourse?.is_active === true;
+      });
+
+      setEvaluations(visibleEvaluations);
     }
 
     setLoading(false);
