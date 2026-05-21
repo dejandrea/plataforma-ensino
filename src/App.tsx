@@ -12,6 +12,8 @@ import { StudentHistory } from "./pages/StudentHistory";
 import { LinkStudent } from "./pages/LinkStudent";
 import { SystemManagement } from "./pages/SystemManagement";
 import { ResetPassword } from "./pages/ResetPassword";
+import { StudentLessons } from "./pages/StudentLessons";
+import { TeacherScheduling } from "./pages/TeacherScheduling";
 
 const RoleRoute = ({
   children,
@@ -101,6 +103,17 @@ function App() {
           }
         />
         <Route
+          path="/minhas-aulas"
+          element={
+            <RoleRoute allowedRole="student">
+              <>
+                <Navbar />
+                <StudentLessons />
+              </>
+            </RoleRoute>
+          }
+        />
+        <Route
           path="/meu-boletim"
           element={
             <RoleRoute allowedRole="student">
@@ -117,6 +130,14 @@ function App() {
           element={
             <RoleRoute allowedRoles={["admin", "professor"]}>
               <TeacherDashboard />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/agendamentos"
+          element={
+            <RoleRoute allowedRoles={["admin", "professor"]}>
+              <TeacherScheduling />
             </RoleRoute>
           }
         />

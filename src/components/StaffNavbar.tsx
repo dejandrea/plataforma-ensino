@@ -7,8 +7,9 @@ const handleLogout = async () => {
   window.location.href = "/";
 };
 
-export const Navbar = () => {
-  const [studentName, setStudentName] = useState("Aluno");
+export const StaffNavbar = () => {
+  const [fullName, setFullName] = useState("Equipe");
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -20,25 +21,30 @@ export const Navbar = () => {
 
       const { data } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, role")
         .eq("id", user.id)
         .single();
 
       if (data?.full_name) {
-        setStudentName(data.full_name);
+        setFullName(data.full_name);
+      }
+
+      if (data?.role) {
+        setUserRole(data.role);
       }
     }
 
-    loadProfile();
+    void loadProfile();
   }, []);
 
-  const firstName = studentName.split(" ")[0] || "Aluno";
-  const initials = studentName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("") || "A";
+  const firstName = fullName.split(" ")[0] || "Equipe";
+  const initials =
+    fullName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "E";
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
@@ -52,7 +58,7 @@ export const Navbar = () => {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <NavLink
-            to="/dashboard"
+            to="/dashboard-professor"
             className="inline-flex items-center gap-3 rounded-2xl text-white transition hover:opacity-90"
           >
             <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink text-lg shadow-soft ring-1 ring-white/10">
@@ -61,7 +67,7 @@ export const Navbar = () => {
 
             <div>
               <p className="text-sm font-black uppercase tracking-[0.2em] text-white/45">
-                Area do Aluno
+                {userRole === "admin" ? "Area da Gestao" : "Area da Professora"}
               </p>
               <p className="text-base font-bold tracking-tight text-white">
                 Escola de Devs
@@ -71,15 +77,17 @@ export const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <NavLink to="/dashboard" className={navClass}>
-            Minha jornada
+          <NavLink to="/dashboard-professor" className={navClass}>
+            Meus alunos
           </NavLink>
-          <NavLink to="/minhas-aulas" className={navClass}>
-            Minhas aulas
+          <NavLink to="/agendamentos" className={navClass}>
+            Agenda
           </NavLink>
-          <NavLink to="/meu-boletim" className={navClass}>
-            Meu boletim
-          </NavLink>
+          {userRole === "admin" && (
+            <NavLink to="/gestao" className={navClass}>
+              Gestao
+            </NavLink>
+          )}
         </div>
 
         <div className="flex items-center gap-3 self-end md:self-auto">

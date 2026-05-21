@@ -70,10 +70,11 @@ export const LinkStudent = () => {
         <header className="mb-10">
           <BackLink to="/gestao" label="Voltar para gestao" />
           <h1 className="mt-4 text-4xl font-black italic">
-            Vincular aluno e professor
+            Vincular aluno e professora responsavel
           </h1>
           <p className="mt-2 text-white/55">
-            Defina quem sera o mentor responsavel por cada aluno.
+            Defina quem sera a professora responsavel por cada aluno. Admins
+            tambem podem assumir esse papel.
           </p>
         </header>
 
@@ -105,14 +106,14 @@ export const LinkStudent = () => {
 
           <div>
             <label className="ml-1 text-xs font-black uppercase tracking-widest text-white/35">
-              Professor responsavel
+              Professora ou admin responsavel
             </label>
             <select
               value={selectedTeacher}
               onChange={(e) => setSelectedTeacher(e.target.value)}
               className="mt-2 w-full rounded-2xl bg-brand-900/60 p-4 text-white ring-1 ring-white/10 outline-none transition focus:ring-2 focus:ring-brand-lavender"
             >
-              <option value="">Escolha o professor...</option>
+              <option value="">Escolha a professora...</option>
               {teachers.map((teacher) => (
                 <option key={teacher.id} value={teacher.id}>
                   {teacher.full_name}
