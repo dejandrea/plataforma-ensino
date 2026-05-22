@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { BackLink } from "../components/BackLink";
 
 export const LinkStudent = () => {
   const [students, setStudents] = useState<any[]>([]);
@@ -68,8 +67,7 @@ export const LinkStudent = () => {
     <div className="app-bg min-h-screen p-8 text-white">
       <div className="mx-auto max-w-2xl">
         <header className="mb-10">
-          <BackLink to="/gestao" label="Voltar para gestao" />
-          <h1 className="mt-4 text-4xl font-black italic">
+          <h1 className="text-4xl font-black italic">
             Vincular aluno e professora responsavel
           </h1>
           <p className="mt-2 text-white/55">

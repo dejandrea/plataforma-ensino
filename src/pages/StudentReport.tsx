@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { BackLink } from "../components/BackLink";
 
 const criteriaLabels: Record<string, string> = {
   score_technical: "Tech",
@@ -80,8 +79,6 @@ export const StudentReport = () => {
   return (
     <div className="app-bg">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <BackLink to="/dashboard" label="Voltar para a jornada" />
-
         <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
 

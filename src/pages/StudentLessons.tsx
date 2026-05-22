@@ -1,5 +1,4 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { BackLink } from "../components/BackLink";
 import { supabase } from "../lib/supabaseClient";
 
 const formatSessionDate = (value: string) =>
@@ -161,14 +160,16 @@ export const StudentLessons = () => {
   const handleBookLesson = async (lessonId: string) => {
     setBookingLessonId(lessonId);
 
-    const { error } = await supabase.rpc("book_scheduled_lesson", {
-      p_lesson_id: lessonId,
+    const { error } = await supabase.functions.invoke("book-platform-lesson", {
+      body: {
+        lessonId,
+      },
     });
 
     if (error) {
       alert(error.message);
     } else {
-      alert("Aula agendada com sucesso.");
+      alert("Aula agendada com sucesso. Se a agenda Google da professora estiver conectada, o link do Meet ja vai aparecer aqui.");
       fetchStudentLessons();
     }
 
@@ -209,8 +210,6 @@ export const StudentLessons = () => {
   return (
     <div className="app-bg">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <BackLink to="/dashboard" label="Voltar para a jornada" />
-
         <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-brand-pink/15 blur-3xl" />
 

@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { BackLink } from "../components/BackLink";
 
 export const LessonView = () => {
   const { id } = useParams<{ id: string }>();
@@ -73,8 +72,6 @@ export const LessonView = () => {
   return (
     <div className="app-bg">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <BackLink to="/dashboard" label="Voltar para a jornada" />
-
         <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -top-20 right-0 h-64 w-64 rounded-full bg-brand-pink/15 blur-3xl" />
 

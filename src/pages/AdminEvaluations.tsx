@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { EvaluationForm } from "../components/EvaluationForm";
-import { BackLink } from "../components/BackLink";
 
 export const AdminEvaluations = () => {
   const navigate = useNavigate();
@@ -90,8 +89,6 @@ export const AdminEvaluations = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <BackLink to="/dashboard-professor" label="Voltar para meus alunos" />
-
         <div className="rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <h1 className="text-3xl font-extrabold tracking-tight text-white">
             Painel de avaliacao

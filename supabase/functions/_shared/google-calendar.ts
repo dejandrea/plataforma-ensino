@@ -213,6 +213,141 @@ export const getGoogleCalendarEvents = async ({
   return Array.isArray(json?.items) ? json.items : [];
 };
 
+export const getGoogleCalendarFreeBusy = async ({
+  accessToken,
+  calendarIds,
+  timeMin,
+  timeMax,
+  timeZone,
+}: {
+  accessToken: string;
+  calendarIds: string[];
+  timeMin: string;
+  timeMax: string;
+  timeZone: string;
+}) => {
+  const response = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      timeMin,
+      timeMax,
+      timeZone,
+      items: calendarIds.map((id) => ({ id })),
+    }),
+  });
+
+  const json = await response.json();
+  if (!response.ok) {
+    throw new Error(json?.error?.message || "Falha ao consultar disponibilidade no Google.");
+  }
+
+  return json?.calendars || {};
+};
+
+export const getGoogleCalendarList = async ({
+  accessToken,
+}: {
+  accessToken: string;
+}) => {
+  const url = new URL("https://www.googleapis.com/calendar/v3/users/me/calendarList");
+  url.searchParams.set("minAccessRole", "owner");
+  url.searchParams.set("showHidden", "false");
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const json = await response.json();
+  if (!response.ok) {
+    throw new Error(json?.error?.message || "Falha ao listar as agendas do Google.");
+  }
+
+  return Array.isArray(json?.items) ? json.items : [];
+};
+
+export const createGoogleCalendarEvent = async ({
+  accessToken,
+  calendarId,
+  summary,
+  description,
+  startDateTime,
+  endDateTime,
+  timezone,
+  attendeeEmails = [],
+  autoCreateMeet,
+}: {
+  accessToken: string;
+  calendarId: string;
+  summary: string;
+  description?: string | null;
+  startDateTime: string;
+  endDateTime: string;
+  timezone?: string | null;
+  attendeeEmails?: string[];
+  autoCreateMeet: boolean;
+}) => {
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
+  );
+  url.searchParams.set("sendUpdates", "all");
+
+  if (autoCreateMeet) {
+    url.searchParams.set("conferenceDataVersion", "1");
+  }
+
+  const body: Record<string, unknown> = {
+    summary,
+    description: description || undefined,
+    start: {
+      dateTime: startDateTime,
+      timeZone: timezone || undefined,
+    },
+    end: {
+      dateTime: endDateTime,
+      timeZone: timezone || undefined,
+    },
+  };
+
+  if (attendeeEmails.length > 0) {
+    body.attendees = attendeeEmails.map((email) => ({
+      email,
+    }));
+  }
+
+  if (autoCreateMeet) {
+    body.conferenceData = {
+      createRequest: {
+        requestId: crypto.randomUUID(),
+        conferenceSolutionKey: {
+          type: "hangoutsMeet",
+        },
+      },
+    };
+  }
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const json = await response.json();
+  if (!response.ok) {
+    throw new Error(json?.error?.message || "Falha ao criar evento no Google Calendar.");
+  }
+
+  return json;
+};
+
 export const extractMeetLink = (event: any) => {
   if (typeof event?.hangoutLink === "string" && event.hangoutLink) {
     return event.hangoutLink;

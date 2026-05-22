@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -10,6 +10,7 @@ const handleLogout = async () => {
 export const StaffNavbar = () => {
   const [fullName, setFullName] = useState("Equipe");
   const [userRole, setUserRole] = useState<string | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
     async function loadProfile() {
@@ -53,10 +54,25 @@ export const StaffNavbar = () => {
         : "text-white/55 hover:bg-white/5 hover:text-white"
     }`;
 
+  const backTarget = (() => {
+    if (location.pathname === "/dashboard-professor") return null;
+    if (location.pathname === "/vincular-aluno") return "/gestao";
+    return "/dashboard-professor";
+  })();
+
   return (
     <nav className="sticky top-0 z-20 border-b border-white/10 bg-brand-900/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
+          {backTarget && (
+            <Link
+              to={backTarget}
+              className="inline-flex items-center justify-center rounded-xl bg-white/5 px-3 py-2 text-sm font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-white/10 hover:text-white"
+            >
+              Voltar
+            </Link>
+          )}
+
           <NavLink
             to="/dashboard-professor"
             className="inline-flex items-center gap-3 rounded-2xl text-white transition hover:opacity-90"

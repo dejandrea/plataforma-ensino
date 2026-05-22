@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import { BackLink } from "../components/BackLink";
 
 export const StudentHistory = () => {
   const { studentId } = useParams();
@@ -57,8 +56,6 @@ export const StudentHistory = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-4xl p-6">
-        <BackLink to="/dashboard-professor" label="Voltar para meus alunos" />
-
         <header className="mb-8 flex items-center gap-6 rounded-3xl bg-white/5 p-8 shadow-soft ring-1 ring-white/10">
           <div className="grid h-24 w-24 place-items-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink text-4xl font-bold text-white shadow-soft ring-1 ring-white/10">
             {student?.full_name?.charAt(0) || "A"}

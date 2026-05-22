@@ -39,7 +39,17 @@ serve(async (req) => {
       throw new Error("Nenhuma configuracao ativa de Google Agenda foi encontrada.");
     }
 
-    const calendarId = settings.calendar_id || "primary";
+    const selectedCalendarIds = Array.isArray(settings.event_calendar_ids)
+      ? settings.event_calendar_ids.filter(Boolean)
+      : Array.isArray(settings.sync_calendar_ids)
+        ? settings.sync_calendar_ids.filter(Boolean)
+      : settings.calendar_id
+        ? [settings.calendar_id]
+        : [];
+
+    if (selectedCalendarIds.length === 0) {
+      throw new Error("Selecione pelo menos uma agenda do Google para sincronizar.");
+    }
 
     const tokenInfo = await ensureFreshGoogleAccessToken({
       adminClient,
@@ -49,12 +59,23 @@ serve(async (req) => {
     const timeMin = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const timeMax = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString();
 
-    const googleEvents = await getGoogleCalendarEvents({
-      accessToken: tokenInfo.accessToken,
-      calendarId,
-      timeMin,
-      timeMax,
-    });
+    const googleEventsByCalendar = await Promise.all(
+      selectedCalendarIds.map(async (calendarId: string) => {
+        const items = await getGoogleCalendarEvents({
+          accessToken: tokenInfo.accessToken,
+          calendarId,
+          timeMin,
+          timeMax,
+        });
+
+        return items.map((event: any) => ({
+          ...event,
+          __calendar_id: calendarId,
+        }));
+      }),
+    );
+
+    const googleEvents = googleEventsByCalendar.flat();
 
     const relevantEvents = googleEvents.filter((event: any) => {
       if (!event?.start?.dateTime || !event?.end?.dateTime) return false;
@@ -144,12 +165,24 @@ serve(async (req) => {
         ends_at: endsAt,
         meet_link: extractMeetLink(event),
         calendar_provider: "google_calendar",
-        calendar_calendar_id: calendarId,
+        calendar_calendar_id: event.__calendar_id,
         calendar_event_id: event.id,
         booked_at: matchedStudentId ? event.created || new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
       };
     });
+
+    const { error: cleanupError } = await adminClient
+      .from("scheduled_lessons")
+      .delete()
+      .eq("teacher_id", teacherId)
+      .eq("calendar_provider", "google_calendar")
+      .not("calendar_event_id", "is", null)
+      .not("calendar_calendar_id", "in", `(${selectedCalendarIds.map((id: string) => `"${id}"`).join(",")})`);
+
+    if (cleanupError) {
+      throw new Error(cleanupError.message);
+    }
 
     if (rowsToUpsert.length > 0) {
       const { error: upsertError } = await adminClient
@@ -171,6 +204,7 @@ serve(async (req) => {
         last_sync_error: null,
         provider_account_email:
           settings.provider_account_email || tokenInfo.providerAccountEmail || null,
+        calendar_name: settings.calendar_name || null,
         updated_at: new Date().toISOString(),
       })
       .eq("teacher_id", teacherId);

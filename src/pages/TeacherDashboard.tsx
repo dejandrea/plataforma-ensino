@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { StaffNavbar } from "../components/StaffNavbar";
 import { StudentCard } from "../components/StudentCard";
 import { supabase } from "../lib/supabaseClient";
 
@@ -73,8 +72,6 @@ export const TeacherDashboard = () => {
 
   return (
     <div className="app-bg min-h-screen">
-      <StaffNavbar />
-
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {students.map((student) => (

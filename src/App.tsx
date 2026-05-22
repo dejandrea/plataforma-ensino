@@ -5,6 +5,7 @@ import { Login } from "./components/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { LessonView } from "./pages/LessonView";
 import { Navbar } from "./components/Navbar";
+import { StaffNavbar } from "./components/StaffNavbar";
 import { AdminEvaluations } from "./pages/AdminEvaluations";
 import { StudentReport } from "./pages/StudentReport";
 import { TeacherDashboard } from "./pages/TeacherDashboard";
@@ -129,7 +130,10 @@ function App() {
           path="/dashboard-professor"
           element={
             <RoleRoute allowedRoles={["admin", "professor"]}>
-              <TeacherDashboard />
+              <>
+                <StaffNavbar />
+                <TeacherDashboard />
+              </>
             </RoleRoute>
           }
         />
@@ -137,7 +141,10 @@ function App() {
           path="/agendamentos"
           element={
             <RoleRoute allowedRoles={["admin", "professor"]}>
-              <TeacherScheduling />
+              <>
+                <StaffNavbar />
+                <TeacherScheduling />
+              </>
             </RoleRoute>
           }
         />
@@ -145,7 +152,10 @@ function App() {
           path="/admin/avaliar"
           element={
             <RoleRoute allowedRoles={["admin", "professor"]}>
-              <AdminEvaluations />
+              <>
+                <StaffNavbar />
+                <AdminEvaluations />
+              </>
             </RoleRoute>
           }
         />
@@ -153,7 +163,10 @@ function App() {
           path="/historico/:studentId"
           element={
             <RoleRoute allowedRoles={["admin", "professor"]}>
-              <StudentHistory />
+              <>
+                <StaffNavbar />
+                <StudentHistory />
+              </>
             </RoleRoute>
           }
         />
@@ -162,7 +175,10 @@ function App() {
           path="/gestao"
           element={
             <RoleRoute allowedRole="admin">
-              <SystemManagement />
+              <>
+                <StaffNavbar />
+                <SystemManagement />
+              </>
             </RoleRoute>
           }
         />
@@ -170,7 +186,10 @@ function App() {
           path="/vincular-aluno"
           element={
             <RoleRoute allowedRole="admin">
-              <LinkStudent />
+              <>
+                <StaffNavbar />
+                <LinkStudent />
+              </>
             </RoleRoute>
           }
         />
