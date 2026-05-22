@@ -38,8 +38,32 @@ const formatDateTime = (value: string) =>
     timeStyle: "short",
   });
 
+const getFunctionErrorMessage = async (
+  error: { message?: string; context?: { json?: () => Promise<any> } } | null,
+) => {
+  if (!error) return "Ocorreu um erro inesperado.";
+
+  const context = error.context;
+  if (context?.json) {
+    try {
+      const payload = await context.json();
+      if (typeof payload?.error === "string" && payload.error) {
+        return payload.error;
+      }
+    } catch {
+      // Ignore JSON parsing errors and fall back to the generic message.
+    }
+  }
+
+  return error.message || "Ocorreu um erro inesperado.";
+};
+
 const fieldInputClass =
   "w-full rounded-2xl bg-brand-900/60 p-3 text-white ring-1 ring-white/10 outline-none transition focus:ring-2 focus:ring-brand-lavender";
+
+type SyncOptions = {
+  silent?: boolean;
+};
 
 export const TeacherScheduling = () => {
   const [searchParams] = useSearchParams();
@@ -369,9 +393,11 @@ export const TeacherScheduling = () => {
     setProcessingGoogleCallback(false);
   };
 
-  const syncGoogleCalendar = async () => {
+  const syncGoogleCalendar = async ({ silent = false }: SyncOptions = {}) => {
     if (calendarSettings.eventCalendarIds.length === 0) {
-      alert("Escolha primeiro qual agenda do Google sera sincronizada.");
+      if (!silent) {
+        alert("Escolha primeiro qual agenda do Google sera sincronizada.");
+      }
       setShowEventSettingsModal(true);
       return;
     }
@@ -383,20 +409,28 @@ export const TeacherScheduling = () => {
     });
 
     if (error) {
-      alert(error.message);
+      if (!silent) {
+        alert(error.message);
+      } else {
+        throw new Error(await getFunctionErrorMessage(error));
+      }
     } else {
-      alert(
-        `Sincronizacao concluida. ${data?.importedEvents || 0} evento(s) importado(s).`,
-      );
+      if (!silent) {
+        alert(
+          `Sincronizacao concluida. ${data?.importedEvents || 0} evento(s) importado(s).`,
+        );
+      }
       await fetchSchedulingData();
     }
 
     setSyncingGoogle(false);
   };
 
-  const syncGoogleAvailability = async () => {
+  const syncGoogleAvailability = async ({ silent = false }: SyncOptions = {}) => {
     if (calendarSettings.availabilityCalendarIds.length === 0) {
-      alert("Escolha primeiro pelo menos uma agenda para sincronizar a disponibilidade.");
+      if (!silent) {
+        alert("Escolha primeiro pelo menos uma agenda para sincronizar a disponibilidade.");
+      }
       setShowAvailabilitySettingsModal(true);
       return;
     }
@@ -411,15 +445,41 @@ export const TeacherScheduling = () => {
     );
 
     if (error) {
-      alert(error.message);
+      if (!silent) {
+        alert(error.message);
+      } else {
+        throw new Error(await getFunctionErrorMessage(error));
+      }
     } else {
-      alert(
-        `Disponibilidade sincronizada. ${data?.availableSlots || 0} horario(s) livre(s) publicado(s).`,
-      );
+      if (!silent) {
+        alert(
+          `Disponibilidade sincronizada. ${data?.availableSlots || 0} horario(s) livre(s) publicado(s).`,
+        );
+      }
       await fetchSchedulingData();
     }
 
     setSyncingAvailability(false);
+  };
+
+  const runAutomaticSchedulingSync = async () => {
+    const agendaResult = await supabase.functions.invoke("google-calendar-sync", {
+      body: {},
+    });
+    const availabilityResult = await supabase.functions.invoke(
+      "google-calendar-sync-availability",
+      {
+        body: {},
+      },
+    );
+    const syncErrors = [agendaResult.error, availabilityResult.error].filter(Boolean);
+
+    if (syncErrors.length > 0) {
+      const messages = await Promise.all(
+        syncErrors.map((error) => getFunctionErrorMessage(error)),
+      );
+      throw new Error(messages.join(" | "));
+    }
   };
 
   const handleSaveEventSettings = async (event: React.FormEvent) => {
@@ -455,9 +515,19 @@ export const TeacherScheduling = () => {
     if (error) {
       alert(error.message);
     } else {
-      alert("Configuracao da agenda principal salva com sucesso.");
+      try {
+        await syncGoogleCalendar({ silent: true });
+        alert("Configuracao da agenda principal salva e sincronizada com sucesso.");
+      } catch (syncError) {
+        alert(
+          syncError instanceof Error
+            ? `Configuracao salva, mas a sincronizacao da agenda falhou: ${syncError.message}`
+            : "Configuracao salva, mas a sincronizacao da agenda falhou.",
+        );
+      }
+
       setShowEventSettingsModal(false);
-      fetchSchedulingData();
+      await fetchSchedulingData();
     }
 
     setSavingCalendarSettings(false);
@@ -487,9 +557,19 @@ export const TeacherScheduling = () => {
     if (error) {
       alert(error.message);
     } else {
-      alert("Configuracao de disponibilidade salva com sucesso.");
+      try {
+        await syncGoogleAvailability({ silent: true });
+        alert("Configuracao de disponibilidade salva e sincronizada com sucesso.");
+      } catch (syncError) {
+        alert(
+          syncError instanceof Error
+            ? `Configuracao salva, mas a sincronizacao da disponibilidade falhou: ${syncError.message}`
+            : "Configuracao salva, mas a sincronizacao da disponibilidade falhou.",
+        );
+      }
+
       setShowAvailabilitySettingsModal(false);
-      fetchSchedulingData();
+      await fetchSchedulingData();
     }
 
     setSavingCalendarSettings(false);
@@ -560,8 +640,14 @@ export const TeacherScheduling = () => {
     });
 
     if (error) {
-      alert(error.message);
+      alert(await getFunctionErrorMessage(error));
     } else {
+      try {
+        await runAutomaticSchedulingSync();
+      } catch (syncError) {
+        console.error("Falha ao sincronizar agenda apos o agendamento:", syncError);
+      }
+
       alert("Aula agendada com sucesso. O Meet ja foi gerado e vinculado ao horario.");
       setSelectedSlotForReservation(null);
       setReservationForm(initialReservationForm);
@@ -722,7 +808,9 @@ export const TeacherScheduling = () => {
 
                 <button
                   type="button"
-                  onClick={syncGoogleCalendar}
+                  onClick={() => {
+                    void syncGoogleCalendar();
+                  }}
                   disabled={
                     syncingGoogle ||
                     processingGoogleCallback ||
@@ -743,7 +831,9 @@ export const TeacherScheduling = () => {
 
                 <button
                   type="button"
-                  onClick={syncGoogleAvailability}
+                  onClick={() => {
+                    void syncGoogleAvailability();
+                  }}
                   disabled={
                     syncingAvailability ||
                     processingGoogleCallback ||

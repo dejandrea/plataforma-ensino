@@ -14,16 +14,40 @@ serve(async (req) => {
 
   try {
     const { adminClient, user, profile } = await getAuthenticatedProfile(req);
+    const body = await req.json().catch(() => ({}));
 
-    if (!["admin", "professor"].includes(profile.role)) {
-      throw new Error("Apenas professoras e admins podem sincronizar o Google Calendar.");
+    if (!["admin", "professor", "student"].includes(profile.role)) {
+      throw new Error("Perfil sem permissao para sincronizar o Google Calendar.");
     }
 
-    const body = await req.json().catch(() => ({}));
-    const teacherId =
-      typeof body?.teacherId === "string" && profile.role === "admin"
-        ? body.teacherId
-        : user.id;
+    let teacherId = user.id;
+
+    if (profile.role === "admin" && typeof body?.teacherId === "string") {
+      teacherId = body.teacherId;
+    } else if (profile.role === "professor") {
+      teacherId = user.id;
+    } else if (profile.role === "student") {
+      if (typeof body?.teacherId !== "string" || !body.teacherId) {
+        throw new Error("teacherId e obrigatorio para sincronizar via painel do aluno.");
+      }
+
+      const { data: relation, error: relationError } = await adminClient
+        .from("teacher_student_relations")
+        .select("teacher_id")
+        .eq("teacher_id", body.teacherId)
+        .eq("student_id", user.id)
+        .maybeSingle();
+
+      if (relationError) {
+        throw new Error(relationError.message);
+      }
+
+      if (!relation) {
+        throw new Error("Voce nao esta vinculado a esta professora.");
+      }
+
+      teacherId = body.teacherId;
+    }
 
     const { data: settings, error: settingsError } = await adminClient
       .from("teacher_calendar_settings")

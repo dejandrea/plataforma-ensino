@@ -33,8 +33,20 @@ const getStudentInviteEmail = async (adminClient: any, studentId: string) => {
   }
 
   if (!data?.email) {
+    const { data: authUserData, error: authUserError } =
+      await adminClient.auth.admin.getUserById(studentId);
+
+    if (authUserError) {
+      throw new Error(authUserError.message);
+    }
+
+    const authEmail = authUserData?.user?.email;
+    if (authEmail) {
+      return String(authEmail).toLowerCase();
+    }
+
     throw new Error(
-      "Nao encontramos o e-mail autorizado deste aluno. Confira o cadastro de acesso antes de agendar.",
+      "Nao foi possivel localizar o e-mail deste aluno para enviar o convite da aula.",
     );
   }
 
@@ -132,7 +144,15 @@ serve(async (req) => {
         adminClient,
         teacherId: user.id,
       });
-      studentEmail = await getStudentInviteEmail(adminClient, body.studentId);
+
+      try {
+        studentEmail = await getStudentInviteEmail(adminClient, body.studentId);
+      } catch (emailError) {
+        console.warn(
+          "Nao foi possivel resolver o e-mail do aluno para convite automatico:",
+          emailError instanceof Error ? emailError.message : emailError,
+        );
+      }
     }
 
     const records = [];

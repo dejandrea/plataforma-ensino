@@ -7,6 +7,28 @@ import {
 } from "../_shared/google-calendar.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
 
+const buildLessonTitle = ({
+  currentTitle,
+  sessionTrack,
+  studentName,
+}: {
+  currentTitle: string | null;
+  sessionTrack: "mentoring" | "course";
+  studentName: string;
+}) => {
+  if (
+    currentTitle &&
+    currentTitle !== "Horario disponivel para agendamento" &&
+    currentTitle !== "Horario disponivel para aula"
+  ) {
+    return currentTitle;
+  }
+
+  return sessionTrack === "course"
+    ? `Aula - ${studentName}`
+    : `Mentoria - ${studentName}`;
+};
+
 const getStudentInviteEmail = async (adminClient: any, studentId: string) => {
   const { data, error } = await adminClient
     .from("access_invites")
@@ -20,8 +42,20 @@ const getStudentInviteEmail = async (adminClient: any, studentId: string) => {
   }
 
   if (!data?.email) {
+    const { data: authUserData, error: authUserError } =
+      await adminClient.auth.admin.getUserById(studentId);
+
+    if (authUserError) {
+      throw new Error(authUserError.message);
+    }
+
+    const authEmail = authUserData?.user?.email;
+    if (authEmail) {
+      return String(authEmail).toLowerCase();
+    }
+
     throw new Error(
-      "Nao encontramos o e-mail autorizado deste aluno. Confira o cadastro de acesso antes de agendar.",
+      "Nao foi possivel localizar o e-mail deste aluno para enviar o convite da aula.",
     );
   }
 
@@ -98,6 +132,12 @@ serve(async (req) => {
     const calendarId = selectedCalendarIds[0] || settings?.calendar_id || null;
     const timezone = settings?.timezone || "America/Bahia";
     const autoCreateMeet = settings?.auto_create_meet ?? true;
+    const studentName = profile?.full_name?.trim() || "Aluno";
+    const nextTitle = buildLessonTitle({
+      currentTitle: lesson.title || null,
+      sessionTrack: lesson.session_track === "course" ? "course" : "mentoring",
+      studentName,
+    });
 
     let googleEventId: string | null = null;
     let googleMeetLink: string | null = null;
@@ -113,17 +153,26 @@ serve(async (req) => {
         adminClient,
         teacherId: lesson.teacher_id,
       });
-      const studentEmail = await getStudentInviteEmail(adminClient, user.id);
+      let studentEmail: string | null = null;
+
+      try {
+        studentEmail = await getStudentInviteEmail(adminClient, user.id);
+      } catch (emailError) {
+        console.warn(
+          "Nao foi possivel resolver o e-mail do aluno para convite automatico:",
+          emailError instanceof Error ? emailError.message : emailError,
+        );
+      }
 
       const event = await createGoogleCalendarEvent({
           accessToken: tokenInfo.accessToken,
           calendarId,
-        summary: lesson.title || "Aula confirmada",
+        summary: nextTitle,
         description: lesson.description || null,
         startDateTime: lesson.starts_at,
         endDateTime: lesson.ends_at,
         timezone,
-        attendeeEmails: [studentEmail],
+        attendeeEmails: studentEmail ? [studentEmail] : [],
         autoCreateMeet,
       });
 
@@ -135,6 +184,7 @@ serve(async (req) => {
       .from("scheduled_lessons")
       .update({
         student_id: user.id,
+        title: nextTitle,
         status: "scheduled",
         booked_at: new Date().toISOString(),
         meet_link: googleMeetLink || lesson.meet_link || null,
