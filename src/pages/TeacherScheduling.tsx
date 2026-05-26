@@ -65,6 +65,16 @@ type SyncOptions = {
   silent?: boolean;
 };
 
+type AutomaticSyncResult =
+  | {
+      status: "synced";
+      syncedTargets: string[];
+    }
+  | {
+      status: "skipped";
+      reason: "disconnected" | "unconfigured";
+    };
+
 export const TeacherScheduling = () => {
   const [searchParams] = useSearchParams();
   const [currentUserId, setCurrentUserId] = useState("");
@@ -118,19 +128,29 @@ export const TeacherScheduling = () => {
     if (
       !currentUserId ||
       autoSyncAttempted ||
-      calendarSettings.syncMode !== "calendar_sync" ||
       calendarSettings.connectionStatus !== "connected"
     ) {
       return;
     }
 
+    const shouldSyncAgenda = calendarSettings.eventCalendarIds.length > 0;
+    const shouldSyncAvailability = calendarSettings.availabilityCalendarIds.length > 0;
+
+    if (!shouldSyncAgenda && !shouldSyncAvailability) {
+      return;
+    }
+
     setAutoSyncAttempted(true);
-    void syncGoogleCalendar();
+    void runAutomaticSchedulingSync({
+      includeAgenda: shouldSyncAgenda,
+      includeAvailability: shouldSyncAvailability,
+    });
   }, [
     autoSyncAttempted,
+    calendarSettings.availabilityCalendarIds,
     calendarSettings.connectionStatus,
-    calendarSettings.syncMode,
     currentUserId,
+    calendarSettings.eventCalendarIds,
   ]);
 
   useEffect(() => {
@@ -385,11 +405,6 @@ export const TeacherScheduling = () => {
 
     alert("Google Calendar conectado com sucesso.");
     await fetchSchedulingData();
-
-    if (calendarSettings.syncMode === "calendar_sync") {
-      await syncGoogleCalendar();
-    }
-
     setProcessingGoogleCallback(false);
   };
 
@@ -404,26 +419,28 @@ export const TeacherScheduling = () => {
 
     setSyncingGoogle(true);
 
-    const { data, error } = await supabase.functions.invoke("google-calendar-sync", {
-      body: {},
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke("google-calendar-sync", {
+        body: {},
+      });
 
-    if (error) {
-      if (!silent) {
-        alert(error.message);
+      if (error) {
+        if (!silent) {
+          alert(error.message);
+        } else {
+          throw new Error(await getFunctionErrorMessage(error));
+        }
       } else {
-        throw new Error(await getFunctionErrorMessage(error));
+        if (!silent) {
+          alert(
+            `Sincronizacao concluida. ${data?.importedEvents || 0} evento(s) importado(s).`,
+          );
+        }
+        await fetchSchedulingData();
       }
-    } else {
-      if (!silent) {
-        alert(
-          `Sincronizacao concluida. ${data?.importedEvents || 0} evento(s) importado(s).`,
-        );
-      }
-      await fetchSchedulingData();
+    } finally {
+      setSyncingGoogle(false);
     }
-
-    setSyncingGoogle(false);
   };
 
   const syncGoogleAvailability = async ({ silent = false }: SyncOptions = {}) => {
@@ -437,49 +454,91 @@ export const TeacherScheduling = () => {
 
     setSyncingAvailability(true);
 
-    const { data, error } = await supabase.functions.invoke(
-      "google-calendar-sync-availability",
-      {
-        body: {},
-      },
-    );
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "google-calendar-sync-availability",
+        {
+          body: {},
+        },
+      );
 
-    if (error) {
-      if (!silent) {
-        alert(error.message);
+      if (error) {
+        if (!silent) {
+          alert(error.message);
+        } else {
+          throw new Error(await getFunctionErrorMessage(error));
+        }
       } else {
-        throw new Error(await getFunctionErrorMessage(error));
+        if (!silent) {
+          alert(
+            `Disponibilidade sincronizada. ${data?.availableSlots || 0} horario(s) livre(s) publicado(s).`,
+          );
+        }
+        await fetchSchedulingData();
       }
-    } else {
-      if (!silent) {
-        alert(
-          `Disponibilidade sincronizada. ${data?.availableSlots || 0} horario(s) livre(s) publicado(s).`,
-        );
-      }
-      await fetchSchedulingData();
+    } finally {
+      setSyncingAvailability(false);
     }
-
-    setSyncingAvailability(false);
   };
 
-  const runAutomaticSchedulingSync = async () => {
-    const agendaResult = await supabase.functions.invoke("google-calendar-sync", {
-      body: {},
-    });
-    const availabilityResult = await supabase.functions.invoke(
-      "google-calendar-sync-availability",
-      {
-        body: {},
-      },
-    );
-    const syncErrors = [agendaResult.error, availabilityResult.error].filter(Boolean);
+  const runAutomaticSchedulingSync = async ({
+    includeAgenda = true,
+    includeAvailability = true,
+  }: {
+    includeAgenda?: boolean;
+    includeAvailability?: boolean;
+  } = {}): Promise<AutomaticSyncResult> => {
+    if (calendarSettings.connectionStatus !== "connected") {
+      return {
+        status: "skipped",
+        reason: "disconnected",
+      };
+    }
+
+    const syncedTargets: string[] = [];
+    const syncErrors: string[] = [];
+
+    if (includeAgenda && calendarSettings.eventCalendarIds.length > 0) {
+      try {
+        await syncGoogleCalendar({ silent: true });
+        syncedTargets.push("agenda");
+      } catch (error) {
+        syncErrors.push(
+          error instanceof Error
+            ? `agenda: ${error.message}`
+            : "agenda: falha na sincronizacao automatica.",
+        );
+      }
+    }
+
+    if (includeAvailability && calendarSettings.availabilityCalendarIds.length > 0) {
+      try {
+        await syncGoogleAvailability({ silent: true });
+        syncedTargets.push("disponibilidade");
+      } catch (error) {
+        syncErrors.push(
+          error instanceof Error
+            ? `disponibilidade: ${error.message}`
+            : "disponibilidade: falha na sincronizacao automatica.",
+        );
+      }
+    }
 
     if (syncErrors.length > 0) {
-      const messages = await Promise.all(
-        syncErrors.map((error) => getFunctionErrorMessage(error)),
-      );
-      throw new Error(messages.join(" | "));
+      throw new Error(syncErrors.join(" | "));
     }
+
+    if (syncedTargets.length === 0) {
+      return {
+        status: "skipped",
+        reason: "unconfigured",
+      };
+    }
+
+    return {
+      status: "synced",
+      syncedTargets,
+    };
   };
 
   const handleSaveEventSettings = async (event: React.FormEvent) => {
@@ -516,13 +575,23 @@ export const TeacherScheduling = () => {
       alert(error.message);
     } else {
       try {
-        await syncGoogleCalendar({ silent: true });
-        alert("Configuracao da agenda principal salva e sincronizada com sucesso.");
+        const syncResult = await runAutomaticSchedulingSync({
+          includeAgenda: true,
+          includeAvailability: true,
+        });
+
+        if (syncResult.status === "synced") {
+          alert("Configuracao da agenda principal salva e sincronizada com sucesso.");
+        } else if (syncResult.reason === "disconnected") {
+          alert("Configuracao da agenda principal salva. Conecte o Google para sincronizar automaticamente.");
+        } else {
+          alert("Configuracao da agenda principal salva com sucesso.");
+        }
       } catch (syncError) {
         alert(
           syncError instanceof Error
-            ? `Configuracao salva, mas a sincronizacao da agenda falhou: ${syncError.message}`
-            : "Configuracao salva, mas a sincronizacao da agenda falhou.",
+            ? `Configuracao salva, mas a sincronizacao automatica falhou: ${syncError.message}`
+            : "Configuracao salva, mas a sincronizacao automatica falhou.",
         );
       }
 
@@ -558,13 +627,23 @@ export const TeacherScheduling = () => {
       alert(error.message);
     } else {
       try {
-        await syncGoogleAvailability({ silent: true });
-        alert("Configuracao de disponibilidade salva e sincronizada com sucesso.");
+        const syncResult = await runAutomaticSchedulingSync({
+          includeAgenda: true,
+          includeAvailability: true,
+        });
+
+        if (syncResult.status === "synced") {
+          alert("Configuracao de disponibilidade salva e sincronizada com sucesso.");
+        } else if (syncResult.reason === "disconnected") {
+          alert("Configuracao de disponibilidade salva. Conecte o Google para sincronizar automaticamente.");
+        } else {
+          alert("Configuracao de disponibilidade salva com sucesso.");
+        }
       } catch (syncError) {
         alert(
           syncError instanceof Error
-            ? `Configuracao salva, mas a sincronizacao da disponibilidade falhou: ${syncError.message}`
-            : "Configuracao salva, mas a sincronizacao da disponibilidade falhou.",
+            ? `Configuracao salva, mas a sincronizacao automatica falhou: ${syncError.message}`
+            : "Configuracao salva, mas a sincronizacao automatica falhou.",
         );
       }
 

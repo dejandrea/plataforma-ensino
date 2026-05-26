@@ -15,6 +15,7 @@ import { SystemManagement } from "./pages/SystemManagement";
 import { ResetPassword } from "./pages/ResetPassword";
 import { StudentLessons } from "./pages/StudentLessons";
 import { TeacherScheduling } from "./pages/TeacherScheduling";
+import { ensureUserProfile } from "./lib/ensureUserProfile";
 
 const RoleRoute = ({
   children,
@@ -26,7 +27,10 @@ const RoleRoute = ({
   allowedRoles?: string[];
 }) => {
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [accessProfile, setAccessProfile] = useState<{
+    role: string;
+    is_active: boolean;
+  } | null>(null);
 
   useEffect(() => {
     async function getRole() {
@@ -35,13 +39,9 @@ const RoleRoute = ({
       } = await supabase.auth.getUser();
 
       if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
+        const data = await ensureUserProfile(user.id, user.email);
 
-        setUserRole(data?.role || null);
+        setAccessProfile(data || null);
       }
 
       setLoading(false);
@@ -63,9 +63,10 @@ const RoleRoute = ({
   }
 
   const hasAccess =
-    allowedRoles.length > 0
-      ? Boolean(userRole && allowedRoles.includes(userRole))
-      : userRole === allowedRole;
+    Boolean(accessProfile?.is_active) &&
+    (allowedRoles.length > 0
+      ? Boolean(accessProfile?.role && allowedRoles.includes(accessProfile.role))
+      : accessProfile?.role === allowedRole);
 
   if (!hasAccess) {
     return <Navigate to="/" replace />;

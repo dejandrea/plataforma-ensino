@@ -1,16 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
-
-type AccessInvite = {
-  email: string;
-  full_name: string | null;
-  last_name: string | null;
-  nickname: string | null;
-  birth_date: string | null;
-  role: string;
-  claimed_at: string | null;
-};
+import { ensureUserProfile } from "../lib/ensureUserProfile";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
@@ -19,21 +10,22 @@ export const Login = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const redirectUser = async (userId: string) => {
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("role, is_active")
-      .eq("id", userId)
-      .single();
+  useEffect(() => {
+    void supabase.auth.signOut();
+  }, []);
 
-    if (error || !profile) {
-      console.error("Erro ao buscar perfil:", error);
+  const redirectUser = async (userId: string, userEmail?: string | null) => {
+    const profile = await ensureUserProfile(userId, userEmail);
+
+    if (!profile) {
       alert("Erro ao identificar seu perfil. Entre em contato com o suporte.");
       return;
     }
 
     if (!profile.is_active) {
-      await supabase.from("profiles").update({ is_active: true }).eq("id", userId);
+      await supabase.auth.signOut();
+      alert("Seu acesso esta inativo. Entre em contato com a administracao.");
+      return;
     }
 
     if (profile.role === "admin" || profile.role === "professor") {
@@ -48,6 +40,8 @@ export const Login = () => {
     setLoading(true);
     setMessage("");
 
+    await supabase.auth.signOut();
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -57,77 +51,14 @@ export const Login = () => {
       alert(error.message);
       setLoading(false);
     } else if (data.user) {
-      await redirectUser(data.user.id);
+      await redirectUser(data.user.id, data.user.email);
       setLoading(false);
     }
-  };
-
-  const handleSignUp = async () => {
-    if (!email || !password) {
-      setMessage("Preencha e-mail e senha para criar a conta.");
-      return;
-    }
-
-    setLoading(true);
-    setMessage("");
-
-    const { data: inviteData, error: inviteError } = await supabase.rpc(
-      "get_access_invite",
-      {
-        p_email: email,
-      },
-    );
-
-    const invite = (inviteData?.[0] || null) as AccessInvite | null;
-
-    if (inviteError || !invite) {
-      setMessage(
-        "Este e-mail nao esta autorizado. Entre em contato com a administracao.",
-      );
-      setLoading(false);
-      return;
-    }
-
-    if (invite.claimed_at) {
-      setMessage(
-        "Este e-mail ja foi ativado. Se voce esqueceu a senha, use a recuperacao.",
-      );
-      setLoading(false);
-      return;
-    }
-
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (signUpError || !data.user) {
-      setMessage(signUpError?.message || "Nao foi possivel criar a conta.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: claimError } = await supabase.rpc("claim_access_invite", {
-      p_email: email,
-      p_user_id: data.user.id,
-    });
-
-    if (claimError) {
-      setMessage(
-        "Conta criada no Auth, mas falhou ao finalizar o perfil: " +
-          claimError.message,
-      );
-      setLoading(false);
-      return;
-    }
-
-    setMessage("Conta ativada com sucesso. Agora voce ja pode entrar.");
-    setLoading(false);
   };
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setMessage("Digite seu e-mail antes de pedir a recuperacao.");
+      setMessage("Digite seu e-mail antes de pedir o acesso inicial ou a recuperacao.");
       return;
     }
 
@@ -142,7 +73,7 @@ export const Login = () => {
       setMessage(error.message);
     } else {
       setMessage(
-        "Enviamos um link para redefinir sua senha. Verifique seu e-mail.",
+        "Se o seu acesso ja foi liberado pela administracao, enviamos um link para definir ou redefinir sua senha. Verifique seu e-mail.",
       );
     }
 
@@ -226,7 +157,7 @@ export const Login = () => {
                 className="text-sm font-semibold text-white/70 transition hover:text-brand-lavender"
                 type="button"
               >
-                Esqueci minha senha
+                Primeiro acesso ou esqueci minha senha
               </button>
             </div>
 
@@ -237,13 +168,9 @@ export const Login = () => {
             )}
 
             <div className="mt-7 border-t border-white/10 pt-6 text-center">
-              <button
-                onClick={handleSignUp}
-                className="text-sm font-semibold text-brand-lavender transition hover:text-brand-pink"
-                type="button"
-              >
-                Sou aluno novo e quero me cadastrar
-              </button>
+              <p className="text-sm text-white/55">
+                O acesso e criado pela administracao da plataforma.
+              </p>
             </div>
           </div>
 
