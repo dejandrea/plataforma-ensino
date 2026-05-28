@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { ProfileAvatar } from "./ProfileAvatar";
 
 const handleLogout = async () => {
   await supabase.auth.signOut();
@@ -8,44 +9,54 @@ const handleLogout = async () => {
 };
 
 export const StaffNavbar = () => {
-  const [fullName, setFullName] = useState("Equipe");
+  const [displayName, setDisplayName] = useState("Equipe");
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarMode, setAvatarMode] = useState("preset");
+  const [avatarPreset, setAvatarPreset] = useState("avatar-1");
   const location = useLocation();
 
-  useEffect(() => {
-    async function loadProfile() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const loadProfile = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (!user) return;
+    if (!user) return;
 
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, role")
-        .eq("id", user.id)
-        .single();
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, nickname, role, avatar_url, avatar_mode, avatar_preset")
+      .eq("id", user.id)
+      .single();
 
-      if (data?.full_name) {
-        setFullName(data.full_name);
-      }
-
-      if (data?.role) {
-        setUserRole(data.role);
-      }
+    if (data?.nickname || data?.full_name) {
+      setDisplayName(data.nickname || data.full_name);
     }
 
+    if (data?.role) {
+      setUserRole(data.role);
+    }
+
+    setAvatarUrl(data?.avatar_url || "");
+    setAvatarMode(data?.avatar_mode || "preset");
+    setAvatarPreset(data?.avatar_preset || "avatar-1");
+  };
+
+  useEffect(() => {
     void loadProfile();
+
+    const refreshProfile = () => {
+      void loadProfile();
+    };
+
+    window.addEventListener("profile-updated", refreshProfile);
+
+    return () => {
+      window.removeEventListener("profile-updated", refreshProfile);
+    };
   }, []);
 
-  const firstName = fullName.split(" ")[0] || "Equipe";
-  const initials =
-    fullName
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("") || "E";
+  const firstName = displayName.split(" ")[0] || "Equipe";
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
@@ -99,6 +110,9 @@ export const StaffNavbar = () => {
           <NavLink to="/agendamentos" className={navClass}>
             Agenda
           </NavLink>
+          <NavLink to="/perfil-profissional" className={navClass}>
+            Meu perfil
+          </NavLink>
           {userRole === "admin" && (
             <NavLink to="/gestao" className={navClass}>
               Gestao
@@ -114,9 +128,13 @@ export const StaffNavbar = () => {
             <p className="text-sm font-bold text-white">{firstName}</p>
           </div>
 
-          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/5 text-sm font-black text-white ring-1 ring-white/10">
-            {initials}
-          </div>
+          <ProfileAvatar
+            fullName={displayName}
+            avatarMode={avatarMode}
+            avatarUrl={avatarUrl}
+            avatarPreset={avatarPreset}
+            size="md"
+          />
 
           <button
             onClick={handleLogout}

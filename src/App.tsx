@@ -16,6 +16,7 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { StudentLessons } from "./pages/StudentLessons";
 import { TeacherScheduling } from "./pages/TeacherScheduling";
 import { ensureUserProfile } from "./lib/ensureUserProfile";
+import { ProfilePage } from "./pages/ProfilePage";
 
 const RoleRoute = ({
   children,
@@ -126,6 +127,17 @@ function App() {
             </RoleRoute>
           }
         />
+        <Route
+          path="/perfil"
+          element={
+            <RoleRoute allowedRole="student">
+              <>
+                <Navbar />
+                <ProfilePage />
+              </>
+            </RoleRoute>
+          }
+        />
 
         <Route
           path="/dashboard-professor"
@@ -134,6 +146,17 @@ function App() {
               <>
                 <StaffNavbar />
                 <TeacherDashboard />
+              </>
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/perfil-profissional"
+          element={
+            <RoleRoute allowedRoles={["admin", "professor"]}>
+              <>
+                <StaffNavbar />
+                <ProfilePage />
               </>
             </RoleRoute>
           }

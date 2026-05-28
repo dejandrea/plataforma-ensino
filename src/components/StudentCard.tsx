@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ProfileAvatar } from "./ProfileAvatar";
 
 export const StudentCard = ({
   student,
@@ -24,11 +25,13 @@ export const StudentCard = ({
       </button>
 
       <div className="mb-6 flex items-center gap-4">
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink text-white shadow-soft ring-1 ring-white/10">
-          <span className="text-xl font-extrabold">
-            {student.full_name?.charAt(0)?.toUpperCase() || "A"}
-          </span>
-        </div>
+        <ProfileAvatar
+          fullName={student.full_name}
+          avatarMode={student.avatar_mode}
+          avatarUrl={student.avatar_url}
+          avatarPreset={student.avatar_preset}
+          size="lg"
+        />
 
         <div className="min-w-0 pr-10">
           <h3 className="truncate text-base font-bold text-white" title={student.full_name}>

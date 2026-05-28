@@ -23,6 +23,8 @@ export const TeacherDashboard = () => {
             id,
             full_name,
             avatar_url,
+            avatar_mode,
+            avatar_preset,
             module_evaluations!module_evaluations_student_id_fkey (id)
           )
         `,

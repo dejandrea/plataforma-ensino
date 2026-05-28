@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { ProfileAvatar } from "./ProfileAvatar";
 
 const handleLogout = async () => {
   await supabase.auth.signOut();
@@ -8,38 +9,49 @@ const handleLogout = async () => {
 };
 
 export const Navbar = () => {
-  const [studentName, setStudentName] = useState("Aluno");
+  const [displayName, setDisplayName] = useState("Aluno");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarMode, setAvatarMode] = useState("preset");
+  const [avatarPreset, setAvatarPreset] = useState("avatar-1");
   const location = useLocation();
 
-  useEffect(() => {
-    async function loadProfile() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const loadProfile = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (!user) return;
+    if (!user) return;
 
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .single();
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, nickname, avatar_url, avatar_mode, avatar_preset")
+      .eq("id", user.id)
+      .single();
 
-      if (data?.full_name) {
-        setStudentName(data.full_name);
-      }
+    if (data?.nickname || data?.full_name) {
+      setDisplayName(data.nickname || data.full_name);
     }
 
-    loadProfile();
+    setAvatarUrl(data?.avatar_url || "");
+    setAvatarMode(data?.avatar_mode || "preset");
+    setAvatarPreset(data?.avatar_preset || "avatar-1");
+  };
+
+  useEffect(() => {
+    void loadProfile();
+
+    const refreshProfile = () => {
+      void loadProfile();
+    };
+
+    window.addEventListener("profile-updated", refreshProfile);
+
+    return () => {
+      window.removeEventListener("profile-updated", refreshProfile);
+    };
   }, []);
 
-  const firstName = studentName.split(" ")[0] || "Aluno";
-  const initials = studentName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("") || "A";
+  const firstName = displayName.split(" ")[0] || "Aluno";
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
@@ -93,6 +105,9 @@ export const Navbar = () => {
           <NavLink to="/meu-boletim" className={navClass}>
             Meu boletim
           </NavLink>
+          <NavLink to="/perfil" className={navClass}>
+            Meu perfil
+          </NavLink>
         </div>
 
         <div className="flex items-center gap-3 self-end md:self-auto">
@@ -103,9 +118,13 @@ export const Navbar = () => {
             <p className="text-sm font-bold text-white">{firstName}</p>
           </div>
 
-          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/5 text-sm font-black text-white ring-1 ring-white/10">
-            {initials}
-          </div>
+          <ProfileAvatar
+            fullName={displayName}
+            avatarMode={avatarMode}
+            avatarUrl={avatarUrl}
+            avatarPreset={avatarPreset}
+            size="md"
+          />
 
           <button
             onClick={handleLogout}
