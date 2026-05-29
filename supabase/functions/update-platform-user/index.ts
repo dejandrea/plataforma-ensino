@@ -18,6 +18,16 @@ const ALLOWED_ROLES = new Set(["student", "professor", "admin"]);
 
 const normalizeEmail = (value: string) => value.trim().toLowerCase();
 
+const findAuthUserById = async (adminClient: any, userId: string) => {
+  const { data, error } = await adminClient.auth.admin.getUserById(userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.user;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { status: 200, headers: corsHeaders });
@@ -75,15 +85,22 @@ serve(async (req) => {
     }
 
     if (userId) {
+      const authUser = await findAuthUserById(adminClient, userId);
+      const currentEmail = normalizeEmail(String(authUser?.email || ""));
+      const authUpdatePayload: Record<string, unknown> = {
+        user_metadata: {
+          full_name: fullName,
+          role,
+        },
+      };
+
+      if (email !== currentEmail) {
+        authUpdatePayload.email = email;
+      }
+
       const { error: authUpdateError } = await adminClient.auth.admin.updateUserById(
         userId,
-        {
-          email,
-          user_metadata: {
-            full_name: fullName,
-            role,
-          },
-        },
+        authUpdatePayload,
       );
 
       if (authUpdateError) {

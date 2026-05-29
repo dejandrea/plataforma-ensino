@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import {
+  FunctionsHttpError,
+  FunctionsRelayError,
+  FunctionsFetchError,
+} from "@supabase/supabase-js";
 
 type AccessInvite = {
   invite_id: string | null;
@@ -34,6 +39,31 @@ export const TabUsers = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [newUser, setNewUser] = useState(initialUserForm);
   const [editForm, setEditForm] = useState(initialUserForm);
+
+  const getFunctionErrorMessage = async (error: unknown) => {
+    if (error instanceof FunctionsHttpError) {
+      try {
+        const errorBody = await error.context.json();
+        if (typeof errorBody?.error === "string") {
+          return errorBody.error;
+        }
+      } catch {
+        return "A Edge Function retornou um erro inesperado.";
+      }
+
+      return "A Edge Function retornou um erro inesperado.";
+    }
+
+    if (error instanceof FunctionsRelayError || error instanceof FunctionsFetchError) {
+      return error.message;
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return "Erro desconhecido ao chamar a Edge Function.";
+  };
 
   useEffect(() => {
     void fetchUsers();
@@ -204,27 +234,32 @@ export const TabUsers = () => {
     setEditLoading(true);
 
     const fullName = `${editForm.name} ${editForm.lastName}`.trim();
-    const { data, error } = await supabase.functions.invoke("update-platform-user", {
-      body: {
-        inviteId: editingUser.invite_id,
-        userId: editingUser.user_id,
-        email: editForm.email,
-        fullName,
-        lastName: editForm.lastName,
-        nickname: editForm.nickname || null,
-        birthDate: editForm.birthDate || null,
-        role: editForm.role,
-        isActive: editingUser.is_active ?? true,
-      },
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke("update-platform-user", {
+        body: {
+          inviteId: editingUser.invite_id,
+          userId: editingUser.user_id,
+          email: editForm.email,
+          fullName,
+          lastName: editForm.lastName,
+          nickname: editForm.nickname || null,
+          birthDate: editForm.birthDate || null,
+          role: editForm.role,
+          isActive: editingUser.is_active ?? true,
+        },
+      });
 
-    if (error) {
-      alert("Erro ao salvar usuario: " + error.message);
-    } else {
+      if (error) {
+        throw error;
+      }
+
       alert(data?.message || "Usuario atualizado com sucesso.");
       setEditingUser(null);
       setEditForm(initialUserForm);
       await fetchUsers();
+    } catch (error) {
+      const message = await getFunctionErrorMessage(error);
+      alert("Erro ao salvar usuario: " + message);
     }
 
     setEditLoading(false);
