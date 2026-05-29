@@ -15,6 +15,15 @@ type ConfirmLessonPayload = {
   recurrenceCount?: string | number;
 };
 
+type RecurrenceTarget = {
+  recurrenceIndex: number;
+  startsAt: string;
+  endsAt: string;
+  requestedStartsAt: string;
+  requestedEndsAt: string;
+  skippedConflictDates: string[];
+};
+
 const getStudentInviteEmail = async (adminClient: any, studentId: string) => {
   const { data, error } = await adminClient
     .from("access_invites")
@@ -65,6 +74,26 @@ const buildLessonTitle = ({
     ? `Aula - Curso completo - ${studentName}`
     : `Mentoria - ${studentName}`;
 };
+
+const addWeeks = (value: string, weeks: number) => {
+  const date = new Date(value);
+  date.setDate(date.getDate() + weeks * 7);
+  return date.toISOString();
+};
+
+const overlapsWith = (
+  item: { starts_at: string; ends_at: string },
+  startsAt: string,
+  endsAt: string,
+) => item.starts_at < endsAt && item.ends_at > startsAt;
+
+const hasSameRange = (
+  item: { starts_at: string; ends_at: string },
+  startsAt: string,
+  endsAt: string,
+) =>
+  new Date(item.starts_at).getTime() === new Date(startsAt).getTime() &&
+  new Date(item.ends_at).getTime() === new Date(endsAt).getTime();
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -164,56 +193,86 @@ serve(async (req) => {
       studentName,
     });
     const recurrenceGroupId = recurrenceCount > 1 ? crypto.randomUUID() : null;
-
-    const futureTargets = Array.from({ length: recurrenceCount }, (_, index) => {
-      const startDate = new Date(lesson.starts_at);
-      startDate.setDate(startDate.getDate() + index * 7);
-      const endDate = new Date(lesson.ends_at);
-      endDate.setDate(endDate.getDate() + index * 7);
-
-      return {
-        recurrenceIndex: index + 1,
-        startsAt: startDate.toISOString(),
-        endsAt: endDate.toISOString(),
-      };
-    });
+    const maxExtraWeeks = 104;
+    const searchEnd = addWeeks(lesson.starts_at, recurrenceCount + maxExtraWeeks);
 
     const { data: existingLessons, error: existingLessonsError } = await adminClient
       .from("scheduled_lessons")
       .select("*")
       .eq("teacher_id", user.id)
-      .gte("starts_at", futureTargets[0].startsAt)
-      .lte("starts_at", futureTargets[futureTargets.length - 1].startsAt);
+      .gte("starts_at", lesson.starts_at)
+      .lte("starts_at", searchEnd);
 
     if (existingLessonsError) {
       throw new Error(existingLessonsError.message);
     }
 
-    for (const target of futureTargets.slice(1)) {
-      const matchingAvailable = (existingLessons || []).find(
-        (item: any) =>
-          item.status === "available" &&
-          !item.student_id &&
-          item.starts_at === target.startsAt &&
-          item.ends_at === target.endsAt,
-      );
+    const futureTargets: RecurrenceTarget[] = [
+      {
+        recurrenceIndex: 1,
+        startsAt: lesson.starts_at,
+        endsAt: lesson.ends_at,
+        requestedStartsAt: lesson.starts_at,
+        requestedEndsAt: lesson.ends_at,
+        skippedConflictDates: [],
+      },
+    ];
 
-      if (matchingAvailable) {
-        continue;
+    for (let recurrenceIndex = 2; recurrenceIndex <= recurrenceCount; recurrenceIndex += 1) {
+      const baseWeekOffset = recurrenceIndex - 1;
+      let candidateWeekOffset = baseWeekOffset;
+      const skippedConflictDates: string[] = [];
+      let acceptedTarget: RecurrenceTarget | null = null;
+
+      while (candidateWeekOffset <= baseWeekOffset + maxExtraWeeks) {
+        const candidateStartsAt = addWeeks(lesson.starts_at, candidateWeekOffset);
+        const candidateEndsAt = addWeeks(lesson.ends_at, candidateWeekOffset);
+        const matchingAvailable = (existingLessons || []).find(
+          (item: any) =>
+            item.status === "available" &&
+            !item.student_id &&
+            hasSameRange(item, candidateStartsAt, candidateEndsAt),
+        );
+        const conflictsWithPlannedTarget = futureTargets.some(
+          (plannedTarget) =>
+            plannedTarget.startsAt < candidateEndsAt &&
+            plannedTarget.endsAt > candidateStartsAt,
+        );
+        const conflictingLesson = (existingLessons || []).find(
+          (item: any) =>
+            item.id !== matchingAvailable?.id &&
+            item.status !== "available" &&
+            item.status !== "cancelled" &&
+            overlapsWith(item, candidateStartsAt, candidateEndsAt),
+        );
+
+        if (conflictsWithPlannedTarget || conflictingLesson) {
+          skippedConflictDates.push(candidateStartsAt);
+          candidateWeekOffset += 1;
+          continue;
+        }
+
+        acceptedTarget = {
+          recurrenceIndex,
+          startsAt: candidateStartsAt,
+          endsAt: candidateEndsAt,
+          requestedStartsAt: addWeeks(lesson.starts_at, baseWeekOffset),
+          requestedEndsAt: addWeeks(lesson.ends_at, baseWeekOffset),
+          skippedConflictDates,
+        };
+        break;
       }
 
-      const conflictingLesson = (existingLessons || []).find(
-        (item: any) =>
-          item.status !== "cancelled" &&
-          item.starts_at < target.endsAt &&
-          item.ends_at > target.startsAt,
-      );
-
-      if (conflictingLesson) {
+      if (!acceptedTarget) {
         throw new Error(
-          `Nao foi possivel criar a recorrencia porque ja existe conflito em ${target.startsAt}.`,
+          `Nao foi possivel completar a recorrencia apos muitos conflitos a partir de ${addWeeks(
+            lesson.starts_at,
+            baseWeekOffset,
+          )}.`,
         );
       }
+
+      futureTargets.push(acceptedTarget);
     }
 
     let tokenInfo:
@@ -272,8 +331,7 @@ serve(async (req) => {
         (item: any) =>
           item.status === "available" &&
           !item.student_id &&
-          item.starts_at === target.startsAt &&
-          item.ends_at === target.endsAt,
+          hasSameRange(item, target.startsAt, target.endsAt),
       );
 
       if (matchingAvailable) {
@@ -348,6 +406,25 @@ serve(async (req) => {
       JSON.stringify({
         lesson: confirmedLessons[0] || null,
         lessons: confirmedLessons,
+        recurrenceReport: {
+          hadConflicts: futureTargets.some(
+            (target) =>
+              target.skippedConflictDates.length > 0 ||
+              target.startsAt !== target.requestedStartsAt,
+          ),
+          adjustedOccurrences: futureTargets
+            .filter(
+              (target) =>
+                target.skippedConflictDates.length > 0 ||
+                target.startsAt !== target.requestedStartsAt,
+            )
+            .map((target) => ({
+              recurrenceIndex: target.recurrenceIndex,
+              requestedStartsAt: target.requestedStartsAt,
+              assignedStartsAt: target.startsAt,
+              skippedConflictDates: target.skippedConflictDates,
+            })),
+        },
       }),
       {
         status: 200,

@@ -38,6 +38,13 @@ const formatDateTime = (value: string) =>
     timeStyle: "short",
   });
 
+const toDateTimeLocalValue = (value: string) => {
+  const date = new Date(value);
+  const timezoneOffset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - timezoneOffset * 60_000);
+  return localDate.toISOString().slice(0, 16);
+};
+
 const getFunctionErrorMessage = async (
   error: { message?: string; context?: { json?: () => Promise<any> } } | null,
 ) => {
@@ -75,6 +82,18 @@ type AutomaticSyncResult =
       reason: "disconnected" | "unconfigured";
     };
 
+type RecurrenceFeedback = {
+  adjustedOccurrences: Array<{
+    recurrenceIndex: number;
+    requestedStartsAt: string;
+    assignedStartsAt: string;
+    skippedConflictDates: string[];
+  }>;
+};
+
+type CancellationScope = "single" | "this_and_following";
+type RescheduleScope = "single" | "this_and_following";
+
 export const TeacherScheduling = () => {
   const [searchParams] = useSearchParams();
   const [currentUserId, setCurrentUserId] = useState("");
@@ -95,10 +114,23 @@ export const TeacherScheduling = () => {
   const [showEventSettingsModal, setShowEventSettingsModal] = useState(false);
   const [showAvailabilitySettingsModal, setShowAvailabilitySettingsModal] = useState(false);
   const [selectedSlotForReservation, setSelectedSlotForReservation] = useState<any | null>(null);
+  const [cancellationTarget, setCancellationTarget] = useState<any | null>(null);
+  const [rescheduleTarget, setRescheduleTarget] = useState<any | null>(null);
+  const [rescheduling, setRescheduling] = useState(false);
+  const [recurrenceFeedback, setRecurrenceFeedback] = useState<RecurrenceFeedback | null>(
+    null,
+  );
   const [activeView, setActiveView] = useState<"events" | "availability">("events");
   const [reservationForm, setReservationForm] = useState({
     ...initialReservationForm,
     studentId: searchParams.get("studentId") || "",
+  });
+  const [rescheduleForm, setRescheduleForm] = useState<{
+    startsAt: string;
+    scope: RescheduleScope;
+  }>({
+    startsAt: "",
+    scope: "single",
   });
 
   useEffect(() => {
@@ -696,6 +728,14 @@ export const TeacherScheduling = () => {
     });
   };
 
+  const openRescheduleModal = (session: any) => {
+    setRescheduleTarget(session);
+    setRescheduleForm({
+      startsAt: toDateTimeLocalValue(session.starts_at),
+      scope: "single",
+    });
+  };
+
   const handleConfirmReservation = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -708,7 +748,7 @@ export const TeacherScheduling = () => {
 
     setSaving(true);
 
-    const { error } = await supabase.functions.invoke("confirm-platform-lesson", {
+    const { data, error } = await supabase.functions.invoke("confirm-platform-lesson", {
       body: {
         lessonId: selectedSlotForReservation.id,
         studentId: reservationForm.studentId,
@@ -727,7 +767,21 @@ export const TeacherScheduling = () => {
         console.error("Falha ao sincronizar agenda apos o agendamento:", syncError);
       }
 
-      alert("Aula agendada com sucesso. O Meet ja foi gerado e vinculado ao horario.");
+      const adjustedOccurrences =
+        data?.recurrenceReport?.adjustedOccurrences || [];
+
+      if (adjustedOccurrences.length > 0) {
+        setRecurrenceFeedback({
+          adjustedOccurrences,
+        });
+        alert(
+          "A recorrencia foi concluida com ajustes. Alguns encontros foram movidos para semanas seguintes por causa de conflitos.",
+        );
+      } else {
+        setRecurrenceFeedback(null);
+        alert("Aula agendada com sucesso. O Meet ja foi gerado e vinculado ao horario.");
+      }
+
       setSelectedSlotForReservation(null);
       setReservationForm(initialReservationForm);
       fetchSchedulingData();
@@ -736,27 +790,81 @@ export const TeacherScheduling = () => {
     setSaving(false);
   };
 
+  const cancelLesson = async (
+    lessonId: string,
+    scope: CancellationScope = "single",
+  ) => {
+    const { error } = await supabase.functions.invoke("cancel-platform-lesson", {
+      body: { lessonId, scope },
+    });
+
+    if (error) {
+      alert(await getFunctionErrorMessage(error));
+    } else {
+      fetchSchedulingData();
+    }
+  };
+
+  const handleRescheduleLesson = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!rescheduleTarget) return;
+
+    if (!rescheduleForm.startsAt) {
+      alert("Escolha a nova data e hora da aula.");
+      return;
+    }
+
+    setRescheduling(true);
+
+    const { error } = await supabase.functions.invoke("reschedule-platform-lesson", {
+      body: {
+        lessonId: rescheduleTarget.id,
+        startsAt: new Date(rescheduleForm.startsAt).toISOString(),
+        scope: rescheduleForm.scope,
+      },
+    });
+
+    if (error) {
+      alert(await getFunctionErrorMessage(error));
+    } else {
+      setRescheduleTarget(null);
+      alert(
+        rescheduleForm.scope === "this_and_following"
+          ? "Aula e proximos encontros da recorrencia reagendados com sucesso."
+          : "Aula reagendada com sucesso.",
+      );
+      await fetchSchedulingData();
+    }
+
+    setRescheduling(false);
+  };
+
   const updateSessionStatus = async (
-    sessionId: string,
+    session: any,
     status: "completed" | "cancelled",
   ) => {
+    if (status === "cancelled") {
+      if (session.recurrence_group_id && typeof session.recurrence_index === "number") {
+        setCancellationTarget(session);
+      } else {
+        await cancelLesson(session.id, "single");
+      }
+
+      return;
+    }
+
     const updates =
-      status === "completed"
-        ? {
-            status,
-            completed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }
-        : {
-            status,
-            cancelled_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
+      {
+        status,
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
     const { error } = await supabase
       .from("scheduled_lessons")
       .update(updates)
-      .eq("id", sessionId);
+      .eq("id", session.id);
 
     if (error) {
       alert(error.message);
@@ -929,6 +1037,59 @@ export const TeacherScheduling = () => {
           </div>
         </header>
 
+        {recurrenceFeedback && (
+          <section className="mt-6 rounded-3xl bg-amber-400/10 p-5 ring-1 ring-amber-300/20">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-100/70">
+                  Ajustes na recorrencia
+                </p>
+                <h2 className="mt-2 text-xl font-bold text-white">
+                  Encontramos conflitos e remanejamos alguns encontros
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-white/75">
+                  A quantidade de agendamentos foi completada automaticamente. Confira
+                  abaixo quais datas precisaram ser empurradas para a semana seguinte,
+                  caso voce queira revisar manualmente.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setRecurrenceFeedback(null)}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              >
+                Fechar aviso
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {recurrenceFeedback.adjustedOccurrences.map((item) => (
+                <article
+                  key={`${item.recurrenceIndex}-${item.assignedStartsAt}`}
+                  className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10"
+                >
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-100/70">
+                    Encontro {item.recurrenceIndex}
+                  </p>
+                  <p className="mt-2 text-sm text-white/70">
+                    Previsto para {formatDateTime(item.requestedStartsAt)}
+                  </p>
+                  <p className="mt-1 text-sm font-bold text-white">
+                    Remarcado para {formatDateTime(item.assignedStartsAt)}
+                  </p>
+                  {item.skippedConflictDates.length > 0 && (
+                    <p className="mt-2 text-xs leading-5 text-white/55">
+                      Conflitos encontrados em:{" "}
+                      {item.skippedConflictDates.map(formatDateTime).join(", ")}
+                    </p>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="hidden">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
@@ -993,6 +1154,7 @@ export const TeacherScheduling = () => {
               studentNameMap={studentNameMap}
               accessCounts={accessCounts}
               onUpdateStatus={updateSessionStatus}
+              onReschedule={openRescheduleModal}
               compactGrid
             />
 
@@ -1003,6 +1165,7 @@ export const TeacherScheduling = () => {
               studentNameMap={studentNameMap}
               accessCounts={accessCounts}
               onUpdateStatus={updateSessionStatus}
+              onReschedule={openRescheduleModal}
               past
             />
           </div>
@@ -1163,6 +1326,193 @@ export const TeacherScheduling = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {rescheduleTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm"
+          onClick={() => setRescheduleTarget(null)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                  Reagendar aula
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-white">
+                  Escolha a nova data e hora
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/60">
+                  O sistema vai validar conflito antes de salvar e atualizar o evento
+                  no Google Calendar quando a aula estiver sincronizada.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setRescheduleTarget(null)}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <form onSubmit={handleRescheduleLesson} className="mt-6 space-y-4">
+              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+                  Aula atual
+                </p>
+                <p className="mt-2 text-lg font-bold text-white">{rescheduleTarget.title}</p>
+                <p className="mt-2 text-sm text-white/60">
+                  {formatDateTime(rescheduleTarget.starts_at)} ate{" "}
+                  {formatDateTime(rescheduleTarget.ends_at)}
+                </p>
+                {rescheduleTarget.recurrence_group_id && (
+                  <p className="mt-2 text-sm text-white/55">
+                    Encontro #{rescheduleTarget.recurrence_index} de uma recorrencia
+                  </p>
+                )}
+              </div>
+
+              <Field label="Nova data e hora">
+                <input
+                  type="datetime-local"
+                  className={fieldInputClass}
+                  value={rescheduleForm.startsAt}
+                  onChange={(event) =>
+                    setRescheduleForm({
+                      ...rescheduleForm,
+                      startsAt: event.target.value,
+                    })
+                  }
+                />
+              </Field>
+
+              {rescheduleTarget.recurrence_group_id &&
+                typeof rescheduleTarget.recurrence_index === "number" && (
+                  <Field label="Escopo da alteracao">
+                    <select
+                      className={fieldInputClass}
+                      value={rescheduleForm.scope}
+                      onChange={(event) =>
+                        setRescheduleForm({
+                          ...rescheduleForm,
+                          scope: event.target.value as RescheduleScope,
+                        })
+                      }
+                    >
+                      <option value="single" className="bg-gray-900">
+                        Alterar apenas esta aula
+                      </option>
+                      <option value="this_and_following" className="bg-gray-900">
+                        Alterar esta aula e as proximas da recorrencia
+                      </option>
+                    </select>
+                  </Field>
+                )}
+
+              <div className="rounded-2xl bg-brand-900/40 p-4 text-sm leading-6 text-white/60 ring-1 ring-white/10">
+                {rescheduleForm.scope === "this_and_following"
+                  ? "As proximas aulas vao manter a cadencia semanal a partir do novo horario escolhido."
+                  : "Somente este encontro sera movido. O restante da recorrencia permanece como esta."}
+              </div>
+
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => setRescheduleTarget(null)}
+                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={rescheduling}
+                  className="inline-flex flex-1 items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-4 text-sm font-black uppercase tracking-[0.2em] text-white shadow-soft transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {rescheduling ? "Reagendando..." : "Salvar novo horario"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {cancellationTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm"
+          onClick={() => setCancellationTarget(null)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                  Cancelar recorrencia
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-white">
+                  Como voce quer cancelar este agendamento?
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/60">
+                  Escolha se deseja cancelar apenas este encontro ou tambem esta aula e
+                  todas as proximas da mesma recorrencia.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCancellationTarget(null)}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+                Aula selecionada
+              </p>
+              <p className="mt-2 text-lg font-bold text-white">{cancellationTarget.title}</p>
+              <p className="mt-2 text-sm text-white/60">
+                {formatDateTime(cancellationTarget.starts_at)} ate{" "}
+                {formatDateTime(cancellationTarget.ends_at)}
+              </p>
+              <p className="mt-2 text-sm text-white/55">
+                Encontro #{cancellationTarget.recurrence_index}
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  const lessonId = cancellationTarget.id;
+                  setCancellationTarget(null);
+                  await cancelLesson(lessonId, "single");
+                }}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              >
+                Cancelar apenas esta aula
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const lessonId = cancellationTarget.id;
+                  setCancellationTarget(null);
+                  await cancelLesson(lessonId, "this_and_following");
+                }}
+                className="inline-flex items-center justify-center rounded-2xl bg-rose-500/10 px-4 py-4 text-sm font-bold text-rose-100 ring-1 ring-rose-400/20 transition hover:bg-rose-500/20"
+              >
+                Cancelar esta aula e as proximas da recorrencia
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1808,6 +2158,7 @@ const SessionList = ({
   studentNameMap,
   accessCounts,
   onUpdateStatus,
+  onReschedule,
   past = false,
   compactGrid = false,
 }: {
@@ -1816,7 +2167,8 @@ const SessionList = ({
   sessions: any[];
   studentNameMap: Record<string, string>;
   accessCounts: Record<string, number>;
-  onUpdateStatus: (sessionId: string, status: "completed" | "cancelled") => void;
+  onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
+  onReschedule: (session: any) => void;
   past?: boolean;
   compactGrid?: boolean;
 }) => (
@@ -1913,14 +2265,21 @@ const SessionList = ({
                     <>
                       <button
                         type="button"
-                        onClick={() => onUpdateStatus(session.id, "completed")}
+                        onClick={() => onReschedule(session)}
+                        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                      >
+                        Reagendar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onUpdateStatus(session, "completed")}
                         className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
                       >
                         Concluir
                       </button>
                       <button
                         type="button"
-                        onClick={() => onUpdateStatus(session.id, "cancelled")}
+                        onClick={() => onUpdateStatus(session, "cancelled")}
                         className="inline-flex items-center justify-center rounded-2xl bg-rose-500/10 px-4 py-3 text-sm font-bold text-rose-200 ring-1 ring-rose-400/20 transition hover:bg-rose-500/20"
                       >
                         Cancelar

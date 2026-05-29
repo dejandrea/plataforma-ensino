@@ -348,6 +348,99 @@ export const createGoogleCalendarEvent = async ({
   return json;
 };
 
+export const updateGoogleCalendarEvent = async ({
+  accessToken,
+  calendarId,
+  eventId,
+  summary,
+  description,
+  startDateTime,
+  endDateTime,
+  timezone,
+  attendeeEmails = [],
+}: {
+  accessToken: string;
+  calendarId: string;
+  eventId: string;
+  summary: string;
+  description?: string | null;
+  startDateTime: string;
+  endDateTime: string;
+  timezone?: string | null;
+  attendeeEmails?: string[];
+}) => {
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+  );
+  url.searchParams.set("sendUpdates", "all");
+
+  const body: Record<string, unknown> = {
+    summary,
+    description: description || undefined,
+    start: {
+      dateTime: startDateTime,
+      timeZone: timezone || undefined,
+    },
+    end: {
+      dateTime: endDateTime,
+      timeZone: timezone || undefined,
+    },
+  };
+
+  if (attendeeEmails.length > 0) {
+    body.attendees = attendeeEmails.map((email) => ({ email }));
+  }
+
+  const response = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const json = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(json?.error?.message || "Falha ao atualizar evento no Google Calendar.");
+  }
+
+  return json;
+};
+
+export const deleteGoogleCalendarEvent = async ({
+  accessToken,
+  calendarId,
+  eventId,
+}: {
+  accessToken: string;
+  calendarId: string;
+  eventId: string;
+}) => {
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+  );
+  url.searchParams.set("sendUpdates", "all");
+
+  const response = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (response.status === 404 || response.status === 410) {
+    return { alreadyMissing: true };
+  }
+
+  if (!response.ok) {
+    const json = await response.json().catch(() => null);
+    throw new Error(json?.error?.message || "Falha ao cancelar evento no Google Calendar.");
+  }
+
+  return { alreadyMissing: false };
+};
+
 export const extractMeetLink = (event: any) => {
   if (typeof event?.hangoutLink === "string" && event.hangoutLink) {
     return event.hangoutLink;

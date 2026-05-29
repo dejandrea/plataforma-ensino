@@ -7,6 +7,13 @@ const formatSessionDate = (value: string) =>
     timeStyle: "short",
   });
 
+const toDateTimeLocalValue = (value: string) => {
+  const date = new Date(value);
+  const timezoneOffset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - timezoneOffset * 60_000);
+  return localDate.toISOString().slice(0, 16);
+};
+
 const getTrackLabel = (track: string) =>
   track === "course" ? "Curso completo" : "Mentoria";
 
@@ -30,6 +37,8 @@ const getFunctionErrorMessage = async (
   return error.message || "Ocorreu um erro inesperado.";
 };
 
+type CancellationScope = "single" | "this_and_following";
+
 export const StudentLessons = () => {
   const [studentName, setStudentName] = useState("Aluno");
   const [linkedTeacherIds, setLinkedTeacherIds] = useState<string[]>([]);
@@ -41,7 +50,12 @@ export const StudentLessons = () => {
   const [loading, setLoading] = useState(true);
   const [bookingLessonId, setBookingLessonId] = useState<string | null>(null);
   const [openingLessonId, setOpeningLessonId] = useState<string | null>(null);
+  const [cancellingLessonId, setCancellingLessonId] = useState<string | null>(null);
+  const [reschedulingLessonId, setReschedulingLessonId] = useState<string | null>(null);
   const [selectedAvailableLesson, setSelectedAvailableLesson] = useState<any | null>(null);
+  const [cancellationTarget, setCancellationTarget] = useState<any | null>(null);
+  const [rescheduleTarget, setRescheduleTarget] = useState<any | null>(null);
+  const [rescheduleStartsAt, setRescheduleStartsAt] = useState("");
 
   useEffect(() => {
     fetchStudentLessons();
@@ -250,6 +264,63 @@ export const StudentLessons = () => {
     setOpeningLessonId(null);
   };
 
+  const handleCancelLesson = async (
+    lessonId: string,
+    scope: CancellationScope = "single",
+  ) => {
+    setCancellingLessonId(lessonId);
+
+    const { error } = await supabase.functions.invoke("cancel-platform-lesson", {
+      body: {
+        lessonId,
+        scope,
+      },
+    });
+
+    if (error) {
+      alert(await getFunctionErrorMessage(error));
+    } else {
+      fetchStudentLessons();
+    }
+
+    setCancellingLessonId(null);
+  };
+
+  const openRescheduleModal = (lesson: any) => {
+    setRescheduleTarget(lesson);
+    setRescheduleStartsAt(toDateTimeLocalValue(lesson.starts_at));
+  };
+
+  const handleRescheduleLesson = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!rescheduleTarget) return;
+
+    if (!rescheduleStartsAt) {
+      alert("Escolha a nova data e hora da aula.");
+      return;
+    }
+
+    setReschedulingLessonId(rescheduleTarget.id);
+
+    const { error } = await supabase.functions.invoke("reschedule-platform-lesson", {
+      body: {
+        lessonId: rescheduleTarget.id,
+        startsAt: new Date(rescheduleStartsAt).toISOString(),
+        scope: "single",
+      },
+    });
+
+    if (error) {
+      alert(await getFunctionErrorMessage(error));
+    } else {
+      setRescheduleTarget(null);
+      await fetchStudentLessons();
+    }
+
+    setReschedulingLessonId(null);
+  };
+
   if (loading) {
     return (
       <div className="app-bg">
@@ -418,18 +489,44 @@ export const StudentLessons = () => {
                   lesson={lesson}
                   teacherName={teacherNames[lesson.teacher_id]}
                   action={
-                    <button
-                      type="button"
-                      onClick={() => handleOpenLesson(lesson)}
-                      disabled={!lesson.meet_link || openingLessonId === lesson.id}
-                      className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-3 text-sm font-bold text-white shadow-soft transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      {openingLessonId === lesson.id
-                        ? "Abrindo..."
-                        : lesson.meet_link
-                          ? "Acessar aula"
-                          : "Link em breve"}
-                    </button>
+                    <div className="flex flex-col gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenLesson(lesson)}
+                        disabled={!lesson.meet_link || openingLessonId === lesson.id}
+                        className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-3 text-sm font-bold text-white shadow-soft transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {openingLessonId === lesson.id
+                          ? "Abrindo..."
+                          : lesson.meet_link
+                            ? "Acessar aula"
+                            : "Link em breve"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openRescheduleModal(lesson)}
+                        disabled={reschedulingLessonId === lesson.id}
+                        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {reschedulingLessonId === lesson.id
+                          ? "Reagendando..."
+                          : "Reagendar aula"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          lesson.recurrence_group_id && typeof lesson.recurrence_index === "number"
+                            ? setCancellationTarget(lesson)
+                            : handleCancelLesson(lesson.id, "single")
+                        }
+                        disabled={cancellingLessonId === lesson.id}
+                        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {cancellingLessonId === lesson.id
+                          ? "Cancelando..."
+                          : "Cancelar aula"}
+                      </button>
+                    </div>
                   }
                 />
               )}
@@ -529,6 +626,159 @@ export const StudentLessons = () => {
                     : "Confirmar agendamento"}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rescheduleTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm"
+          onClick={() => setRescheduleTarget(null)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                  Reagendar aula
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-white">
+                  Escolha a nova data e hora
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/60">
+                  O reagendamento do aluno altera apenas a aula selecionada. A
+                  recorrencia restante nao sera modificada.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setRescheduleTarget(null)}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <form onSubmit={handleRescheduleLesson} className="mt-6 space-y-4">
+              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+                  Aula selecionada
+                </p>
+                <p className="mt-2 text-lg font-bold text-white">{rescheduleTarget.title}</p>
+                <p className="mt-2 text-sm text-white/60">
+                  {formatSessionDate(rescheduleTarget.starts_at)} ate{" "}
+                  {formatSessionDate(rescheduleTarget.ends_at)}
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-white/45">
+                  Nova data e hora
+                </label>
+                <input
+                  type="datetime-local"
+                  className="w-full rounded-2xl bg-brand-900/60 p-3 text-white ring-1 ring-white/10 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  value={rescheduleStartsAt}
+                  onChange={(event) => setRescheduleStartsAt(event.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => setRescheduleTarget(null)}
+                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={reschedulingLessonId === rescheduleTarget.id}
+                  className="inline-flex flex-1 items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-4 text-sm font-black uppercase tracking-[0.2em] text-white shadow-soft transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {reschedulingLessonId === rescheduleTarget.id
+                    ? "Reagendando..."
+                    : "Salvar novo horario"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {cancellationTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm"
+          onClick={() => setCancellationTarget(null)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                  Cancelar recorrencia
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-white">
+                  Como voce quer cancelar esta aula?
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/60">
+                  Escolha se deseja cancelar apenas este encontro ou tambem esta aula e
+                  as proximas da mesma recorrencia.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCancellationTarget(null)}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
+                Aula selecionada
+              </p>
+              <p className="mt-2 text-lg font-bold text-white">{cancellationTarget.title}</p>
+              <p className="mt-2 text-sm text-white/60">
+                {formatSessionDate(cancellationTarget.starts_at)} ate{" "}
+                {formatSessionDate(cancellationTarget.ends_at)}
+              </p>
+              <p className="mt-2 text-sm text-white/55">
+                Encontro #{cancellationTarget.recurrence_index}
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  const lessonId = cancellationTarget.id;
+                  setCancellationTarget(null);
+                  await handleCancelLesson(lessonId, "single");
+                }}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              >
+                Cancelar apenas esta aula
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const lessonId = cancellationTarget.id;
+                  setCancellationTarget(null);
+                  await handleCancelLesson(lessonId, "this_and_following");
+                }}
+                className="inline-flex items-center justify-center rounded-2xl bg-rose-500/10 px-4 py-4 text-sm font-bold text-rose-100 ring-1 ring-rose-400/20 transition hover:bg-rose-500/20"
+              >
+                Cancelar esta aula e as proximas da recorrencia
+              </button>
             </div>
           </div>
         </div>
