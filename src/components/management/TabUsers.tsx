@@ -6,6 +6,17 @@ import {
   FunctionsFetchError,
 } from "@supabase/supabase-js";
 
+type SessionTrack = "mentoring" | "course";
+type StudentPricingMode = "rate" | "package" | "legacy";
+type StudentServiceScope = "mentoring" | "course" | "both";
+
+type StudentCommercialAssignment = {
+  session_track: SessionTrack;
+  pricing_mode: "rate" | "package";
+  pricing_package_id: string | null;
+  hourly_rate: number | null;
+};
+
 type AccessInvite = {
   invite_id: string | null;
   user_id: string | null;
@@ -15,12 +26,35 @@ type AccessInvite = {
   nickname: string | null;
   birth_date: string | null;
   role: string | null;
+  hourly_rate: number | null;
+  pricing_mode: "rate" | "package" | null;
+  pricing_session_track: SessionTrack | null;
+  pricing_package_id: string | null;
+  student_service_scope?: StudentServiceScope | null;
+  commercial_assignments?: StudentCommercialAssignment[] | null;
   invited_at: string | null;
   claimed_at: string | null;
   claimed_user_id: string | null;
   is_active: boolean | null;
   source: "invite_only" | "claimed_invite" | "legacy_profile";
   can_delete_invite: boolean;
+};
+
+type CommercialRateOption = {
+  id: string;
+  session_track: SessionTrack;
+  hourly_rate: number | null;
+  notes?: string | null;
+};
+
+type CommercialPackageOption = {
+  id: string;
+  name: string;
+  session_track: SessionTrack;
+  lesson_quantity: number;
+  package_price: number;
+  validity_days: number | null;
+  is_active: boolean;
 };
 
 const initialUserForm = {
@@ -30,10 +64,158 @@ const initialUserForm = {
   email: "",
   birthDate: "",
   role: "student",
+  hourlyRate: "",
+  pricingMode: "rate" as StudentPricingMode,
+  pricingSessionTrack: "mentoring" as SessionTrack,
+  pricingPackageId: "",
+  studentServiceScope: "mentoring" as StudentServiceScope,
+  mentoringPricingMode: "rate" as StudentPricingMode,
+  mentoringPricingPackageId: "",
+  coursePricingMode: "rate" as StudentPricingMode,
+  coursePricingPackageId: "",
+};
+
+type UserFormState = typeof initialUserForm;
+
+const selectStyle = {
+  backgroundColor: "#241d33",
+  color: "#ffffff",
+};
+
+const formatCurrency = (value: number) =>
+  value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+const getTrackLabel = (track: SessionTrack) =>
+  track === "course" ? "Curso" : "Mentoria";
+
+const getPackageEffectiveHourlyRate = (item: CommercialPackageOption) => {
+  if (!item.lesson_quantity) {
+    return null;
+  }
+
+  return Number((Number(item.package_price || 0) / Number(item.lesson_quantity)).toFixed(2));
+};
+
+const getCommercialTracksFromScope = (scope: StudentServiceScope) => {
+  if (scope === "course") {
+    return ["course"] as const;
+  }
+
+  return ["mentoring"] as const;
+};
+
+const getScopeFromTrackSelection = (selection: {
+  mentoring: boolean;
+  course: boolean;
+}): StudentServiceScope | null => {
+  if (selection.mentoring && selection.course) {
+    return "both";
+  }
+
+  if (selection.course) {
+    return "course";
+  }
+
+  if (selection.mentoring) {
+    return "mentoring";
+  }
+
+  return null;
+};
+
+const inferStudentServiceScope = (user: AccessInvite): StudentServiceScope => {
+  if (user.student_service_scope === "mentoring" || user.student_service_scope === "course") {
+    return user.student_service_scope;
+  }
+
+  if (user.student_service_scope === "both") {
+    return "both";
+  }
+
+  const assignmentTracks = (user.commercial_assignments || [])
+    .map((item) => item.session_track)
+    .filter((track): track is SessionTrack => track === "mentoring" || track === "course");
+
+  if (assignmentTracks.includes("mentoring") && assignmentTracks.includes("course")) {
+    return "both";
+  }
+
+  if (assignmentTracks.includes("course")) {
+    return "course";
+  }
+
+  if (user.pricing_session_track === "course") {
+    return "course";
+  }
+
+  return "mentoring";
+};
+
+const getStoredAssignments = (user: AccessInvite): StudentCommercialAssignment[] => {
+  if (Array.isArray(user.commercial_assignments) && user.commercial_assignments.length > 0) {
+    return user.commercial_assignments.filter(
+      (item): item is StudentCommercialAssignment =>
+        Boolean(
+          item &&
+            (item.session_track === "mentoring" || item.session_track === "course") &&
+            (item.pricing_mode === "rate" || item.pricing_mode === "package"),
+        ),
+    );
+  }
+
+  if (
+    (user.pricing_mode === "rate" || user.pricing_mode === "package") &&
+    (user.pricing_session_track === "mentoring" || user.pricing_session_track === "course")
+  ) {
+    return [
+      {
+        session_track: user.pricing_session_track,
+        pricing_mode: user.pricing_mode,
+        pricing_package_id: user.pricing_package_id,
+        hourly_rate: user.hourly_rate,
+      },
+    ];
+  }
+
+  return [];
+};
+
+const buildStudentPricingPayload = (form: UserFormState) => {
+  const tracks = getCommercialTracksFromScope(form.studentServiceScope);
+  const assignments = tracks.map((track) => {
+    const pricingMode =
+      track === "course" ? form.coursePricingMode : form.mentoringPricingMode;
+    const pricingPackageId =
+      track === "course"
+        ? form.coursePricingPackageId || null
+        : form.mentoringPricingPackageId || null;
+
+    return {
+      sessionTrack: track,
+      pricingMode: pricingMode === "package" ? "package" : "rate",
+      pricingPackageId: pricingMode === "package" ? pricingPackageId : null,
+    };
+  });
+
+  const primaryAssignment = assignments[0];
+
+  return {
+    hourlyRate: null,
+    pricingMode: primaryAssignment.pricingMode,
+    pricingSessionTrack: primaryAssignment.sessionTrack,
+    pricingPackageId: primaryAssignment.pricingPackageId,
+    studentServiceScope: form.studentServiceScope,
+    studentCommercialAssignments: assignments,
+  };
 };
 
 export const TabUsers = () => {
   const [users, setUsers] = useState<AccessInvite[]>([]);
+  const [commercialRates, setCommercialRates] = useState<CommercialRateOption[]>([]);
+  const [commercialPackages, setCommercialPackages] = useState<CommercialPackageOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingUser, setEditingUser] = useState<AccessInvite | null>(null);
   const [editLoading, setEditLoading] = useState(false);
@@ -67,7 +249,99 @@ export const TabUsers = () => {
 
   useEffect(() => {
     void fetchUsers();
+    void fetchCommercialOptions();
   }, []);
+
+  const fetchCommercialOptions = async () => {
+    const [{ data: rateRows, error: ratesError }, { data: packageRows, error: packagesError }] =
+      await Promise.all([
+        supabase
+          .from("commercial_rate_settings")
+          .select("id, session_track, hourly_rate, notes")
+          .order("session_track"),
+        supabase
+          .from("commercial_packages")
+          .select("id, name, session_track, lesson_quantity, package_price, validity_days, is_active")
+          .order("created_at", { ascending: false }),
+      ]);
+
+    if (ratesError) {
+      console.error("Erro ao buscar precos comerciais:", ratesError.message);
+      setCommercialRates([]);
+    } else {
+      setCommercialRates((rateRows || []) as CommercialRateOption[]);
+    }
+
+    if (packagesError) {
+      console.error("Erro ao buscar pacotes comerciais:", packagesError.message);
+      setCommercialPackages([]);
+    } else {
+      setCommercialPackages((packageRows || []) as CommercialPackageOption[]);
+    }
+  };
+
+  const mergeCommercialSettings = async (baseUsers: AccessInvite[]) => {
+    const { data, error } = await supabase.rpc("list_user_commercial_settings");
+
+    if (error) {
+      console.warn(
+        "RPC list_user_commercial_settings indisponivel, seguindo com campos comerciais legados:",
+        error.message,
+      );
+      return baseUsers;
+    }
+
+    const byInviteId = new Map<
+      string,
+      {
+        student_service_scope: StudentServiceScope | null;
+        commercial_assignments: StudentCommercialAssignment[] | null;
+      }
+    >();
+    const byUserId = new Map<
+      string,
+      {
+        student_service_scope: StudentServiceScope | null;
+        commercial_assignments: StudentCommercialAssignment[] | null;
+      }
+    >();
+
+    ((data || []) as Array<{
+      invite_id: string | null;
+      user_id: string | null;
+      student_service_scope: StudentServiceScope | null;
+      commercial_assignments: StudentCommercialAssignment[] | null;
+    }>).forEach((item) => {
+      const payload = {
+        student_service_scope: item.student_service_scope,
+        commercial_assignments: item.commercial_assignments,
+      };
+
+      if (item.invite_id) {
+        byInviteId.set(item.invite_id, payload);
+      }
+
+      if (item.user_id) {
+        byUserId.set(item.user_id, payload);
+      }
+    });
+
+    return baseUsers.map((user) => {
+      const extra =
+        (user.invite_id ? byInviteId.get(user.invite_id) : undefined) ||
+        (user.user_id ? byUserId.get(user.user_id) : undefined);
+
+      if (!extra) {
+        return user;
+      }
+
+      return {
+        ...user,
+        student_service_scope: extra.student_service_scope,
+        commercial_assignments: extra.commercial_assignments,
+      };
+    });
+  };
 
   const normalizeFallbackUsers = (
     inviteRows: any[],
@@ -89,6 +363,25 @@ export const TabUsers = () => {
       nickname: invite.nickname,
       birth_date: invite.birth_date,
       role: invite.role,
+      hourly_rate: invite.hourly_rate ?? profileMap.get(invite.claimed_user_id)?.hourly_rate ?? null,
+      pricing_mode:
+        invite.pricing_mode ?? profileMap.get(invite.claimed_user_id)?.pricing_mode ?? null,
+      pricing_session_track:
+        invite.pricing_session_track ??
+        profileMap.get(invite.claimed_user_id)?.pricing_session_track ??
+        null,
+      pricing_package_id:
+        invite.pricing_package_id ??
+        profileMap.get(invite.claimed_user_id)?.pricing_package_id ??
+        null,
+      student_service_scope:
+        invite.student_service_scope ??
+        profileMap.get(invite.claimed_user_id)?.student_service_scope ??
+        null,
+      commercial_assignments:
+        invite.commercial_assignments ??
+        profileMap.get(invite.claimed_user_id)?.commercial_assignments ??
+        [],
       invited_at: invite.invited_at,
       claimed_at: invite.claimed_at,
       claimed_user_id: invite.claimed_user_id,
@@ -110,6 +403,12 @@ export const TabUsers = () => {
         nickname: profile.nickname,
         birth_date: profile.birth_date,
         role: profile.role,
+        hourly_rate: profile.hourly_rate ?? null,
+        pricing_mode: profile.pricing_mode ?? null,
+        pricing_session_track: profile.pricing_session_track ?? null,
+        pricing_package_id: profile.pricing_package_id ?? null,
+        student_service_scope: profile.student_service_scope ?? null,
+        commercial_assignments: profile.commercial_assignments ?? [],
         invited_at: profile.invited_at,
         claimed_at: profile.invited_at,
         claimed_user_id: profile.id,
@@ -129,7 +428,8 @@ export const TabUsers = () => {
     const { data, error } = await supabase.rpc("list_system_users");
 
     if (!error) {
-      setUsers((data || []) as AccessInvite[]);
+      const mergedUsers = await mergeCommercialSettings((data || []) as AccessInvite[]);
+      setUsers(mergedUsers);
       return;
     }
 
@@ -145,7 +445,9 @@ export const TabUsers = () => {
       supabase.rpc("list_access_invites"),
       supabase
         .from("profiles")
-        .select("id, full_name, last_name, nickname, birth_date, role, invited_at, is_active"),
+        .select(
+          "id, full_name, last_name, nickname, birth_date, role, hourly_rate, pricing_mode, pricing_session_track, pricing_package_id, student_service_scope, commercial_assignments, invited_at, is_active",
+        ),
     ]);
 
     if (inviteError || profileError) {
@@ -157,9 +459,9 @@ export const TabUsers = () => {
       return;
     }
 
-    setUsers(
-      normalizeFallbackUsers(inviteData || [], profileData || []),
-    );
+    const normalizedUsers = normalizeFallbackUsers(inviteData || [], profileData || []);
+    const mergedUsers = await mergeCommercialSettings(normalizedUsers);
+    setUsers(mergedUsers);
   };
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -176,6 +478,9 @@ export const TabUsers = () => {
       return;
     }
 
+    const studentPricing =
+      newUser.role === "student" ? buildStudentPricingPayload(newUser) : null;
+
     const { data, error } = await supabase.functions.invoke("create-platform-user", {
       body: {
         email: newUser.email,
@@ -184,6 +489,12 @@ export const TabUsers = () => {
         nickname: newUser.nickname || null,
         birthDate: newUser.birthDate || null,
         role: newUser.role,
+        hourlyRate: studentPricing?.hourlyRate || null,
+        pricingMode: studentPricing?.pricingMode || null,
+        pricingSessionTrack: studentPricing?.pricingSessionTrack || null,
+        pricingPackageId: studentPricing?.pricingPackageId || null,
+        studentServiceScope: studentPricing?.studentServiceScope || null,
+        studentCommercialAssignments: studentPricing?.studentCommercialAssignments || [],
         redirectTo: `${window.location.origin}/redefinir-senha`,
       },
     });
@@ -202,12 +513,35 @@ export const TabUsers = () => {
     setLoading(false);
   };
 
+  const getInitialPricingMode = (user: AccessInvite): StudentPricingMode => {
+    if (user.pricing_mode === "package" && user.pricing_package_id) {
+      return "package";
+    }
+
+    if (user.pricing_mode === "rate" && user.pricing_session_track) {
+      return "rate";
+    }
+
+    if (user.hourly_rate != null) {
+      return "legacy";
+    }
+
+    return "rate";
+  };
+
   const openEditModal = (user: AccessInvite) => {
     const fullName = user.full_name || "";
     const lastName = user.last_name || "";
     const inferredName = lastName && fullName.endsWith(lastName)
       ? fullName.slice(0, fullName.length - lastName.length).trim()
       : fullName;
+    const initialPricingMode = getInitialPricingMode(user);
+    const normalizedInitialPricingMode =
+      initialPricingMode === "legacy" ? "rate" : initialPricingMode;
+    const serviceScope = inferStudentServiceScope(user);
+    const assignments = getStoredAssignments(user);
+    const mentoringAssignment = assignments.find((item) => item.session_track === "mentoring");
+    const courseAssignment = assignments.find((item) => item.session_track === "course");
 
     setEditingUser(user);
     setEditForm({
@@ -217,6 +551,15 @@ export const TabUsers = () => {
       email: user.email || "",
       birthDate: user.birth_date ? String(user.birth_date).slice(0, 10) : "",
       role: user.role || "student",
+      hourlyRate: user.hourly_rate != null ? String(user.hourly_rate) : "",
+      pricingMode: normalizedInitialPricingMode,
+      pricingSessionTrack: user.pricing_session_track || "mentoring",
+      pricingPackageId: user.pricing_package_id || "",
+      studentServiceScope: serviceScope,
+      mentoringPricingMode: mentoringAssignment?.pricing_mode || normalizedInitialPricingMode,
+      mentoringPricingPackageId: mentoringAssignment?.pricing_package_id || "",
+      coursePricingMode: courseAssignment?.pricing_mode || "rate",
+      coursePricingPackageId: courseAssignment?.pricing_package_id || "",
     });
   };
 
@@ -234,6 +577,8 @@ export const TabUsers = () => {
     setEditLoading(true);
 
     const fullName = `${editForm.name} ${editForm.lastName}`.trim();
+    const studentPricing =
+      editForm.role === "student" ? buildStudentPricingPayload(editForm) : null;
     try {
       const { data, error } = await supabase.functions.invoke("update-platform-user", {
         body: {
@@ -245,6 +590,12 @@ export const TabUsers = () => {
           nickname: editForm.nickname || null,
           birthDate: editForm.birthDate || null,
           role: editForm.role,
+          hourlyRate: studentPricing?.hourlyRate || null,
+          pricingMode: studentPricing?.pricingMode || null,
+          pricingSessionTrack: studentPricing?.pricingSessionTrack || null,
+          pricingPackageId: studentPricing?.pricingPackageId || null,
+          studentServiceScope: studentPricing?.studentServiceScope || null,
+          studentCommercialAssignments: studentPricing?.studentCommercialAssignments || [],
           isActive: editingUser.is_active ?? true,
         },
       });
@@ -350,19 +701,29 @@ export const TabUsers = () => {
             </label>
             <select
               className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+              style={selectStyle}
               value={newUser.role}
               onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
             >
-              <option value="student" className="bg-gray-900">
+              <option value="student" style={selectStyle}>
                 Aluno
               </option>
-              <option value="professor" className="bg-gray-900">
+              <option value="professor" style={selectStyle}>
                 Professor(a)
               </option>
-              <option value="admin" className="bg-gray-900">
+              <option value="admin" style={selectStyle}>
                 Administrador
               </option>
             </select>
+
+            {newUser.role === "student" && (
+              <StudentCommercialFields
+                form={newUser}
+                onChange={(patch) => setNewUser({ ...newUser, ...patch })}
+                rateOptions={commercialRates}
+                packageOptions={commercialPackages}
+              />
+            )}
           </div>
 
           <button
@@ -469,7 +830,7 @@ export const TabUsers = () => {
           onClick={closeEditModal}
         >
           <div
-            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
@@ -491,7 +852,11 @@ export const TabUsers = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSaveUser} className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <form
+              onSubmit={handleSaveUser}
+              className="mt-6 flex min-h-0 flex-1 flex-col overflow-hidden"
+            >
+              <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto pr-1 md:grid-cols-2">
               <div className="space-y-1">
                 <label className="ml-1 text-[10px] font-black uppercase text-white/30">
                   Nome
@@ -559,22 +924,34 @@ export const TabUsers = () => {
                 </label>
                 <select
                   className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  style={selectStyle}
                   value={editForm.role}
                   onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
                 >
-                  <option value="student" className="bg-gray-900">
+                  <option value="student" style={selectStyle}>
                     Aluno
                   </option>
-                  <option value="professor" className="bg-gray-900">
+                  <option value="professor" style={selectStyle}>
                     Professor(a)
                   </option>
-                  <option value="admin" className="bg-gray-900">
+                  <option value="admin" style={selectStyle}>
                     Administrador
                   </option>
                 </select>
               </div>
 
-              <div className="md:col-span-2 flex gap-3 pt-2">
+              {editForm.role === "student" && (
+                <StudentCommercialFields
+                  form={editForm}
+                  onChange={(patch) => setEditForm({ ...editForm, ...patch })}
+                  rateOptions={commercialRates}
+                  packageOptions={commercialPackages}
+                  allowLegacy
+                />
+              )}
+              </div>
+
+              <div className="mt-4 flex shrink-0 gap-3 border-t border-white/10 pt-4 md:col-span-2">
                 {editingUser.user_id && (
                   <button
                     type="button"
@@ -600,14 +977,207 @@ export const TabUsers = () => {
                   type="submit"
                   disabled={editLoading}
                   className="flex-1 rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-4 text-sm font-black uppercase tracking-[0.2em] text-white shadow-soft transition hover:brightness-110 disabled:opacity-50"
-                >
-                  {editLoading ? "Salvando..." : "Salvar usuario"}
-                </button>
+                  >
+                    {editLoading ? "Salvando..." : "Salvar usuario"}
+                  </button>
               </div>
             </form>
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+type StudentCommercialFieldsProps = {
+  form: UserFormState;
+  onChange: (patch: Partial<UserFormState>) => void;
+  rateOptions: CommercialRateOption[];
+  packageOptions: CommercialPackageOption[];
+  allowLegacy?: boolean;
+};
+
+const StudentCommercialFields = ({
+  form,
+  onChange,
+  rateOptions,
+  packageOptions,
+}: StudentCommercialFieldsProps) => {
+  const activeTracks = getCommercialTracksFromScope(form.studentServiceScope);
+  const selectedTracks = {
+    mentoring:
+      form.studentServiceScope === "mentoring" || form.studentServiceScope === "both",
+    course:
+      form.studentServiceScope === "course" || form.studentServiceScope === "both",
+  };
+
+  const handleTrackToggle =
+    (track: SessionTrack) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      const nextSelection = {
+        mentoring: track === "mentoring" ? event.target.checked : selectedTracks.mentoring,
+        course: track === "course" ? event.target.checked : selectedTracks.course,
+      };
+      const nextScope = getScopeFromTrackSelection(nextSelection);
+
+      if (!nextScope) {
+        return;
+      }
+
+      onChange({ studentServiceScope: nextScope });
+    };
+
+  return (
+    <div className="space-y-3 rounded-3xl bg-white/5 p-4 ring-1 ring-white/10 md:col-span-2">
+      <div className="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)] md:items-end">
+        <div className="space-y-1">
+          <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+            Tipo de atendimento
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <label className="inline-flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-white/20 bg-transparent accent-brand-magenta"
+              checked={selectedTracks.mentoring}
+              onChange={handleTrackToggle("mentoring")}
+            />
+            <span>Mentoria</span>
+          </label>
+          <label className="inline-flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-white/20 bg-transparent accent-brand-magenta"
+              checked={selectedTracks.course}
+              onChange={handleTrackToggle("course")}
+            />
+            <span>Curso</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {activeTracks.map((track) => {
+          const trackPackages = packageOptions.filter(
+            (item) => item.is_active && item.session_track === track,
+          );
+          const selectedPricingMode =
+            track === "course" ? form.coursePricingMode : form.mentoringPricingMode;
+          const selectedPackageId =
+            track === "course"
+              ? form.coursePricingPackageId
+              : form.mentoringPricingPackageId;
+          const selectedRate = rateOptions.find((item) => item.session_track === track);
+
+          return (
+            <div
+              key={track}
+              className="grid gap-3 rounded-2xl bg-black/15 p-3 ring-1 ring-white/10 md:grid-cols-[140px_180px_minmax(0,1fr)] md:items-end"
+            >
+              <div className="space-y-1">
+                <div>
+                  <p className="text-sm font-bold text-white">{getTrackLabel(track)}</p>
+                </div>
+                <span className="inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/40 ring-1 ring-white/10">
+                  {track === "course" ? "Curso" : "Mentoria"}
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                  <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                    Plano
+                  </label>
+                  <select
+                    className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                    style={selectStyle}
+                    value={selectedPricingMode}
+                    onChange={(event) =>
+                      onChange(
+                        track === "course"
+                          ? {
+                              coursePricingMode: event.target.value as StudentPricingMode,
+                              pricingMode: event.target.value as StudentPricingMode,
+                              pricingSessionTrack: "course",
+                            }
+                          : {
+                              mentoringPricingMode: event.target.value as StudentPricingMode,
+                              pricingMode: event.target.value as StudentPricingMode,
+                              pricingSessionTrack: "mentoring",
+                            },
+                      )
+                    }
+                  >
+                    <option value="rate" style={selectStyle}>
+                      Preco hora/aula
+                    </option>
+                    <option value="package" style={selectStyle}>
+                      Pacote
+                    </option>
+                  </select>
+                </div>
+
+                {selectedPricingMode === "package" ? (
+                  <div className="space-y-1">
+                    <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                      Pacote
+                    </label>
+                    <select
+                      className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                      style={selectStyle}
+                      value={selectedPackageId}
+                      onChange={(event) =>
+                        onChange(
+                          track === "course"
+                            ? {
+                                coursePricingPackageId: event.target.value,
+                                pricingPackageId: event.target.value,
+                              }
+                            : {
+                                mentoringPricingPackageId: event.target.value,
+                                pricingPackageId: event.target.value,
+                              },
+                        )
+                      }
+                    >
+                      <option value="" style={selectStyle}>
+                        Selecione um pacote
+                      </option>
+                      {trackPackages.map((item) => {
+                        const effectiveHourlyRate = getPackageEffectiveHourlyRate(item);
+                        return (
+                          <option key={item.id} value={item.id} style={selectStyle}>
+                            {item.name} • {item.lesson_quantity} aula(s) • {formatCurrency(Number(item.package_price || 0))}
+                            {effectiveHourlyRate != null
+                              ? ` • ${formatCurrency(effectiveHourlyRate)}/aula`
+                              : ""}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                      Preco hora/aula
+                    </label>
+                    <select
+                      disabled
+                      className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/80 ring-1 ring-white/15 outline-none transition disabled:cursor-not-allowed disabled:opacity-80"
+                      style={selectStyle}
+                      value={selectedRate?.session_track || track}
+                    >
+                      <option value={track} style={selectStyle}>
+                        {selectedRate
+                          ? `${getTrackLabel(track)} • ${formatCurrency(Number(selectedRate.hourly_rate || 0))}/hora`
+                          : `${getTrackLabel(track)} • sem preco cadastrado`}
+                      </option>
+                    </select>
+                  </div>
+                )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

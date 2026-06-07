@@ -110,6 +110,14 @@ export const StaffNavbar = () => {
           <NavLink to="/agendamentos" className={navClass}>
             Agenda
           </NavLink>
+          <NavLink to="/relatorios" className={navClass}>
+            Relatorios
+          </NavLink>
+          {userRole === "admin" && (
+            <NavLink to="/comercial" className={navClass}>
+              Comercial
+            </NavLink>
+          )}
           <NavLink to="/perfil-profissional" className={navClass}>
             Meu perfil
           </NavLink>

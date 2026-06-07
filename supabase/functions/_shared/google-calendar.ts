@@ -248,6 +248,33 @@ export const getGoogleCalendarFreeBusy = async ({
   return json?.calendars || {};
 };
 
+export const getGoogleCalendarEvent = async ({
+  accessToken,
+  calendarId,
+  eventId,
+}: {
+  accessToken: string;
+  calendarId: string;
+  eventId: string;
+}) => {
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+  );
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const json = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(json?.error?.message || "Falha ao buscar evento no Google Calendar.");
+  }
+
+  return json;
+};
+
 export const getGoogleCalendarList = async ({
   accessToken,
 }: {
@@ -343,6 +370,35 @@ export const createGoogleCalendarEvent = async ({
   const json = await response.json();
   if (!response.ok) {
     throw new Error(json?.error?.message || "Falha ao criar evento no Google Calendar.");
+  }
+
+  if (autoCreateMeet && typeof json?.id === "string" && !extractMeetLink(json)) {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      const refreshedEvent = await getGoogleCalendarEvent({
+        accessToken,
+        calendarId,
+        eventId: json.id,
+      });
+
+      if (extractMeetLink(refreshedEvent)) {
+        return refreshedEvent;
+      }
+    }
+
+    await deleteGoogleCalendarEvent({
+      accessToken,
+      calendarId,
+      eventId: json.id,
+    }).catch(() => null);
+
+    const calendarLooksShared = calendarId.includes("@group.calendar.google.com");
+    throw new Error(
+      calendarLooksShared
+        ? "A agenda selecionada e compartilhada e nao retornou um Meet automatico. Escolha sua agenda principal do Google para criar aulas com Meet."
+        : "O Google Calendar nao retornou um link do Meet para este evento. Tente novamente ou escolha outra agenda principal para criacao.",
+    );
   }
 
   return json;

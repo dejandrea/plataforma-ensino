@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 
 const initialReservationForm = {
@@ -37,6 +37,105 @@ const formatDateTime = (value: string) =>
     dateStyle: "short",
     timeStyle: "short",
   });
+
+const formatSessionRange = (startsAt: string, endsAt: string) => {
+  const startDate = new Date(startsAt);
+  const endDate = new Date(endsAt);
+
+  const day = startDate.toLocaleDateString("pt-BR");
+  const startTime = startDate.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const endTime = endDate.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `${day} de ${startTime} ate ${endTime}`;
+};
+
+const formatDayLabel = (value: string) =>
+  new Date(value).toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  });
+
+const toDayKey = (value: string) => {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const getWeekStart = (value: string) => {
+  const date = new Date(value);
+  const day = date.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const weekStart = new Date(date);
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() + diff);
+  return weekStart;
+};
+
+const toWeekKey = (value: string) => {
+  const weekStart = getWeekStart(value);
+  const year = weekStart.getFullYear();
+  const month = String(weekStart.getMonth() + 1).padStart(2, "0");
+  const day = String(weekStart.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const formatWeekLabel = (value: string) => {
+  const weekStart = getWeekStart(value);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+
+  return `Semana de ${weekStart.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  })} a ${weekEnd.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  })}`;
+};
+
+const formatMonthLabel = (value: Date) =>
+  value.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
+
+const startOfMonth = (value: Date) => new Date(value.getFullYear(), value.getMonth(), 1);
+
+const addMonths = (value: Date, amount: number) =>
+  new Date(value.getFullYear(), value.getMonth() + amount, 1);
+
+const buildCalendarDays = (monthDate: Date) => {
+  const firstDayOfMonth = startOfMonth(monthDate);
+  const startWeekday = (firstDayOfMonth.getDay() + 6) % 7;
+  const startDate = new Date(firstDayOfMonth);
+  startDate.setDate(firstDayOfMonth.getDate() - startWeekday);
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const day = new Date(startDate);
+    day.setDate(startDate.getDate() + index);
+    return day;
+  });
+};
+
+const dateFromDayKey = (value: string) => {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, (month || 1) - 1, day || 1, 12, 0, 0, 0);
+};
+
+const getRoomReleaseTime = (startsAt: string) =>
+  new Date(new Date(startsAt).getTime() - 5 * 60 * 1000);
+
+const canAccessRoom = (session: { meet_link?: string | null; starts_at: string }) =>
+  Boolean(session.meet_link) && Date.now() >= getRoomReleaseTime(session.starts_at).getTime();
 
 const toDateTimeLocalValue = (value: string) => {
   const date = new Date(value);
@@ -93,8 +192,14 @@ type RecurrenceFeedback = {
 
 type CancellationScope = "single" | "this_and_following";
 type RescheduleScope = "single" | "this_and_following";
+type EventGroupingMode = "calendar" | "list" | "day" | "week";
+type IconActionTone = "default" | "accent" | "danger" | "success" | "warning";
+
+const isSharedGoogleCalendar = (calendarId: string) =>
+  calendarId.includes("@group.calendar.google.com");
 
 export const TeacherScheduling = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [currentUserId, setCurrentUserId] = useState("");
   const [students, setStudents] = useState<any[]>([]);
@@ -121,6 +226,15 @@ export const TeacherScheduling = () => {
     null,
   );
   const [activeView, setActiveView] = useState<"events" | "availability">("events");
+  const [eventGroupingMode, setEventGroupingMode] = useState<EventGroupingMode>("calendar");
+  const [eventCalendarMonth, setEventCalendarMonth] = useState(() =>
+    startOfMonth(new Date()),
+  );
+  const [selectedEventDate, setSelectedEventDate] = useState("");
+  const [availabilityCalendarMonth, setAvailabilityCalendarMonth] = useState(() =>
+    startOfMonth(new Date()),
+  );
+  const [selectedAvailabilityDate, setSelectedAvailabilityDate] = useState("");
   const [reservationForm, setReservationForm] = useState({
     ...initialReservationForm,
     studentId: searchParams.get("studentId") || "",
@@ -374,11 +488,127 @@ export const TeacherScheduling = () => {
         new Date(session.starts_at).getTime() < Date.now()),
   );
 
+  const completedPastEvents = pastEvents.filter((session) => session.status === "completed");
+  const cancelledPastEvents = pastEvents.filter((session) => session.status === "cancelled");
+
   const availableSessions = sessions.filter(
     (session) =>
       session.status === "available" &&
       new Date(session.starts_at).getTime() >= Date.now(),
   );
+
+  const availableSessionsByDay = useMemo(() => {
+    const grouped = new Map<string, any[]>();
+
+    for (const session of availableSessions) {
+      const dayKey = toDayKey(session.starts_at);
+      const currentGroup = grouped.get(dayKey) || [];
+      currentGroup.push(session);
+      grouped.set(dayKey, currentGroup);
+    }
+
+    return grouped;
+  }, [availableSessions]);
+
+  const calendarDays = useMemo(
+    () => buildCalendarDays(availabilityCalendarMonth),
+    [availabilityCalendarMonth],
+  );
+
+  const upcomingEventsByDay = useMemo(() => {
+    const grouped = new Map<string, any[]>();
+
+    for (const session of upcomingEvents) {
+      const dayKey = toDayKey(session.starts_at);
+      const currentGroup = grouped.get(dayKey) || [];
+      currentGroup.push(session);
+      grouped.set(dayKey, currentGroup);
+    }
+
+    return grouped;
+  }, [upcomingEvents]);
+
+  const eventCalendarDays = useMemo(
+    () => buildCalendarDays(eventCalendarMonth),
+    [eventCalendarMonth],
+  );
+
+  const selectedUpcomingSessions = useMemo(() => {
+    if (!selectedEventDate) return [];
+    return upcomingEventsByDay.get(selectedEventDate) || [];
+  }, [selectedEventDate, upcomingEventsByDay]);
+
+  const selectedAvailabilitySessions = useMemo(() => {
+    if (!selectedAvailabilityDate) return [];
+    return availableSessionsByDay.get(selectedAvailabilityDate) || [];
+  }, [availableSessionsByDay, selectedAvailabilityDate]);
+
+  const groupedUpcomingEvents = useMemo(() => {
+    if (eventGroupingMode === "list") {
+      return [
+        {
+          key: "lista-completa",
+          label: "Todas as proximas aulas",
+          sessions: upcomingEvents,
+        },
+      ];
+    }
+
+    const groups = new Map<string, any[]>();
+
+    for (const session of upcomingEvents) {
+      const groupKey =
+        eventGroupingMode === "day"
+          ? toDayKey(session.starts_at)
+          : toWeekKey(session.starts_at);
+      const currentGroup = groups.get(groupKey) || [];
+      currentGroup.push(session);
+      groups.set(groupKey, currentGroup);
+    }
+
+    return Array.from(groups.entries()).map(([key, groupedSessions]) => ({
+      key,
+      label:
+        eventGroupingMode === "day"
+          ? formatDayLabel(groupedSessions[0].starts_at)
+          : formatWeekLabel(groupedSessions[0].starts_at),
+      sessions: groupedSessions,
+    }));
+  }, [eventGroupingMode, upcomingEvents]);
+
+  useEffect(() => {
+    if (availableSessions.length === 0) {
+      setSelectedAvailabilityDate("");
+      return;
+    }
+
+    const hasSelectedDate = selectedAvailabilityDate
+      ? availableSessionsByDay.has(selectedAvailabilityDate)
+      : false;
+
+    if (!hasSelectedDate) {
+      const firstAvailableDate = toDayKey(availableSessions[0].starts_at);
+      setSelectedAvailabilityDate(firstAvailableDate);
+      setAvailabilityCalendarMonth(startOfMonth(new Date(availableSessions[0].starts_at)));
+    }
+  }, [availableSessions, availableSessionsByDay, selectedAvailabilityDate]);
+
+  useEffect(() => {
+    if (upcomingEvents.length === 0) {
+      setSelectedEventDate("");
+      return;
+    }
+
+    const hasSelectedDate = selectedEventDate
+      ? upcomingEventsByDay.has(selectedEventDate)
+      : false;
+
+    if (!hasSelectedDate) {
+      const firstEventDate = toDayKey(upcomingEvents[0].starts_at);
+      setSelectedEventDate(firstEventDate);
+      setEventCalendarMonth(startOfMonth(new Date(upcomingEvents[0].starts_at)));
+    }
+  }, [selectedEventDate, upcomingEvents, upcomingEventsByDay]);
 
   const fetchGoogleCalendars = async () => {
     const { data, error } = await supabase.functions.invoke(
@@ -389,7 +619,8 @@ export const TeacherScheduling = () => {
     );
 
     if (error) {
-      alert(error.message);
+      alert(await getFunctionErrorMessage(error));
+      setGoogleCalendars([]);
       return;
     }
 
@@ -794,6 +1025,7 @@ export const TeacherScheduling = () => {
     lessonId: string,
     scope: CancellationScope = "single",
   ) => {
+    let mutationSucceeded = false;
     const { error } = await supabase.functions.invoke("cancel-platform-lesson", {
       body: { lessonId, scope },
     });
@@ -801,7 +1033,24 @@ export const TeacherScheduling = () => {
     if (error) {
       alert(await getFunctionErrorMessage(error));
     } else {
-      fetchSchedulingData();
+      mutationSucceeded = true;
+    }
+
+    if (!mutationSucceeded) {
+      return;
+    }
+
+    try {
+      await runAutomaticSchedulingSync();
+    } catch (syncError) {
+      console.error("Falha ao sincronizar apos cancelar a aula:", syncError);
+      alert(
+        syncError instanceof Error
+          ? `Aula cancelada, mas a sincronizacao automatica falhou: ${syncError.message}`
+          : "Aula cancelada, mas a sincronizacao automatica falhou.",
+      );
+    } finally {
+      await fetchSchedulingData();
     }
   };
 
@@ -829,6 +1078,16 @@ export const TeacherScheduling = () => {
       alert(await getFunctionErrorMessage(error));
     } else {
       setRescheduleTarget(null);
+      try {
+        await runAutomaticSchedulingSync();
+      } catch (syncError) {
+        console.error("Falha ao sincronizar apos reagendar a aula:", syncError);
+        alert(
+          syncError instanceof Error
+            ? `Aula reagendada, mas a sincronizacao automatica falhou: ${syncError.message}`
+            : "Aula reagendada, mas a sincronizacao automatica falhou.",
+        );
+      }
       alert(
         rescheduleForm.scope === "this_and_following"
           ? "Aula e proximos encontros da recorrencia reagendados com sucesso."
@@ -858,6 +1117,7 @@ export const TeacherScheduling = () => {
       {
         status,
         completed_at: new Date().toISOString(),
+        completed_by: currentUserId || null,
         updated_at: new Date().toISOString(),
       };
 
@@ -1147,37 +1407,290 @@ export const TeacherScheduling = () => {
 
         {activeView === "events" ? (
           <div className="mt-8 grid gap-8">
-            <SessionList
-              eyebrow="Agenda ativa"
-              title="Eventos e aulas confirmadas"
-              sessions={upcomingEvents}
-              studentNameMap={studentNameMap}
-              accessCounts={accessCounts}
-              onUpdateStatus={updateSessionStatus}
-              onReschedule={openRescheduleModal}
-              compactGrid
-            />
+            <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                    Agenda ativa
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">
+                    Eventos e aulas confirmadas
+                  </h2>
+                  <p className="mt-3 max-w-3xl text-sm leading-6 text-white/60">
+                    Alterne entre uma lista unica ou uma leitura mais organizada por dia
+                    ou por semana.
+                  </p>
+                </div>
 
-            <SessionList
-              eyebrow="Historico"
-              title="Eventos passados e cancelados"
-              sessions={pastEvents}
+                <div className="inline-flex rounded-2xl bg-brand-900/70 p-1.5 ring-1 ring-white/10">
+                  {[
+                    { value: "calendar", label: "Calendario" },
+                    { value: "week", label: "Por semana" },
+                    { value: "day", label: "Por dia" },
+                    { value: "list", label: "Lista" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() =>
+                        setEventGroupingMode(option.value as EventGroupingMode)
+                      }
+                      className={`rounded-2xl px-4 py-2 text-sm font-bold transition ${
+                        eventGroupingMode === option.value
+                          ? "bg-white text-brand-900"
+                          : "text-white/70 hover:text-white"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-6">
+                {upcomingEvents.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
+                    Nenhuma aula futura agendada no momento.
+                  </div>
+                ) : eventGroupingMode === "calendar" ? (
+                  <div className="space-y-6">
+                    <div className="rounded-[2rem] bg-brand-900/35 p-5 ring-1 ring-white/10">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-lg font-bold capitalize text-white">
+                          {formatMonthLabel(eventCalendarMonth)}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEventCalendarMonth((current) => addMonths(current, -1))
+                            }
+                            className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                          >
+                            Mes anterior
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEventCalendarMonth((current) => addMonths(current, 1))
+                            }
+                            className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                          >
+                            Proximo mes
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 grid grid-cols-7 gap-2 text-center text-[11px] font-black uppercase tracking-[0.18em] text-white/35">
+                        {["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"].map((day) => (
+                          <div key={day} className="px-2 py-2">
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-2 grid grid-cols-7 gap-2">
+                        {eventCalendarDays.map((day) => {
+                          const dayKey = toDayKey(day.toISOString());
+                          const daySessions = upcomingEventsByDay.get(dayKey) || [];
+                          const isCurrentMonth =
+                            day.getMonth() === eventCalendarMonth.getMonth() &&
+                            day.getFullYear() === eventCalendarMonth.getFullYear();
+                          const isSelected = selectedEventDate === dayKey;
+
+                          return (
+                            <button
+                              key={dayKey}
+                              type="button"
+                              onClick={() => setSelectedEventDate(dayKey)}
+                              className={`min-h-[88px] rounded-2xl border p-3 text-left transition ${
+                                isSelected
+                                  ? "border-brand-lavender bg-white/10"
+                                  : daySessions.length > 0
+                                    ? "border-white/10 bg-white/5 hover:bg-white/10"
+                                    : "border-white/5 bg-white/[0.03] hover:bg-white/[0.05]"
+                              } ${!isCurrentMonth ? "opacity-45" : ""}`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <span className="text-sm font-bold text-white">
+                                  {day.getDate()}
+                                </span>
+                                {daySessions.length > 0 && (
+                                  <span className="rounded-full bg-brand-magenta/20 px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-brand-ice">
+                                    {daySessions.length}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-4 text-xs text-white/45">
+                                {daySessions.length > 0
+                                  ? `${daySessions.length} aula(s)`
+                                  : "Sem aulas"}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <SessionList
+                      eyebrow="Agenda ativa"
+                      title={
+                        selectedEventDate
+                          ? `Aulas de ${formatDayLabel(
+                              dateFromDayKey(selectedEventDate).toISOString(),
+                            )}`
+                          : "Aulas do dia"
+                      }
+                      sessions={selectedUpcomingSessions}
+                      studentNameMap={studentNameMap}
+                      accessCounts={accessCounts}
+                      onUpdateStatus={updateSessionStatus}
+                      onReschedule={openRescheduleModal}
+                      onOpenRoom={(session) => navigate(`/sala/aula/${session.id}`)}
+                      compactGrid
+                    />
+                  </div>
+                ) : (
+                  groupedUpcomingEvents.map((group) => (
+                    <GroupedSessionBlock
+                      key={group.key}
+                      label={group.label}
+                      sessions={group.sessions}
+                      studentNameMap={studentNameMap}
+                      accessCounts={accessCounts}
+                      onUpdateStatus={updateSessionStatus}
+                      onReschedule={openRescheduleModal}
+                      onOpenRoom={(session) => navigate(`/sala/aula/${session.id}`)}
+                    />
+                  ))
+                )}
+              </div>
+            </section>
+
+            <HistoryPreviewSection
+              completedSessions={completedPastEvents.slice(0, 3)}
+              cancelledSessions={cancelledPastEvents.slice(0, 3)}
               studentNameMap={studentNameMap}
               accessCounts={accessCounts}
               onUpdateStatus={updateSessionStatus}
               onReschedule={openRescheduleModal}
-              past
+              onOpenRoom={(session) => navigate(`/sala/aula/${session.id}`)}
             />
           </div>
         ) : (
           <div className="mt-8">
-            <AvailableSlotList
-              title="Horarios publicados para agendamento"
-              description="Cada horario disponivel pode ser reservado pela propria professora. Ao clicar em agendar, voce so escolhe o aluno e o tipo de jornada. O sistema gera o Meet e vincula tudo automaticamente ao agendamento."
-              sessions={availableSessions}
-              studentNameMap={studentNameMap}
-              onReserve={openReservationModal}
-            />
+            <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+                    Disponibilidade publicada
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">
+                    Calendario de horarios livres
+                  </h2>
+                  <p className="mt-3 max-w-3xl text-sm leading-6 text-white/60">
+                    Clique em um dia do calendario para ver os horarios livres
+                    publicados naquele dia e reservar um deles.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAvailabilityCalendarMonth((current) => addMonths(current, -1))
+                    }
+                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  >
+                    Mes anterior
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAvailabilityCalendarMonth((current) => addMonths(current, 1))
+                    }
+                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  >
+                    Proximo mes
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-[2rem] bg-brand-900/35 p-5 ring-1 ring-white/10">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-lg font-bold capitalize text-white">
+                    {formatMonthLabel(availabilityCalendarMonth)}
+                  </p>
+                  <p className="text-sm text-white/50">
+                    {availableSessions.length} horario(s) livre(s) futuro(s)
+                  </p>
+                </div>
+
+                <div className="mt-5 grid grid-cols-7 gap-2 text-center text-[11px] font-black uppercase tracking-[0.18em] text-white/35">
+                  {["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"].map((day) => (
+                    <div key={day} className="px-2 py-2">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-2 grid grid-cols-7 gap-2">
+                  {calendarDays.map((day) => {
+                    const dayKey = toDayKey(day.toISOString());
+                    const daySessions = availableSessionsByDay.get(dayKey) || [];
+                    const isCurrentMonth =
+                      day.getMonth() === availabilityCalendarMonth.getMonth() &&
+                      day.getFullYear() === availabilityCalendarMonth.getFullYear();
+                    const isSelected = selectedAvailabilityDate === dayKey;
+
+                    return (
+                      <button
+                        key={dayKey}
+                        type="button"
+                        onClick={() => setSelectedAvailabilityDate(dayKey)}
+                        className={`min-h-[88px] rounded-2xl border p-3 text-left transition ${
+                          isSelected
+                            ? "border-brand-lavender bg-white/10"
+                            : daySessions.length > 0
+                              ? "border-white/10 bg-white/5 hover:bg-white/10"
+                              : "border-white/5 bg-white/[0.03] hover:bg-white/[0.05]"
+                        } ${!isCurrentMonth ? "opacity-45" : ""}`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm font-bold text-white">{day.getDate()}</span>
+                          {daySessions.length > 0 && (
+                            <span className="rounded-full bg-brand-magenta/20 px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-brand-ice">
+                              {daySessions.length}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-4 text-xs text-white/45">
+                          {daySessions.length > 0
+                            ? `${daySessions.length} horario(s) livre(s)`
+                            : "Sem horarios"}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <AvailableSlotList
+                  title={
+                    selectedAvailabilityDate
+                      ? `Horarios livres de ${formatDayLabel(
+                          dateFromDayKey(selectedAvailabilityDate).toISOString(),
+                        )}`
+                      : "Horarios livres do dia"
+                  }
+                  description="Cada horario abaixo ja esta publicado na plataforma e pode ser reservado para um aluno vinculado."
+                  sessions={selectedAvailabilitySessions}
+                  studentNameMap={studentNameMap}
+                  onReserve={openReservationModal}
+                />
+              </div>
+            </section>
           </div>
         )}
       </div>
@@ -1664,6 +2177,15 @@ export const TeacherScheduling = () => {
                             </label>
                           );
                         })}
+                        {calendarSettings.eventCalendarIds.some(isSharedGoogleCalendar) &&
+                          calendarSettings.autoCreateMeet && (
+                            <div className="rounded-2xl bg-amber-400/10 p-4 text-sm leading-6 text-amber-100 ring-1 ring-amber-300/20">
+                              A agenda principal escolhida parece ser compartilhada.
+                              Nessas agendas o Google pode nao gerar Meet automaticamente.
+                              Para usar Meet automatico, prefira sua agenda principal
+                              pessoal do Google.
+                            </div>
+                          )}
                       </div>
                     )}
                   </div>
@@ -2101,7 +2623,7 @@ const AvailableSlotList = ({
               <div>
                 <h3 className="text-base font-bold text-white">{session.title}</h3>
                 <p className="mt-2 text-xs text-white/60">
-                  {formatDateTime(session.starts_at)} ate {formatDateTime(session.ends_at)}
+                  {formatSessionRange(session.starts_at, session.ends_at)}
                 </p>
               </div>
 
@@ -2151,6 +2673,362 @@ const SmallStat = ({
   </div>
 );
 
+const SessionCard = ({
+  session,
+  studentNameMap,
+  accessCounts,
+  onUpdateStatus,
+  onReschedule,
+  onOpenRoom,
+  past = false,
+  compactGrid = false,
+}: {
+  session: any;
+  studentNameMap: Record<string, string>;
+  accessCounts: Record<string, number>;
+  onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
+  onReschedule: (session: any) => void;
+  onOpenRoom: (session: any) => void;
+  past?: boolean;
+  compactGrid?: boolean;
+}) => (
+  <article
+    key={session.id}
+    className={`rounded-[2rem] bg-white/5 ring-1 ring-white/10 ${
+      compactGrid ? "p-4" : "p-5"
+    }`}
+  >
+    <div
+      className={`flex flex-col ${
+        compactGrid ? "gap-4" : "gap-5 lg:flex-row lg:items-start lg:justify-between"
+      }`}
+    >
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+            {session.session_track === "course" ? "Curso completo" : "Mentoria"}
+          </span>
+          {!past && (
+            <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
+              {session.status === "available"
+                ? "Disponivel"
+                : session.status === "completed"
+                  ? "Concluida"
+                  : session.status === "cancelled"
+                    ? "Cancelada"
+                    : "Agendada"}
+            </span>
+          )}
+        </div>
+
+        <div>
+          <h3 className={`${compactGrid ? "text-base" : "text-lg"} font-bold text-white`}>
+            {session.title}
+          </h3>
+          <p className={`mt-2 ${compactGrid ? "text-xs" : "text-sm"} text-white/60`}>
+            {formatSessionRange(session.starts_at, session.ends_at)}
+          </p>
+        </div>
+
+        <div
+          className={`flex flex-wrap gap-3 ${
+            compactGrid ? "text-xs" : "text-sm"
+          } text-white/55`}
+        >
+          {session.student_id && (
+            <span>Aluno: {studentNameMap[session.student_id] || "Aluno"}</span>
+          )}
+          <span>Acessos: {accessCounts[session.id] || 0}</span>
+          {session.recurrence_group_id && <span>Recorrencia #{session.recurrence_index}</span>}
+        </div>
+
+        {!past && !canAccessRoom(session) && session.meet_link && (
+          <p className={`${compactGrid ? "text-xs" : "text-sm"} text-white/45`}>
+            Sala liberada as: {formatDateTime(getRoomReleaseTime(session.starts_at).toISOString())}
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 overflow-x-auto pt-1">
+        {!past &&
+          (session.meet_link ? (
+            <IconActionButton
+              title={canAccessRoom(session) ? "Entrar na sala" : "Sala em breve"}
+              disabled={!canAccessRoom(session)}
+              onClick={() => {
+                if (!canAccessRoom(session)) return;
+                onOpenRoom(session);
+              }}
+              tone={canAccessRoom(session) ? "accent" : "default"}
+              icon={<MeetIcon />}
+            />
+          ) : (
+            <IconActionButton
+              title="Link do Meet ainda nao informado"
+              disabled
+              tone="default"
+              icon={<MeetIcon />}
+            />
+          ))}
+
+        {!past && session.status !== "completed" && session.status !== "cancelled" && (
+          <>
+            <IconActionButton
+              title="Reagendar"
+              onClick={() => onReschedule(session)}
+              tone="warning"
+              icon={<RescheduleIcon />}
+            />
+            <IconActionButton
+              title="Concluir"
+              onClick={() => onUpdateStatus(session, "completed")}
+              tone="success"
+              icon={<CheckIcon />}
+            />
+            <IconActionButton
+              title="Cancelar"
+              onClick={() => onUpdateStatus(session, "cancelled")}
+              tone="danger"
+              icon={<CancelIcon />}
+            />
+          </>
+        )}
+
+        {session.student_id && (
+          <Link
+            to={`/historico/${session.student_id}`}
+            title="Ver aluno"
+            className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-2xl bg-white/5 text-white ring-1 ring-white/15 transition hover:bg-white/10"
+          >
+            <StudentIcon />
+          </Link>
+        )}
+      </div>
+    </div>
+  </article>
+);
+
+const IconActionButton = ({
+  title,
+  icon,
+  onClick,
+  disabled = false,
+  tone = "default",
+}: {
+  title: string;
+  icon: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  tone?: IconActionTone;
+}) => {
+  const toneClass =
+    tone === "danger"
+      ? "bg-rose-500/10 text-rose-200 ring-rose-400/20 hover:bg-rose-500/20"
+      : tone === "success"
+        ? "bg-emerald-500/12 text-emerald-200 ring-emerald-400/25 hover:bg-emerald-500/22"
+        : tone === "warning"
+          ? "bg-amber-500/12 text-amber-100 ring-amber-300/25 hover:bg-amber-500/22"
+      : tone === "accent"
+        ? "bg-brand-magenta/20 text-white ring-brand-magenta/30 hover:brightness-110"
+        : "bg-white/5 text-white ring-white/15 hover:bg-white/10";
+
+  return (
+    <button
+      type="button"
+      title={title}
+      aria-label={title}
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex h-10 w-10 flex-none items-center justify-center rounded-2xl ring-1 transition ${toneClass} disabled:cursor-not-allowed disabled:opacity-40`}
+    >
+      {icon}
+    </button>
+  );
+};
+
+const MeetIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2">
+    <rect x="3" y="6" width="12" height="12" rx="2" />
+    <path d="M15 10l6-3v10l-6-3z" />
+  </svg>
+);
+
+const RescheduleIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2">
+    <path d="M21 12a9 9 0 1 1-3-6.7" />
+    <path d="M21 3v6h-6" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2">
+    <path d="M5 12l5 5L20 7" />
+  </svg>
+);
+
+const CancelIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9 9l6 6M15 9l-6 6" />
+  </svg>
+);
+
+const StudentIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2">
+    <circle cx="12" cy="8" r="3.5" />
+    <path d="M5 19c1.5-3 4-4.5 7-4.5s5.5 1.5 7 4.5" />
+  </svg>
+);
+
+const GroupedSessionBlock = ({
+  label,
+  sessions,
+  studentNameMap,
+  accessCounts,
+  onUpdateStatus,
+  onReschedule,
+  onOpenRoom,
+}: {
+  label: string;
+  sessions: any[];
+  studentNameMap: Record<string, string>;
+  accessCounts: Record<string, number>;
+  onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
+  onReschedule: (session: any) => void;
+  onOpenRoom: (session: any) => void;
+}) => (
+  <div className="rounded-[2rem] bg-brand-900/35 p-5 ring-1 ring-white/10">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-lavender">
+          {label}
+        </p>
+        <p className="mt-2 text-sm text-white/55">{sessions.length} aula(s) neste grupo</p>
+      </div>
+    </div>
+
+    <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {sessions.map((session) => (
+        <SessionCard
+          key={session.id}
+          session={session}
+          studentNameMap={studentNameMap}
+          accessCounts={accessCounts}
+          onUpdateStatus={onUpdateStatus}
+          onReschedule={onReschedule}
+          onOpenRoom={onOpenRoom}
+          compactGrid
+        />
+      ))}
+    </div>
+  </div>
+);
+
+const HistoryPreviewSection = ({
+  completedSessions,
+  cancelledSessions,
+  studentNameMap,
+  accessCounts,
+  onUpdateStatus,
+  onReschedule,
+  onOpenRoom,
+}: {
+  completedSessions: any[];
+  cancelledSessions: any[];
+  studentNameMap: Record<string, string>;
+  accessCounts: Record<string, number>;
+  onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
+  onReschedule: (session: any) => void;
+  onOpenRoom: (session: any) => void;
+}) => (
+  <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+          Historico
+        </p>
+        <h2 className="mt-2 text-2xl font-bold text-white">Aulas finalizadas</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-white/60">
+          Consulte um resumo rapido das aulas concluidas e canceladas. Para
+          aprofundar a analise, abra o historico completo dos relatorios.
+        </p>
+      </div>
+
+      <Link
+        to="/relatorios"
+        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-5 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+      >
+        Ver historico completo
+      </Link>
+    </div>
+
+    <div className="mt-6 grid gap-8 xl:grid-cols-2">
+      <HistoryPreviewColumn
+        title="Aulas concluidas"
+        sessions={completedSessions}
+        studentNameMap={studentNameMap}
+        accessCounts={accessCounts}
+        onUpdateStatus={onUpdateStatus}
+        onReschedule={onReschedule}
+        onOpenRoom={onOpenRoom}
+      />
+      <HistoryPreviewColumn
+        title="Aulas canceladas"
+        sessions={cancelledSessions}
+        studentNameMap={studentNameMap}
+        accessCounts={accessCounts}
+        onUpdateStatus={onUpdateStatus}
+        onReschedule={onReschedule}
+        onOpenRoom={onOpenRoom}
+      />
+    </div>
+  </section>
+);
+
+const HistoryPreviewColumn = ({
+  title,
+  sessions,
+  studentNameMap,
+  accessCounts,
+  onUpdateStatus,
+  onReschedule,
+  onOpenRoom,
+}: {
+  title: string;
+  sessions: any[];
+  studentNameMap: Record<string, string>;
+  accessCounts: Record<string, number>;
+  onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
+  onReschedule: (session: any) => void;
+  onOpenRoom: (session: any) => void;
+}) => (
+  <div className="rounded-[2rem] bg-brand-900/35 p-5 ring-1 ring-white/10">
+    <h3 className="text-2xl font-bold text-white">{title}</h3>
+
+    <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {sessions.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
+          Nenhum registro nesta secao ainda.
+        </div>
+      ) : (
+        sessions.map((session) => (
+          <SessionCard
+            key={session.id}
+            session={session}
+            studentNameMap={studentNameMap}
+            accessCounts={accessCounts}
+            onUpdateStatus={onUpdateStatus}
+            onReschedule={onReschedule}
+            onOpenRoom={onOpenRoom}
+            past
+            compactGrid
+          />
+        ))
+      )}
+    </div>
+  </div>
+);
+
 const SessionList = ({
   eyebrow,
   title,
@@ -2159,6 +3037,7 @@ const SessionList = ({
   accessCounts,
   onUpdateStatus,
   onReschedule,
+  onOpenRoom,
   past = false,
   compactGrid = false,
 }: {
@@ -2169,6 +3048,7 @@ const SessionList = ({
   accessCounts: Record<string, number>;
   onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
   onReschedule: (session: any) => void;
+  onOpenRoom: (session: any) => void;
   past?: boolean;
   compactGrid?: boolean;
 }) => (
@@ -2189,116 +3069,17 @@ const SessionList = ({
         </div>
       ) : (
         sessions.map((session) => (
-          <article
+          <SessionCard
             key={session.id}
-            className={`rounded-[2rem] bg-white/5 ring-1 ring-white/10 ${
-              compactGrid ? "p-4" : "p-5"
-            }`}
-          >
-            <div
-              className={`flex flex-col ${
-                compactGrid ? "gap-4" : "gap-5 lg:flex-row lg:items-start lg:justify-between"
-              }`}
-            >
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
-                    {session.session_track === "course" ? "Curso completo" : "Mentoria"}
-                  </span>
-                  <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
-                    {session.status === "available"
-                      ? "Disponivel"
-                      : session.status === "completed"
-                        ? "Concluida"
-                        : session.status === "cancelled"
-                          ? "Cancelada"
-                          : "Agendada"}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className={`${compactGrid ? "text-base" : "text-lg"} font-bold text-white`}>
-                    {session.title}
-                  </h3>
-                  <p className={`mt-2 ${compactGrid ? "text-xs" : "text-sm"} text-white/60`}>
-                    {formatDateTime(session.starts_at)} ate {formatDateTime(session.ends_at)}
-                  </p>
-                </div>
-
-                <div
-                  className={`flex flex-wrap gap-3 ${
-                    compactGrid ? "text-xs" : "text-sm"
-                  } text-white/55`}
-                >
-                  <span>
-                    {session.student_id
-                      ? `Aluno: ${studentNameMap[session.student_id] || "Aluno"}`
-                      : "Horario livre para reserva"}
-                  </span>
-                  <span>Acessos: {accessCounts[session.id] || 0}</span>
-                  {session.recurrence_group_id && (
-                    <span>Recorrencia #{session.recurrence_index}</span>
-                  )}
-                </div>
-
-                {session.meet_link ? (
-                  <a
-                    href={session.meet_link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`inline-flex items-center gap-2 ${
-                      compactGrid ? "text-xs" : "text-sm"
-                    } font-semibold text-brand-ice hover:text-white`}
-                  >
-                    Abrir link da aula
-                  </a>
-                ) : (
-                  <p className={`${compactGrid ? "text-xs" : "text-sm"} text-white/40`}>
-                    Link da aula ainda nao informado.
-                  </p>
-                )}
-              </div>
-
-              {!past && (
-                <div className={`flex ${compactGrid ? "flex-col" : ""} gap-2`}>
-                  {session.status !== "completed" && session.status !== "cancelled" && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => onReschedule(session)}
-                        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
-                      >
-                        Reagendar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onUpdateStatus(session, "completed")}
-                        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
-                      >
-                        Concluir
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onUpdateStatus(session, "cancelled")}
-                        className="inline-flex items-center justify-center rounded-2xl bg-rose-500/10 px-4 py-3 text-sm font-bold text-rose-200 ring-1 ring-rose-400/20 transition hover:bg-rose-500/20"
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  )}
-
-                  {session.student_id && (
-                    <Link
-                      to={`/historico/${session.student_id}`}
-                      className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
-                    >
-                      Ver aluno
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-          </article>
+            session={session}
+            studentNameMap={studentNameMap}
+            accessCounts={accessCounts}
+            onUpdateStatus={onUpdateStatus}
+            onReschedule={onReschedule}
+            onOpenRoom={onOpenRoom}
+            past={past}
+            compactGrid={compactGrid}
+          />
         ))
       )}
     </div>

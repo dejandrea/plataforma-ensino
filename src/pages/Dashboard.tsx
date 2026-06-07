@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { LessonCard } from "../components/LessonCard";
 
@@ -10,6 +10,7 @@ export const Dashboard = () => {
   const [modules, setModules] = useState<any[]>([]);
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [studentName, setStudentName] = useState("Aluno");
+  const [hasCourseAccess, setHasCourseAccess] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,12 +29,36 @@ export const Dashboard = () => {
       return;
     }
 
-    const [{ data: progress }, { data: profile }, { data: activeCourses, error: courseError }] =
+    let profileQuery = supabase
+      .from("profiles")
+      .select("full_name, student_service_scope")
+      .eq("id", user.id)
+      .single();
+
+    const [{ data: progress }, profileResult, { data: activeCourses, error: courseError }] =
       await Promise.all([
         supabase.from("student_progress").select("lesson_id").eq("student_id", user.id),
-        supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+        profileQuery,
         supabase.from("courses").select("id").eq("is_active", true),
       ]);
+
+    let profile:
+      | { full_name?: string | null; student_service_scope?: "mentoring" | "course" | "both" | null }
+      | null = profileResult.data as
+        | { full_name?: string | null; student_service_scope?: "mentoring" | "course" | "both" | null }
+        | null;
+
+    if (profileResult.error?.message?.includes("student_service_scope")) {
+      const fallbackProfile = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+
+      profile = (fallbackProfile.data as { full_name?: string | null } | null)
+        ? { ...fallbackProfile.data }
+        : null;
+    }
 
     if (courseError) {
       console.error("Erro ao buscar cursos ativos:", courseError.message);
@@ -124,6 +149,11 @@ export const Dashboard = () => {
       setStudentName(profile.full_name.split(" ")[0]);
     }
 
+    setHasCourseAccess(
+      profile?.student_service_scope === "course" ||
+        profile?.student_service_scope === "both",
+    );
+
     setLoading(false);
   }
 
@@ -149,6 +179,10 @@ export const Dashboard = () => {
         </div>
       </div>
     );
+  }
+
+  if (!hasCourseAccess) {
+    return <Navigate to="/minhas-aulas" replace />;
   }
 
   return (

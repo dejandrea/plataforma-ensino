@@ -154,12 +154,17 @@ serve(async (req) => {
         second: 0,
         millisecond: 0,
       });
-      const dayEnd = day.set({
+      let dayEnd = day.set({
         hour: endTime.hour,
         minute: endTime.minute,
         second: 0,
         millisecond: 0,
       });
+
+      // Allow availability windows that cross midnight, such as 14:00 -> 00:00.
+      if (dayEnd <= slotStart) {
+        dayEnd = dayEnd.plus({ days: 1 });
+      }
 
       while (slotStart.plus({ minutes: slotMinutes }) <= dayEnd) {
         const slotEnd = slotStart.plus({ minutes: slotMinutes });

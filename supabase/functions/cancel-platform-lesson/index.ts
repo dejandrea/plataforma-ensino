@@ -8,6 +8,9 @@ import { getAuthenticatedProfile } from "../_shared/supabase.ts";
 
 type CancellationScope = "single" | "this_and_following";
 
+const canStudentCancelLesson = (startsAt: string) =>
+  new Date(startsAt).getTime() - Date.now() >= 2 * 60 * 60 * 1000;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { status: 200, headers: corsHeaders });
@@ -53,6 +56,16 @@ serve(async (req) => {
 
     if (!canCancelAsAdmin && !canCancelAsTeacher && !canCancelAsStudent) {
       throw new Error("Voce nao pode cancelar este agendamento.");
+    }
+
+    if (canCancelAsStudent && !canStudentCancelLesson(lesson.starts_at)) {
+      throw new Error(
+        "O aluno so pode cancelar uma aula com pelo menos 2 horas de antecedencia.",
+      );
+    }
+
+    if (canCancelAsStudent && scope !== "single") {
+      throw new Error("O aluno so pode cancelar a aula selecionada.");
     }
 
     if (lesson.status === "cancelled") {

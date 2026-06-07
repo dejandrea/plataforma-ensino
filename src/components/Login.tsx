@@ -31,7 +31,10 @@ export const Login = () => {
     if (profile.role === "admin" || profile.role === "professor") {
       navigate("/dashboard-professor");
     } else {
-      navigate("/dashboard");
+      const hasCourseAccess =
+        profile.student_service_scope === "course" ||
+        profile.student_service_scope === "both";
+      navigate(hasCourseAccess ? "/dashboard" : "/minhas-aulas");
     }
   };
 

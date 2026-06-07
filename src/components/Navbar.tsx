@@ -13,6 +13,7 @@ export const Navbar = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarMode, setAvatarMode] = useState("preset");
   const [avatarPreset, setAvatarPreset] = useState("avatar-1");
+  const [hasCourseAccess, setHasCourseAccess] = useState(true);
   const location = useLocation();
 
   const loadProfile = async () => {
@@ -22,11 +23,21 @@ export const Navbar = () => {
 
     if (!user) return;
 
-    const { data } = await supabase
+    let profileQuery = await supabase
       .from("profiles")
-      .select("full_name, nickname, avatar_url, avatar_mode, avatar_preset")
+      .select("full_name, nickname, avatar_url, avatar_mode, avatar_preset, student_service_scope")
       .eq("id", user.id)
       .single();
+
+    if (profileQuery.error?.message?.includes("student_service_scope")) {
+      profileQuery = await supabase
+        .from("profiles")
+        .select("full_name, nickname, avatar_url, avatar_mode, avatar_preset")
+        .eq("id", user.id)
+        .single();
+    }
+
+    const data = profileQuery.data;
 
     if (data?.nickname || data?.full_name) {
       setDisplayName(data.nickname || data.full_name);
@@ -35,6 +46,9 @@ export const Navbar = () => {
     setAvatarUrl(data?.avatar_url || "");
     setAvatarMode(data?.avatar_mode || "preset");
     setAvatarPreset(data?.avatar_preset || "avatar-1");
+    setHasCourseAccess(
+      data?.student_service_scope === "course" || data?.student_service_scope === "both",
+    );
   };
 
   useEffect(() => {
@@ -60,8 +74,8 @@ export const Navbar = () => {
         : "text-white/55 hover:bg-white/5 hover:text-white"
     }`;
 
-  const backTarget =
-    location.pathname === "/dashboard" ? null : "/dashboard";
+  const studentHome = hasCourseAccess ? "/dashboard" : "/minhas-aulas";
+  const backTarget = location.pathname === studentHome ? null : studentHome;
 
   return (
     <nav className="sticky top-0 z-20 border-b border-white/10 bg-brand-900/85 backdrop-blur-xl">
@@ -77,7 +91,7 @@ export const Navbar = () => {
           )}
 
           <NavLink
-            to="/dashboard"
+            to={studentHome}
             className="inline-flex items-center gap-3 rounded-2xl text-white transition hover:opacity-90"
           >
             <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink text-lg shadow-soft ring-1 ring-white/10">
@@ -96,9 +110,11 @@ export const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <NavLink to="/dashboard" className={navClass}>
-            Minha jornada
-          </NavLink>
+          {hasCourseAccess && (
+            <NavLink to="/dashboard" className={navClass}>
+              Minha jornada
+            </NavLink>
+          )}
           <NavLink to="/minhas-aulas" className={navClass}>
             Minhas aulas
           </NavLink>

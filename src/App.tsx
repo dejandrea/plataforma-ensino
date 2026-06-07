@@ -17,6 +17,9 @@ import { StudentLessons } from "./pages/StudentLessons";
 import { TeacherScheduling } from "./pages/TeacherScheduling";
 import { ensureUserProfile } from "./lib/ensureUserProfile";
 import { ProfilePage } from "./pages/ProfilePage";
+import { LessonRoom } from "./pages/LessonRoom";
+import { TeacherReports } from "./pages/TeacherReports";
+import { CommercialManagement } from "./pages/CommercialManagement";
 
 const RoleRoute = ({
   children,
@@ -117,6 +120,14 @@ function App() {
           }
         />
         <Route
+          path="/sala/aula/:lessonId"
+          element={
+            <RoleRoute allowedRoles={["admin", "professor", "student"]}>
+              <LessonRoom />
+            </RoleRoute>
+          }
+        />
+        <Route
           path="/meu-boletim"
           element={
             <RoleRoute allowedRole="student">
@@ -173,6 +184,17 @@ function App() {
           }
         />
         <Route
+          path="/relatorios"
+          element={
+            <RoleRoute allowedRoles={["admin", "professor"]}>
+              <>
+                <StaffNavbar />
+                <TeacherReports />
+              </>
+            </RoleRoute>
+          }
+        />
+        <Route
           path="/admin/avaliar"
           element={
             <RoleRoute allowedRoles={["admin", "professor"]}>
@@ -202,6 +224,17 @@ function App() {
               <>
                 <StaffNavbar />
                 <SystemManagement />
+              </>
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/comercial"
+          element={
+            <RoleRoute allowedRole="admin">
+              <>
+                <StaffNavbar />
+                <CommercialManagement />
               </>
             </RoleRoute>
           }
