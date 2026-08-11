@@ -626,95 +626,102 @@ export const TabUsers = () => {
           A administracao cria o acesso por aqui e o usuario recebe um link para definir a senha no primeiro acesso.
         </p>
 
-        <form
-          onSubmit={handleCreateUser}
-          className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4 items-end"
-        >
-          <div className="space-y-1">
-            <label className="ml-1 text-[10px] font-black uppercase text-white/30">
-              Nome
-            </label>
-            <input
-              required
-              placeholder="Ex: Ana"
-              className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
-              value={newUser.name}
-              onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-            />
+        <form onSubmit={handleCreateUser} className="mt-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-1">
+              <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                Nome
+              </label>
+              <input
+                required
+                placeholder="Ex: Ana"
+                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                value={newUser.name}
+                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+              />
+            </div>
 
-            <label className="ml-1 text-[10px] font-black uppercase text-white/30">
-              Sobrenome
-            </label>
-            <input
-              required
-              placeholder="Ex: Silva"
-              className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
-              value={newUser.lastName}
-              onChange={(e) =>
-                setNewUser({ ...newUser, lastName: e.target.value })
-              }
-            />
+            <div className="space-y-1">
+              <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                Sobrenome
+              </label>
+              <input
+                required
+                placeholder="Ex: Silva"
+                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                value={newUser.lastName}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, lastName: e.target.value })
+                }
+              />
+            </div>
 
-            <label className="ml-1 text-[10px] font-black uppercase text-white/30">
-              Apelido
-            </label>
-            <input
-              placeholder="Aninha"
-              className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
-              value={newUser.nickname}
-              onChange={(e) =>
-                setNewUser({ ...newUser, nickname: e.target.value })
-              }
-            />
-          </div>
+            <div className="space-y-1">
+              <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                Apelido
+              </label>
+              <input
+                placeholder="Aninha"
+                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                value={newUser.nickname}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, nickname: e.target.value })
+                }
+              />
+            </div>
 
-          <div className="space-y-1">
-            <label className="ml-1 text-[10px] font-black uppercase text-white/30">
-              E-mail de acesso
-            </label>
-            <input
-              required
-              type="email"
-              placeholder="ana@email.com"
-              className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
-              value={newUser.email}
-              onChange={(e) =>
-                setNewUser({ ...newUser, email: e.target.value })
-              }
-            />
+            <div className="space-y-1">
+              <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                E-mail de acesso
+              </label>
+              <input
+                required
+                type="email"
+                placeholder="ana@email.com"
+                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                value={newUser.email}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, email: e.target.value })
+                }
+              />
+            </div>
 
-            <label className="ml-1 text-[10px] font-black uppercase text-white/30">
-              Data de nascimento
-            </label>
-            <input
-              required
-              type="date"
-              className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
-              value={newUser.birthDate}
-              onChange={(e) =>
-                setNewUser({ ...newUser, birthDate: e.target.value })
-              }
-            />
+            <div className="space-y-1">
+              <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                Data de nascimento
+              </label>
+              <input
+                required
+                type="date"
+                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                value={newUser.birthDate}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, birthDate: e.target.value })
+                }
+              />
+            </div>
 
-            <label className="ml-1 text-[10px] font-black uppercase text-white/30">
-              Nivel de acesso
-            </label>
-            <select
-              className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
-              style={selectStyle}
-              value={newUser.role}
-              onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-            >
-              <option value="student" style={selectStyle}>
-                Aluno
-              </option>
-              <option value="professor" style={selectStyle}>
-                Professor(a)
-              </option>
-              <option value="admin" style={selectStyle}>
-                Administrador
-              </option>
-            </select>
+            <div className="space-y-1">
+              <label className="ml-1 text-[10px] font-black uppercase text-white/30">
+                Nivel de acesso
+              </label>
+              <select
+                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                style={selectStyle}
+                value={newUser.role}
+                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+              >
+                <option value="student" style={selectStyle}>
+                  Aluno
+                </option>
+                <option value="professor" style={selectStyle}>
+                  Professor(a)
+                </option>
+                <option value="admin" style={selectStyle}>
+                  Administrador
+                </option>
+              </select>
+            </div>
 
             {newUser.role === "student" && (
               <StudentCommercialFields
@@ -726,12 +733,14 @@ export const TabUsers = () => {
             )}
           </div>
 
-          <button
-            disabled={loading}
-            className="mt-5 flex h-[46px] items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink text-sm font-black uppercase tracking-widest text-white shadow-lg transition hover:brightness-110 disabled:opacity-50"
-          >
-            {loading ? "Processando..." : "Autorizar"}
-          </button>
+          <div className="mt-6 flex justify-end border-t border-white/10 pt-4">
+            <button
+              disabled={loading}
+              className="flex min-h-[46px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-6 text-sm font-black uppercase tracking-widest text-white shadow-lg transition hover:brightness-110 disabled:opacity-50 md:w-auto"
+            >
+              {loading ? "Processando..." : "Autorizar"}
+            </button>
+          </div>
         </form>
       </section>
 
