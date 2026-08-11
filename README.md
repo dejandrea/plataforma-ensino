@@ -1,12 +1,12 @@
 # 🎓 Plataforma de Gestão de Aulas
 
-Plataforma web desenvolvida para centralizar e facilitar o gerenciamento de aulas online, alunos, professores e atividades acadêmicas.
+Aplicação Full Stack desenvolvida para centralizar o gerenciamento de aulas online, alunos, professores, avaliações, agendamentos e acompanhamento acadêmico.
 
-O projeto nasceu de uma necessidade real da minha atuação como professora e mentora de programação: reunir em uma única aplicação as ferramentas necessárias para organizar e acompanhar o processo de ensino.
+O projeto nasceu de uma necessidade real da minha atuação como professora e mentora de programação e está sendo desenvolvido inicialmente para uso próprio, com possibilidade futura de disponibilização como produto para outros professores.
 
-A aplicação está em desenvolvimento e, além de atender ao meu próprio fluxo de trabalho, possui potencial para futuramente ser disponibilizada como solução para outros professores e profissionais que trabalham com aulas particulares e mentorias.
+A aplicação utiliza React + TypeScript no front-end e Supabase/PostgreSQL no back-end, incluindo autenticação, controle de acesso, Edge Functions, migrations e integração com Google Calendar.
 
-> 🚧 Projeto autoral em desenvolvimento.
+> 🚧 Projeto autoral em desenvolvimento ativo.
 
 ---
 
@@ -54,20 +54,23 @@ O React Router é utilizado para gerenciamento das rotas da aplicação.
 
 ## ✨ Funcionalidades
 
-A plataforma está sendo desenvolvida de forma incremental.
+A plataforma já possui diferentes fluxos voltados para professores, alunos e administração, incluindo:
 
-Entre os recursos previstos para o sistema estão:
-
-- 👩‍🏫 Gestão de professores
-- 👨‍🎓 Gestão de alunos
-- 🔐 Autenticação de usuários
-- 👥 Diferentes níveis de acesso
-- 📚 Organização das informações acadêmicas
-- 📅 Gerenciamento de aulas e agendamentos
-- 📊 Acompanhamento dos alunos
-- 📝 Avaliações
-- 🏆 Certificados
-- 🔗 Integração com ferramentas utilizadas nas aulas
+- Autenticação e rotas protegidas
+- Gestão e vinculação de alunos
+- Dashboard e recursos para professores
+- Gerenciamento e visualização de aulas
+- Agendamento, confirmação, cancelamento e reagendamento de aulas
+- Integração e sincronização com Google Calendar
+- Sincronização de disponibilidade para agendamentos
+- Avaliações e feedbacks
+- Histórico e relatórios dos alunos
+- Gerenciamento de perfil
+- Recuperação/redefinição de senha
+- Área de gerenciamento do sistema
+- Recursos de gestão comercial
+- Banco de dados PostgreSQL com migrations versionadas
+- Edge Functions no Supabase para operações de back-end
 
 > Algumas funcionalidades ainda estão em desenvolvimento e podem sofrer alterações durante a evolução do projeto.
 
@@ -99,11 +102,16 @@ plataforma-ensino/
 ├── public/
 │
 ├── src/
+│   ├── assets/
 │   ├── components/
+│   ├── lib/
 │   ├── pages/
-│   └── ...
+│   ├── App.tsx
+│   └── main.tsx
 │
 ├── supabase/
+│   ├── functions/
+│   └── migrations/
 │
 ├── package.json
 ├── vite.config.ts
