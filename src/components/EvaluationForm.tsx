@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { fetchStudentModules } from "../lib/studentCourses";
 
 const criteria = [
   { id: "technical", label: "Proficiencia Tecnica" },
@@ -95,11 +96,17 @@ export const EvaluationForm = ({
   }, [studentId, moduleId]);
 
   const handleSubmit = async () => {
-    if (existingEvaluation) return;
+    if (existingEvaluation || loading || loadingExisting) return;
 
     setLoading(true);
 
     try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error("Entre novamente para registrar a avaliacao.");
+      const availableModules = await fetchStudentModules(studentId);
+      if (!availableModules.some((module) => module.id === moduleId)) {
+        throw new Error("O aluno so pode receber avaliacao de uma materia que ja concluiu.");
+      }
       let aiFeedbackJson: Record<string, string> | null = null;
       let usedTeacherFallback = false;
 
@@ -116,6 +123,7 @@ export const EvaluationForm = ({
 
       const { error } = await supabase.from("module_evaluations").insert({
         student_id: studentId,
+        teacher_id: user.id,
         module_id: moduleId,
         teacher_comment: comment,
         ai_feedback_json: aiFeedbackJson,

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { EvaluationForm } from "../components/EvaluationForm";
+import { fetchStudentModules } from "../lib/studentCourses";
 
 export const AdminEvaluations = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export const AdminEvaluations = () => {
   const [modules, setModules] = useState<any[]>([]);
   const [studentEvaluations, setStudentEvaluations] = useState<any[]>([]);
   const [loadingEvaluations, setLoadingEvaluations] = useState(false);
+  const [moduleState, setModuleState] = useState({ studentId: "", loading: false, error: "" });
   const [selectedStudent, setSelectedStudent] = useState(
     searchParams.get("studentId") || "",
   );
@@ -29,22 +31,30 @@ export const AdminEvaluations = () => {
         setStudents(studentData || []);
       }
 
-      const { data: moduleData, error: moduleError } = await supabase
-        .from("modules")
-        .select("*")
-        .order("order_index");
-
-      if (moduleError) {
-        console.error("Erro ao buscar modulos:", moduleError.message);
-      } else {
-        setModules(moduleData || []);
-      }
     };
 
     fetchData();
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    setModules([]);
+    setSelectedModule("");
+    setModuleState({ studentId: selectedStudent, loading: Boolean(selectedStudent), error: "" });
+    if (selectedStudent) {
+      fetchStudentModules(selectedStudent).then((data) => {
+        if (cancelled) return;
+        setModules(data);
+        setModuleState({ studentId: selectedStudent, loading: false, error: "" });
+      }).catch(() => {
+        if (!cancelled) setModuleState({ studentId: selectedStudent, loading: false, error: "Nao foi possivel carregar as materias do aluno." });
+      });
+    }
+    return () => { cancelled = true; };
+  }, [selectedStudent]);
+
+  useEffect(() => {
+    let cancelled = false;
     async function fetchStudentEvaluations() {
       if (!selectedStudent) {
         setStudentEvaluations([]);
@@ -52,6 +62,7 @@ export const AdminEvaluations = () => {
       }
 
       setLoadingEvaluations(true);
+      setStudentEvaluations([]);
 
       const { data, error } = await supabase
         .from("module_evaluations")
@@ -64,6 +75,8 @@ export const AdminEvaluations = () => {
         .eq("student_id", selectedStudent)
         .order("created_at", { ascending: false });
 
+      if (cancelled) return;
+
       if (error) {
         console.error("Erro ao buscar boletins do aluno:", error.message);
         setStudentEvaluations([]);
@@ -75,6 +88,7 @@ export const AdminEvaluations = () => {
     }
 
     fetchStudentEvaluations();
+    return () => { cancelled = true; };
   }, [selectedStudent]);
 
   const returnTo =
@@ -107,7 +121,7 @@ export const AdminEvaluations = () => {
                 </label>
                 <select
                   className="mt-2 block w-full rounded-2xl bg-brand-900/60 p-3 text-white ring-1 ring-white/10 outline-none transition focus:ring-2 focus:ring-brand-lavender"
-                  onChange={(e) => setSelectedStudent(e.target.value)}
+                  onChange={(e) => { setSelectedModule(""); setSelectedStudent(e.target.value); }}
                   value={selectedStudent}
                 >
                   <option value="">Escolha um aluno...</option>
@@ -127,21 +141,26 @@ export const AdminEvaluations = () => {
                   className="mt-2 block w-full rounded-2xl bg-brand-900/60 p-3 text-white ring-1 ring-white/10 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   onChange={(e) => setSelectedModule(e.target.value)}
                   value={selectedModule}
+                  disabled={!selectedStudent || moduleState.loading || moduleState.studentId !== selectedStudent}
                 >
                   <option value="">Escolha o modulo...</option>
-                  {modules.map((module) => (
+                  {(moduleState.studentId === selectedStudent ? modules : []).map((module) => (
                     <option key={module.id} value={module.id}>
-                      {module.title}
+                      {module.course_title} - {module.title}
                       {evaluatedModuleIds.has(module.id) ? " - ja avaliado" : ""}
                     </option>
                   ))}
                 </select>
+                <p className="mt-2 text-sm text-white/60" role="status">
+                  {moduleState.error || (moduleState.loading ? "Carregando materias concluidas..." : selectedStudent && modules.length === 0 ? "Este aluno ainda nao concluiu nenhuma materia. A avaliacao sera liberada depois de concluir todas as aulas dos modulos da materia." : "Somente modulos de materias que o aluno ja concluiu." )}
+                </p>
               </div>
             </div>
 
             <div>
-              {selectedStudent && selectedModule ? (
+              {selectedStudent && selectedModule && moduleState.studentId === selectedStudent && modules.some((module) => module.id === selectedModule) ? (
                 <EvaluationForm
+                  key={`${selectedStudent}:${selectedModule}`}
                   studentId={selectedStudent}
                   moduleId={selectedModule}
                   onSaved={() => navigate(returnTo)}

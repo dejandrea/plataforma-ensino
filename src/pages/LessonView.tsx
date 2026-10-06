@@ -7,28 +7,24 @@ export const LessonView = () => {
   const navigate = useNavigate();
   const [lesson, setLesson] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    if (id) {
-      fetchLesson();
+    let cancelled = false;
+    async function fetchLesson() {
+      setLesson(null);
+      setLoadError("");
+      const { data, error } = await supabase.from("lessons").select("*").eq("id", id).maybeSingle();
+      if (cancelled) return;
+      if (error || !data) setLoadError("Esta aula ainda nao esta liberada. Conclua o modulo anterior ou volte para sua jornada.");
+      else setLesson(data);
     }
+    if (id) void fetchLesson();
+    return () => { cancelled = true; };
   }, [id]);
 
-  async function fetchLesson() {
-    const { data, error } = await supabase
-      .from("lessons")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      console.error("Erro do Supabase:", error.message);
-    }
-
-    setLesson(data);
-  }
-
   const handleMarkAsComplete = async () => {
+    if (loading || !lesson) return;
     setLoading(true);
     const {
       data: { user },
@@ -44,7 +40,7 @@ export const LessonView = () => {
       student_id: user.id,
       lesson_id: id,
       completed_at: new Date().toISOString(),
-    });
+    }, { onConflict: "student_id,lesson_id" });
 
     if (error) {
       console.error("DETALHE DO ERRO:", error.message, error.details, error.hint);
@@ -56,6 +52,13 @@ export const LessonView = () => {
 
     setLoading(false);
   };
+
+  if (loadError) return (
+    <div className="app-bg p-10 text-white" role="alert">
+      <p>{loadError}</p>
+      <button type="button" className="mt-4 underline" onClick={() => navigate("/dashboard")}>Voltar para minha jornada</button>
+    </div>
+  );
 
   if (!lesson) {
     return (

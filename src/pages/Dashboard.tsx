@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { LessonCard } from "../components/LessonCard";
-
-const flattenLessons = (submodules: any[]) =>
-  submodules.flatMap((submodule) => submodule.lessons || []);
+import { fetchStudentCurriculum } from "../lib/studentCourses";
 
 export const Dashboard = () => {
   const [modules, setModules] = useState<any[]>([]);
@@ -12,6 +10,7 @@ export const Dashboard = () => {
   const [studentName, setStudentName] = useState("Aluno");
   const [hasCourseAccess, setHasCourseAccess] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     fetchModules();
@@ -29,6 +28,18 @@ export const Dashboard = () => {
       return;
     }
 
+    let curriculum;
+    try {
+      curriculum = await fetchStudentCurriculum(user.id);
+      setLoadError("");
+    } catch {
+      setLoadError("Nao foi possivel carregar sua jornada. Tente novamente.");
+      setModules([]);
+      setLoading(false);
+      return;
+    }
+    const moduleStatus = new Map(curriculum.map((module) => [module.id, module]));
+
     let profileQuery = supabase
       .from("profiles")
       .select("full_name, student_service_scope")
@@ -37,7 +48,7 @@ export const Dashboard = () => {
 
     const [{ data: progress }, profileResult, { data: activeCourses, error: courseError }] =
       await Promise.all([
-        supabase.from("student_progress").select("lesson_id").eq("student_id", user.id),
+        supabase.from("student_progress").select("lesson_id, completed_at").eq("student_id", user.id),
         profileQuery,
         supabase.from("courses").select("id").eq("is_active", true),
       ]);
@@ -132,8 +143,10 @@ export const Dashboard = () => {
               submodulesByModule.set(submodule.module_id, currentList);
             });
 
-            const hydratedModules = (moduleData || []).map((module) => ({
+            const hydratedModules = (moduleData || []).filter((module) => moduleStatus.has(module.id)).map((module) => ({
               ...module,
+              ...moduleStatus.get(module.id),
+              is_locked: !moduleStatus.get(module.id)?.is_unlocked,
               submodules: submodulesByModule.get(module.id) || [],
             }));
 
@@ -143,7 +156,7 @@ export const Dashboard = () => {
       }
     }
 
-    setCompletedLessonIds((progress || []).map((item) => item.lesson_id));
+    setCompletedLessonIds((progress || []).filter((item) => item.completed_at).map((item) => item.lesson_id));
 
     if (profile?.full_name) {
       setStudentName(profile.full_name.split(" ")[0]);
@@ -158,15 +171,11 @@ export const Dashboard = () => {
   }
 
   const totalLessons = modules.reduce((sum, module) => {
-    return sum + flattenLessons(module.submodules || []).length;
+    return sum + module.total_lessons;
   }, 0);
 
   const completedLessons = modules.reduce((sum, module) => {
-    const moduleLessons = flattenLessons(module.submodules || []);
-    return (
-      sum +
-      moduleLessons.filter((lesson: any) => completedLessonIds.includes(lesson.id)).length
-    );
+    return sum + module.completed_lessons;
   }, 0);
 
   if (loading) {
@@ -184,6 +193,8 @@ export const Dashboard = () => {
   if (!hasCourseAccess) {
     return <Navigate to="/minhas-aulas" replace />;
   }
+
+  if (loadError) return <div className="app-bg p-10 text-white" role="alert">{loadError}</div>;
 
   return (
     <div className="app-bg">
@@ -220,7 +231,7 @@ export const Dashboard = () => {
           <SummaryCard
             label="Submodulos liberados"
             value={modules.reduce(
-              (sum, module) => sum + (module.submodules?.length || 0),
+              (sum, module) => sum + (module.is_locked ? 0 : module.submodules?.length || 0),
               0,
             )}
           />
@@ -237,19 +248,15 @@ export const Dashboard = () => {
                 Sua jornada ainda nao tem modulos liberados aqui.
               </h2>
               <p className="mt-3 text-sm text-white/60">
-                Assim que os conteudos estiverem vinculados ao seu perfil, eles
-                aparecem nesta tela.
+                O primeiro modulo aparece automaticamente quando uma materia ativa possui conteudo cadastrado.
               </p>
             </div>
           ) : (
             modules.map((module) => {
               const moduleSubmodules = module.submodules || [];
-              const moduleLessons = flattenLessons(moduleSubmodules);
-              const completedModuleLessons = moduleLessons.filter((lesson: any) =>
-                completedLessonIds.includes(lesson.id),
-              ).length;
-              const moduleProgress = moduleLessons.length
-                ? Math.round((completedModuleLessons / moduleLessons.length) * 100)
+              const completedModuleLessons = module.completed_lessons;
+              const moduleProgress = module.total_lessons
+                ? Math.round((completedModuleLessons / module.total_lessons) * 100)
                 : 0;
 
               return (
@@ -260,7 +267,7 @@ export const Dashboard = () => {
                   <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-lavender">
-                        {module.is_locked ? "Modulo bloqueado" : "Modulo liberado"}
+                        {module.is_completed ? "Modulo concluido" : module.is_locked ? "Modulo bloqueado" : "Modulo liberado"}
                       </p>
                       <h2 className="mt-2 text-2xl font-bold text-white">
                         {module.title}
@@ -271,7 +278,7 @@ export const Dashboard = () => {
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                         <div className="flex shrink-0 items-center justify-between gap-3 lg:min-w-[240px]">
                           <span className="text-sm font-semibold text-white/70">
-                            {moduleLessons.length} aulas em {moduleSubmodules.length}{" "}
+                            {module.total_lessons} aulas em {moduleSubmodules.length}{" "}
                             submodulos
                           </span>
                           <span className="rounded-full bg-white/5 px-2.5 py-1 text-xs font-black uppercase tracking-[0.18em] text-brand-ice ring-1 ring-white/10">
@@ -288,7 +295,7 @@ export const Dashboard = () => {
                           </div>
 
                           <p className="shrink-0 text-xs font-medium text-white/50">
-                            {completedModuleLessons}/{moduleLessons.length}
+                            {completedModuleLessons}/{module.total_lessons}
                           </p>
                         </div>
                       </div>
@@ -296,7 +303,9 @@ export const Dashboard = () => {
                   </div>
 
                   <div className="mt-6 space-y-5">
-                    {moduleSubmodules.length === 0 ? (
+                    {module.is_locked ? (
+                      <p className="rounded-3xl bg-white/5 p-6 text-sm text-white/60">Conclua todas as aulas do modulo anterior para liberar esta etapa.</p>
+                    ) : moduleSubmodules.length === 0 ? (
                       <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-white/50">
                         Este modulo ainda nao recebeu submodulos.
                       </div>
