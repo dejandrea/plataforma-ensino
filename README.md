@@ -12,6 +12,14 @@ A plataforma utiliza React + TypeScript no front-end e Supabase/PostgreSQL no ba
 
 ---
 
+## 🌐 Aplicação publicada
+
+A primeira versão da plataforma está disponível em produção na Vercel.
+
+[🔗 Acessar Plataforma de Ensino](https://plataforma-ensino-git-main-andrea-francas-projects.vercel.app/)
+
+---
+
 ## 🎯 Objetivo do projeto
 
 Criar uma plataforma que permita organizar o processo de ensino de forma centralizada, reduzindo a necessidade de utilizar diversas ferramentas separadas para acompanhar alunos, aulas e informações acadêmicas.
@@ -156,7 +164,7 @@ plataforma-ensino/
 ### 1. Clone o repositório
 
 ```bash
-git clone <URL-DO-REPOSITORIO>
+git clone https://github.com/dejandrea/plataforma-ensino.git
 ```
 
 ### 2. Entre na pasta
@@ -172,6 +180,9 @@ npm install
 ### 4. Configure as variáveis de ambiente
 
 Crie o arquivo .env seguindo as configurações necessárias para conexão com o Supabase.
+
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
 
 As credenciais e chaves privadas não devem ser versionadas no repositório.
 
@@ -246,13 +257,6 @@ GitHub: @dejandrea
 
 ---
 
-## 🌐 Aplicação publicada
-
-A primeira versão da plataforma está disponível em produção na Vercel.
-
-[🔗 Acessar Plataforma de Ensino](https://plataforma-ensino-git-main-andrea-francas-projects.vercel.app/)
-
----
 
 ## 📌 Status
 
