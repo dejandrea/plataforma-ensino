@@ -4,10 +4,10 @@ Aplicação Full Stack desenvolvida para centralizar o gerenciamento de aulas on
 
 O projeto nasceu de uma necessidade real da minha atuação como professora e mentora de programação e está sendo desenvolvido inicialmente para uso próprio, com possibilidade futura de disponibilização como produto para outros professores.
 
-A plataforma utiliza React + TypeScript no front-end e Supabase/PostgreSQL no back-end, com autenticação, controle de acesso, Edge Functions, migrations, integração com Google Calendar e geração de feedbacks de avaliações com Inteligência Artificial.
+A plataforma utiliza **React + TypeScript** no front-end e **Supabase/PostgreSQL** no back-end, com autenticação, controle de acesso, Edge Functions, migrations, integração com Google Calendar e geração de feedbacks de avaliações com Inteligência Artificial.
 
 > 🚀 Primeira versão já publicada em produção na Vercel.
-> 
+>
 > 🚧 Projeto autoral em desenvolvimento ativo.
 
 ---
@@ -24,7 +24,16 @@ A primeira versão da plataforma está disponível em produção na Vercel.
 
 Criar uma plataforma que permita organizar o processo de ensino de forma centralizada, reduzindo a necessidade de utilizar diversas ferramentas separadas para acompanhar alunos, aulas e informações acadêmicas.
 
-Além do objetivo de uso real, o projeto também funciona como aplicação prática de conceitos de desenvolvimento Full Stack, arquitetura de aplicações React, autenticação, autorização, banco de dados e organização de projetos de software.
+Além do objetivo de uso real, o projeto também funciona como aplicação prática de conceitos de:
+
+- Desenvolvimento Full Stack
+- Arquitetura de aplicações React
+- Autenticação e autorização
+- Integração com APIs
+- Banco de dados relacional
+- Funções server-side
+- Inteligência Artificial aplicada
+- Deploy e configuração de ambientes de produção
 
 ---
 
@@ -42,6 +51,25 @@ Além do objetivo de uso real, o projeto também funciona como aplicação prát
 
 - Supabase
 - PostgreSQL
+- Supabase Auth
+- Supabase Edge Functions
+- Migrations
+
+### Inteligência Artificial
+
+- OpenAI API
+- Geração assistida de feedbacks acadêmicos
+- Processamento de chamadas de IA por meio de Supabase Edge Functions
+
+### Integrações
+
+- Google Calendar
+- OpenAI API
+
+### Deploy / Infraestrutura
+
+- Vercel
+- Supabase
 
 ### Desenvolvimento
 
@@ -50,21 +78,42 @@ Além do objetivo de uso real, o projeto também funciona como aplicação prát
 - ESLint
 - npm
 
-### Inteligência Artificial
-
-- OpenAI API
-- Geração assistida de feedbacks acadêmicos
-- Processamento via Supabase Edge Functions
-
 ---
 
 ## 🏗️ Arquitetura
 
-A aplicação utiliza uma arquitetura baseada em componentes React e TypeScript.
+A aplicação utiliza uma arquitetura Full Stack baseada em **React + TypeScript** no cliente e nos serviços do **Supabase** no back-end.
 
-O Supabase é utilizado como plataforma de back-end, permitindo integrar a aplicação ao banco de dados PostgreSQL e aos serviços necessários para o funcionamento da plataforma.
+O React é responsável pela interface e pelos fluxos da aplicação, enquanto o React Router realiza o gerenciamento das rotas.
 
-O React Router é utilizado para gerenciamento das rotas da aplicação.
+O Supabase fornece serviços de autenticação, banco de dados PostgreSQL e Edge Functions utilizadas para operações que precisam ser executadas fora do navegador.
+
+Integrações com serviços externos, como a API da OpenAI, são realizadas por meio das Edge Functions, evitando a exposição de credenciais privadas no front-end.
+
+A aplicação também possui integração com o Google Calendar para auxiliar no gerenciamento e sincronização dos agendamentos.
+
+### Visão simplificada da arquitetura
+
+```mermaid
+flowchart TD
+    A[👩‍🏫 Usuário] --> B[⚛️ React + TypeScript]
+
+    B --> S
+
+    subgraph S[☁️ Supabase]
+        C[🔐 Supabase Auth]
+        D[(🐘 PostgreSQL)]
+        E[⚡ Edge Functions]
+    end
+
+    E --> F[🤖 OpenAI API]
+    B --> G[📅 Google Calendar]
+
+    C --> H[🎓 Plataforma]
+    D --> H
+    F --> H
+    G --> H
+```
 
 ---
 
@@ -76,7 +125,10 @@ A plataforma já possui diferentes fluxos voltados para professores, alunos e ad
 - Gestão e vinculação de alunos
 - Dashboard e recursos para professores
 - Gerenciamento e visualização de aulas
-- Agendamento, confirmação, cancelamento e reagendamento de aulas
+- Agendamento de aulas
+- Confirmação de aulas
+- Cancelamento de aulas
+- Reagendamento de aulas
 - Integração e sincronização com Google Calendar
 - Sincronização de disponibilidade para agendamentos
 - Sistema de avaliações acadêmicas
@@ -84,7 +136,7 @@ A plataforma já possui diferentes fluxos voltados para professores, alunos e ad
 - Processamento seguro das chamadas de IA por meio de Supabase Edge Functions
 - Histórico e relatórios dos alunos
 - Gerenciamento de perfil
-- Recuperação/redefinição de senha
+- Recuperação e redefinição de senha
 - Área de gerenciamento do sistema
 - Recursos de gestão comercial
 - Banco de dados PostgreSQL com migrations versionadas
@@ -96,37 +148,42 @@ A plataforma já possui diferentes fluxos voltados para professores, alunos e ad
 
 ## 🤖 Avaliações com Inteligência Artificial
 
-Um dos recursos da plataforma é a geração assistida de feedbacks para avaliações dos alunos.
+Um dos recursos da plataforma é a **geração assistida de feedbacks para avaliações dos alunos utilizando Inteligência Artificial**.
 
-O professor registra as informações da avaliação e a plataforma envia os dados para uma Supabase Edge Function, responsável pela comunicação com a API de Inteligência Artificial.
+O professor registra as informações da avaliação e a plataforma envia os dados para uma **Supabase Edge Function**, responsável pelo processamento da requisição e pela comunicação com a **OpenAI API**.
 
-Esse fluxo permite utilizar IA no processo pedagógico sem expor credenciais privadas no front-end.
+O feedback gerado é então devolvido à aplicação para utilização pelo professor.
 
-Fluxo simplificado:
+Essa arquitetura permite utilizar Inteligência Artificial no processo pedagógico sem expor credenciais privadas da API diretamente no front-end.
+
+### Fluxo simplificado
+
 ```mermaid
 flowchart TD
     A[👩‍🏫 Professor] --> B[⚛️ Plataforma React]
     B --> C[⚡ Supabase Edge Function]
-    C --> D[🤖 API de Inteligência Artificial]
+    C --> D[🤖 OpenAI API]
     D --> E[📝 Feedback gerado]
     E --> F[🎓 Plataforma]
 ```
+
+A IA funciona como ferramenta de apoio ao processo de avaliação, auxiliando na elaboração dos feedbacks a partir das informações registradas pelo professor.
 
 ---
 
 ## 👥 Perfis de usuário
 
-A arquitetura da plataforma está sendo pensada para trabalhar com diferentes tipos de usuários.
+A arquitetura da plataforma está sendo desenvolvida para trabalhar com diferentes tipos de usuários.
 
-### Administrador
+### 👑 Administrador
 
-Responsável pelo gerenciamento geral da plataforma.
+Responsável pelo gerenciamento geral da plataforma, usuários e recursos administrativos.
 
-### Professor
+### 👩‍🏫 Professor
 
-Responsável pelo gerenciamento de seus alunos, aulas e informações acadêmicas.
+Responsável pelo gerenciamento de seus alunos, aulas, avaliações, agendamentos e informações acadêmicas.
 
-### Aluno
+### 👨‍🎓 Aluno
 
 Acesso às informações e recursos disponibilizados pelo professor.
 
@@ -155,8 +212,8 @@ plataforma-ensino/
 ├── vite.config.ts
 ├── tsconfig.json
 └── README.md
-
 ```
+
 ---
 
 ## ⚙️ Executando o projeto
@@ -168,58 +225,81 @@ git clone https://github.com/dejandrea/plataforma-ensino.git
 ```
 
 ### 2. Entre na pasta
+
 ```bash
 cd plataforma-ensino
 ```
 
 ### 3. Instale as dependências
+
 ```bash
 npm install
 ```
 
 ### 4. Configure as variáveis de ambiente
 
-Crie o arquivo .env seguindo as configurações necessárias para conexão com o Supabase.
+Crie um arquivo `.env` na raiz do projeto e configure as variáveis públicas necessárias para conexão com o Supabase:
 
+```env
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
+```
 
-As credenciais e chaves privadas não devem ser versionadas no repositório.
+Preencha os valores de acordo com as configurações do seu projeto no Supabase.
+
+> ⚠️ Credenciais privadas, Service Role Keys, senhas e outras chaves sensíveis não devem ser expostas no front-end nem versionadas no repositório.
 
 ### 5. Execute o projeto
+
 ```bash
 npm run dev
 ```
+
+A aplicação será iniciada em ambiente de desenvolvimento.
+
 ---
 
 ## 🧪 Scripts disponíveis
+
+### Desenvolvimento
+
 ```bash
 npm run dev
 ```
+
 Executa o projeto em ambiente de desenvolvimento.
+
+### Build
 
 ```bash
 npm run build
 ```
-Gera a versão de produção da aplicação.
+
+Gera a versão otimizada da aplicação para produção.
+
+### Lint
 
 ```bash
 npm run lint
 ```
+
 Executa a análise do código utilizando ESLint.
+
+### Preview
 
 ```bash
 npm run preview
 ```
+
 Executa localmente a versão gerada para produção.
 
 ---
 
 ## 🗺️ Roadmap
 
-O desenvolvimento é contínuo e novas funcionalidades serão adicionadas conforme a utilização da plataforma.
+O desenvolvimento é contínuo e novas funcionalidades são adicionadas conforme a utilização e validação da plataforma.
 
-Entre as evoluções planejadas estão:
+Entre as próximas evoluções planejadas estão:
 
 - Evolução da gestão de alunos
 - Evolução da gestão de professores
@@ -231,6 +311,7 @@ Entre as evoluções planejadas estão:
 - Dashboard com métricas acadêmicas
 - Melhorias de experiência do usuário
 - Novas integrações
+- Otimizações de desempenho
 - Preparação da aplicação para utilização por outros professores
 
 ---
@@ -241,29 +322,38 @@ Este projeto surgiu de uma necessidade real.
 
 Como professora e mentora de programação, percebi que diversas informações importantes para o acompanhamento dos alunos acabam distribuídas entre diferentes ferramentas.
 
-A proposta da plataforma é transformar essa experiência em uma solução centralizada, inicialmente para uso próprio e, futuramente, com possibilidade de utilização por outros profissionais da educação.
+Agendamentos, informações acadêmicas, avaliações, acompanhamento dos alunos e organização das aulas frequentemente precisam ser administrados utilizando serviços diferentes.
 
-O desenvolvimento também representa a aplicação prática dos conhecimentos que venho aprofundando em desenvolvimento de software, principalmente utilizando React, TypeScript, Supabase e PostgreSQL.
+A proposta da plataforma é transformar essa experiência em uma **solução centralizada para gerenciamento do processo de ensino**.
 
----
+Inicialmente, a aplicação está sendo desenvolvida para atender às necessidades da minha própria rotina profissional e, futuramente, poderá evoluir para uma solução utilizada por outros profissionais da educação.
 
-## 👩‍💻 Desenvolvedora
-
-Andrea França
-
-Desenvolvedora de Software | React | JavaScript | TypeScript | Python
-
-GitHub: @dejandrea
+O projeto também representa a aplicação prática dos conhecimentos que venho aprofundando em desenvolvimento de software, incluindo **React, TypeScript, APIs, Supabase, PostgreSQL, autenticação, funções server-side, Inteligência Artificial e deploy de aplicações Full Stack**.
 
 ---
-
 
 ## 📌 Status
 
 ### 🚀 Em produção e desenvolvimento ativo
 
-A primeira versão da plataforma já foi publicada na Vercel e está integrada ao Supabase.
+A primeira versão da plataforma já foi publicada na **Vercel** e está integrada ao **Supabase**.
 
-Atualmente, o projeto já possui fluxos funcionais de autenticação, gerenciamento acadêmico, agendamento de aulas e avaliações com geração de feedback utilizando Inteligência Artificial.
+Atualmente, o projeto possui fluxos funcionais envolvendo autenticação, gerenciamento acadêmico, agendamento de aulas, banco de dados e avaliações com geração de feedback utilizando Inteligência Artificial.
 
-O desenvolvimento continua de forma incremental, com novas funcionalidades sendo adicionadas e validadas conforme o uso real da plataforma.
+O desenvolvimento continua de forma incremental, com novas funcionalidades sendo implementadas e validadas conforme o uso real da plataforma.
+
+---
+
+## 👩‍💻 Desenvolvedora
+
+**Andrea França**
+
+Desenvolvedora de Software | React | JavaScript | TypeScript | Python
+
+GitHub: [@dejandrea](https://github.com/dejandrea)
+
+---
+
+<p align="center">
+  Desenvolvido como projeto autoral para aplicação prática em um contexto real de ensino.
+</p>
