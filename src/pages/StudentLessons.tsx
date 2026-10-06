@@ -14,6 +14,7 @@ const formatSessionRange = (startsAt: string, endsAt: string) => {
   const endDate = new Date(endsAt);
 
   const day = startDate.toLocaleDateString("pt-BR");
+  const weekday = startDate.toLocaleDateString("pt-BR", { weekday: "long" });
   const startTime = startDate.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -23,7 +24,7 @@ const formatSessionRange = (startsAt: string, endsAt: string) => {
     minute: "2-digit",
   });
 
-  return `${day} de ${startTime} ate ${endTime}`;
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${day} de ${startTime} ate ${endTime}`;
 };
 
 const formatDayLabel = (value: string) =>
