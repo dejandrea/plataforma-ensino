@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { supabase } from "./lib/supabaseClient";
 import { Login } from "./components/Login";
 import { Dashboard } from "./pages/Dashboard";
@@ -81,10 +82,11 @@ const RoleRoute = ({
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/redefinir-senha" element={<ResetPassword />} />
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/redefinir-senha" element={<ResetPassword />} />
 
         <Route
           path="/dashboard"
@@ -252,8 +254,10 @@ function App() {
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+      <Analytics />
+    </>
   );
 }
 
