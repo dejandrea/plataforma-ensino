@@ -4,8 +4,10 @@ Aplicação Full Stack desenvolvida para centralizar o gerenciamento de aulas on
 
 O projeto nasceu de uma necessidade real da minha atuação como professora e mentora de programação e está sendo desenvolvido inicialmente para uso próprio, com possibilidade futura de disponibilização como produto para outros professores.
 
-A aplicação utiliza React + TypeScript no front-end e Supabase/PostgreSQL no back-end, incluindo autenticação, controle de acesso, Edge Functions, migrations e integração com Google Calendar.
+A plataforma utiliza React + TypeScript no front-end e Supabase/PostgreSQL no back-end, com autenticação, controle de acesso, Edge Functions, migrations, integração com Google Calendar e geração de feedbacks de avaliações com Inteligência Artificial.
 
+> 🚀 Primeira versão já publicada em produção na Vercel.
+> 
 > 🚧 Projeto autoral em desenvolvimento ativo.
 
 ---
@@ -40,6 +42,12 @@ Além do objetivo de uso real, o projeto também funciona como aplicação prát
 - ESLint
 - npm
 
+### Inteligência Artificial
+
+- OpenAI API
+- Geração assistida de feedbacks acadêmicos
+- Processamento via Supabase Edge Functions
+
 ---
 
 ## 🏗️ Arquitetura
@@ -63,7 +71,9 @@ A plataforma já possui diferentes fluxos voltados para professores, alunos e ad
 - Agendamento, confirmação, cancelamento e reagendamento de aulas
 - Integração e sincronização com Google Calendar
 - Sincronização de disponibilidade para agendamentos
-- Avaliações e feedbacks
+- Sistema de avaliações acadêmicas
+- Geração de feedbacks com Inteligência Artificial
+- Processamento seguro das chamadas de IA por meio de Supabase Edge Functions
 - Histórico e relatórios dos alunos
 - Gerenciamento de perfil
 - Recuperação/redefinição de senha
@@ -73,6 +83,26 @@ A plataforma já possui diferentes fluxos voltados para professores, alunos e ad
 - Edge Functions no Supabase para operações de back-end
 
 > Algumas funcionalidades ainda estão em desenvolvimento e podem sofrer alterações durante a evolução do projeto.
+
+---
+
+## 🤖 Avaliações com Inteligência Artificial
+
+Um dos recursos da plataforma é a geração assistida de feedbacks para avaliações dos alunos.
+
+O professor registra as informações da avaliação e a plataforma envia os dados para uma Supabase Edge Function, responsável pela comunicação com a API de Inteligência Artificial.
+
+Esse fluxo permite utilizar IA no processo pedagógico sem expor credenciais privadas no front-end.
+
+Fluxo simplificado:
+```mermaid
+flowchart TD
+    A[👩‍🏫 Professor] --> B[⚛️ Plataforma React]
+    B --> C[⚡ Supabase Edge Function]
+    C --> D[🤖 API de Inteligência Artificial]
+    D --> E[📝 Feedback gerado]
+    E --> F[🎓 Plataforma]
+```
 
 ---
 
@@ -182,10 +212,12 @@ Entre as evoluções planejadas estão:
 
 - Evolução da gestão de alunos
 - Evolução da gestão de professores
-- Sistema de avaliações
+- Evolução do sistema de avaliações
+- Aprimoramento dos feedbacks gerados com IA
+- Histórico e análise de desempenho dos alunos
 - Emissão de certificados
 - Melhorias no gerenciamento de aulas
-- Dashboard com informações relevantes
+- Dashboard com métricas acadêmicas
 - Melhorias de experiência do usuário
 - Novas integrações
 - Preparação da aplicação para utilização por outros professores
@@ -214,10 +246,20 @@ GitHub: @dejandrea
 
 ---
 
+## 🌐 Aplicação publicada
+
+A primeira versão da plataforma está disponível em produção na Vercel.
+
+[🔗 Acessar Plataforma de Ensino](https://plataforma-ensino-git-main-andrea-francas-projects.vercel.app/)
+
+---
+
 ## 📌 Status
 
-#### 🚧 Em desenvolvimento
+### 🚀 Em produção e desenvolvimento ativo
 
-O projeto está sendo desenvolvido e utilizado como parte de um processo contínuo de evolução e validação da solução.
+A primeira versão da plataforma já foi publicada na Vercel e está integrada ao Supabase.
 
-Funcionalidades, arquitetura e interface podem sofrer alterações conforme novas necessidades forem identificadas.
+Atualmente, o projeto já possui fluxos funcionais de autenticação, gerenciamento acadêmico, agendamento de aulas e avaliações com geração de feedback utilizando Inteligência Artificial.
+
+O desenvolvimento continua de forma incremental, com novas funcionalidades sendo adicionadas e validadas conforme o uso real da plataforma.
