@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import { AgendaActivity } from "../components/AgendaActivity";
 
 const formatSessionDate = (value: string) =>
   new Date(value).toLocaleString("pt-BR", {
@@ -124,6 +125,7 @@ export const StudentLessons = () => {
   const [availableLessons, setAvailableLessons] = useState<any[]>([]);
   const [activeView, setActiveView] = useState<"booking" | "lessons">("lessons");
   const [loading, setLoading] = useState(true);
+  const [refreshCount, setRefreshCount] = useState(0);
   const [bookingLessonId, setBookingLessonId] = useState<string | null>(null);
   const [openingLessonId, setOpeningLessonId] = useState<string | null>(null);
   const [cancellingLessonId, setCancellingLessonId] = useState<string | null>(null);
@@ -142,107 +144,113 @@ export const StudentLessons = () => {
   }, []);
 
   async function fetchStudentLessons() {
-    setLoading(true);
+    // Keep the current agenda mounted while refreshing after a mutation.
+    setRefreshCount((count) => count + 1);
+    try {
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-    const [{ data: profile }, { data: relations, error: relationsError }] =
-      await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+      const [{ data: profile }, { data: relations, error: relationsError }] =
+        await Promise.all([
+          supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+          supabase
+            .from("teacher_student_relations")
+            .select("teacher_id")
+            .eq("student_id", user.id),
+        ]);
+
+      if (profile?.full_name) {
+        setStudentName(profile.full_name.split(" ")[0]);
+      }
+
+      if (relationsError) {
+        console.error("Erro ao buscar relacoes do aluno:", relationsError.message);
+        setLinkedTeacherIds([]);
+        setScheduledLessons([]);
+        setAvailableLessons([]);
+        setTeacherCalendarSettings([]);
+        setLoading(false);
+        return;
+      }
+
+      const teacherIds = (relations || []).map((relation) => relation.teacher_id);
+      setLinkedTeacherIds(teacherIds);
+
+      const [
+        { data: teachers },
+        { data: scheduled, error: scheduledError },
+        { data: teacherSettings, error: teacherSettingsError },
+      ] = await Promise.all([
+        teacherIds.length
+          ? supabase.from("profiles").select("id, full_name").in("id", teacherIds)
+          : Promise.resolve({ data: [], error: null }),
         supabase
-          .from("teacher_student_relations")
-          .select("teacher_id")
-          .eq("student_id", user.id),
+          .from("scheduled_lessons")
+          .select("*")
+          .eq("student_id", user.id)
+          .order("starts_at", { ascending: true }),
+        teacherIds.length
+          ? supabase
+              .from("teacher_calendar_settings")
+              .select("*")
+              .eq("is_active", true)
+              .in("teacher_id", teacherIds)
+          : Promise.resolve({ data: [], error: null }),
       ]);
 
-    if (profile?.full_name) {
-      setStudentName(profile.full_name.split(" ")[0]);
-    }
-
-    if (relationsError) {
-      console.error("Erro ao buscar relacoes do aluno:", relationsError.message);
-      setLinkedTeacherIds([]);
-      setScheduledLessons([]);
-      setAvailableLessons([]);
-      setTeacherCalendarSettings([]);
-      setLoading(false);
-      return;
-    }
-
-    const teacherIds = (relations || []).map((relation) => relation.teacher_id);
-    setLinkedTeacherIds(teacherIds);
-
-    const [
-      { data: teachers },
-      { data: scheduled, error: scheduledError },
-      { data: teacherSettings, error: teacherSettingsError },
-    ] = await Promise.all([
-      teacherIds.length
-        ? supabase.from("profiles").select("id, full_name").in("id", teacherIds)
-        : Promise.resolve({ data: [], error: null }),
-      supabase
-        .from("scheduled_lessons")
-        .select("*")
-        .eq("student_id", user.id)
-        .order("starts_at", { ascending: true }),
-      teacherIds.length
-        ? supabase
-            .from("teacher_calendar_settings")
-            .select("*")
-            .eq("is_active", true)
-            .in("teacher_id", teacherIds)
-        : Promise.resolve({ data: [], error: null }),
-    ]);
-
-    const teacherMap = Object.fromEntries(
-      (teachers || []).map((teacher) => [teacher.id, teacher.full_name || "Professora"]),
-    );
-    setTeacherNames(teacherMap);
-
-    if (scheduledError) {
-      console.error("Erro ao buscar aulas do aluno:", scheduledError.message);
-      setScheduledLessons([]);
-    } else {
-      setScheduledLessons(scheduled || []);
-    }
-
-    if (teacherSettingsError) {
-      console.error(
-        "Erro ao buscar configuracoes de agenda:",
-        teacherSettingsError.message,
+      const teacherMap = Object.fromEntries(
+        (teachers || []).map((teacher) => [teacher.id, teacher.full_name || "Professora"]),
       );
-      setTeacherCalendarSettings([]);
-    } else {
-      setTeacherCalendarSettings(teacherSettings || []);
-    }
+      setTeacherNames(teacherMap);
 
-    if (teacherIds.length > 0) {
-      const { data: available, error: availableError } = await supabase
-        .from("scheduled_lessons")
-        .select("*")
-        .eq("status", "available")
-        .in("teacher_id", teacherIds)
-        .gte("starts_at", new Date().toISOString())
-        .order("starts_at", { ascending: true });
-
-      if (availableError) {
-        console.error("Erro ao buscar horarios disponiveis:", availableError.message);
-        setAvailableLessons([]);
+      if (scheduledError) {
+        console.error("Erro ao buscar aulas do aluno:", scheduledError.message);
+        setScheduledLessons([]);
       } else {
-        setAvailableLessons(available || []);
+        setScheduledLessons(scheduled || []);
       }
-    } else {
-      setAvailableLessons([]);
-    }
 
-    setLoading(false);
+      if (teacherSettingsError) {
+        console.error(
+          "Erro ao buscar configuracoes de agenda:",
+          teacherSettingsError.message,
+        );
+        setTeacherCalendarSettings([]);
+      } else {
+        setTeacherCalendarSettings(teacherSettings || []);
+      }
+
+      if (teacherIds.length > 0) {
+        const { data: available, error: availableError } = await supabase
+          .from("scheduled_lessons")
+          .select("*")
+          .eq("status", "available")
+          .in("teacher_id", teacherIds)
+          .gte("starts_at", new Date().toISOString())
+          .order("starts_at", { ascending: true });
+
+        if (availableError) {
+          console.error("Erro ao buscar horarios disponiveis:", availableError.message);
+          setAvailableLessons([]);
+        } else {
+          setAvailableLessons(available || []);
+        }
+      } else {
+        setAvailableLessons([]);
+      }
+
+      setLoading(false);
+    } finally {
+      setRefreshCount((count) => count - 1);
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -364,21 +372,14 @@ export const StudentLessons = () => {
   }, [availableLessonsByDay, selectedAvailableDate]);
 
   useEffect(() => {
-    if (filteredAvailableLessons.length === 0) {
-      setSelectedAvailableDate("");
+    if (selectedAvailableDate || filteredAvailableLessons.length === 0) {
       return;
     }
 
-    const hasSelectedDate = selectedAvailableDate
-      ? availableLessonsByDay.has(selectedAvailableDate)
-      : false;
-
-    if (!hasSelectedDate) {
-      const firstAvailableDate = toDayKey(filteredAvailableLessons[0].starts_at);
-      setSelectedAvailableDate(firstAvailableDate);
-      setAvailabilityCalendarMonth(startOfMonth(new Date(filteredAvailableLessons[0].starts_at)));
-    }
-  }, [availableLessonsByDay, filteredAvailableLessons, selectedAvailableDate]);
+    const firstAvailableDate = toDayKey(filteredAvailableLessons[0].starts_at);
+    setSelectedAvailableDate(firstAvailableDate);
+    setAvailabilityCalendarMonth(startOfMonth(new Date(filteredAvailableLessons[0].starts_at)));
+  }, [filteredAvailableLessons, selectedAvailableDate]);
 
   useEffect(() => {
     if (loading || meetLinkRecoveryAttempted) {
@@ -453,30 +454,33 @@ export const StudentLessons = () => {
 
   const handleBookLesson = async (lessonId: string) => {
     setBookingLessonId(lessonId);
+    try {
 
-    const { error } = await supabase.functions.invoke("book-platform-lesson", {
-      body: {
-        lessonId,
-      },
-    });
+      const { error } = await supabase.functions.invoke("book-platform-lesson", {
+        body: {
+          lessonId,
+        },
+      });
 
-    if (error) {
-      alert(await getFunctionErrorMessage(error));
-    } else {
-      if (selectedAvailableLesson?.teacher_id) {
-        try {
-          await runAutomaticTeacherSync(selectedAvailableLesson.teacher_id);
-        } catch (syncError) {
-          console.error("Falha ao sincronizar agenda apos o agendamento:", syncError);
+      if (error) {
+        alert(await getFunctionErrorMessage(error));
+      } else {
+        if (selectedAvailableLesson?.teacher_id) {
+          try {
+            await runAutomaticTeacherSync(selectedAvailableLesson.teacher_id);
+          } catch (syncError) {
+            console.error("Falha ao sincronizar agenda apos o agendamento:", syncError);
+          }
         }
+
+        alert("Aula agendada com sucesso. Se a agenda Google da professora estiver conectada, o link do Meet ja vai aparecer aqui.");
+        setSelectedAvailableLesson(null);
+        await fetchStudentLessons();
       }
 
-      alert("Aula agendada com sucesso. Se a agenda Google da professora estiver conectada, o link do Meet ja vai aparecer aqui.");
-      setSelectedAvailableLesson(null);
-      fetchStudentLessons();
+    } finally {
+      setBookingLessonId(null);
     }
-
-    setBookingLessonId(null);
   };
 
   const openBookingModal = (lesson: any) => {
@@ -495,35 +499,38 @@ export const StudentLessons = () => {
     scope: CancellationScope = "single",
   ) => {
     setCancellingLessonId(lessonId);
-    const lesson = scheduledLessons.find((item) => item.id === lessonId) || null;
+    try {
+      const lesson = scheduledLessons.find((item) => item.id === lessonId) || null;
 
-    const { error } = await supabase.functions.invoke("cancel-platform-lesson", {
-      body: {
-        lessonId,
-        scope,
-      },
-    });
+      const { error } = await supabase.functions.invoke("cancel-platform-lesson", {
+        body: {
+          lessonId,
+          scope,
+        },
+      });
 
-    if (error) {
-      alert(await getFunctionErrorMessage(error));
-    } else {
-      if (lesson?.teacher_id) {
-        try {
-          await runAutomaticTeacherSync(lesson.teacher_id);
-        } catch (syncError) {
-          console.error("Falha ao sincronizar apos cancelar a aula:", syncError);
-          alert(
-            syncError instanceof Error
-              ? `Aula cancelada, mas a sincronizacao automatica falhou: ${syncError.message}`
-              : "Aula cancelada, mas a sincronizacao automatica falhou.",
-          );
+      if (error) {
+        alert(await getFunctionErrorMessage(error));
+      } else {
+        if (lesson?.teacher_id) {
+          try {
+            await runAutomaticTeacherSync(lesson.teacher_id);
+          } catch (syncError) {
+            console.error("Falha ao sincronizar apos cancelar a aula:", syncError);
+            alert(
+              syncError instanceof Error
+                ? `Aula cancelada, mas a sincronizacao automatica falhou: ${syncError.message}`
+                : "Aula cancelada, mas a sincronizacao automatica falhou.",
+            );
+          }
         }
+
+        await fetchStudentLessons();
       }
 
-      await fetchStudentLessons();
+    } finally {
+      setCancellingLessonId(null);
     }
-
-    setCancellingLessonId(null);
   };
 
   const openRescheduleModal = (lesson: any) => {
@@ -543,36 +550,39 @@ export const StudentLessons = () => {
 
     const lesson = rescheduleTarget;
     setReschedulingLessonId(lesson.id);
+    try {
 
-    const { error } = await supabase.functions.invoke("reschedule-platform-lesson", {
-      body: {
-        lessonId: lesson.id,
-        startsAt: new Date(rescheduleStartsAt).toISOString(),
-        scope: "single",
-      },
-    });
+      const { error } = await supabase.functions.invoke("reschedule-platform-lesson", {
+        body: {
+          lessonId: lesson.id,
+          startsAt: new Date(rescheduleStartsAt).toISOString(),
+          scope: "single",
+        },
+      });
 
-    if (error) {
-      alert(await getFunctionErrorMessage(error));
-    } else {
-      setRescheduleTarget(null);
-      if (lesson?.teacher_id) {
-        try {
-          await runAutomaticTeacherSync(lesson.teacher_id);
-        } catch (syncError) {
-          console.error("Falha ao sincronizar apos reagendar a aula:", syncError);
-          alert(
-            syncError instanceof Error
-              ? `Aula reagendada, mas a sincronizacao automatica falhou: ${syncError.message}`
-              : "Aula reagendada, mas a sincronizacao automatica falhou.",
-          );
+      if (error) {
+        alert(await getFunctionErrorMessage(error));
+      } else {
+        setRescheduleTarget(null);
+        if (lesson?.teacher_id) {
+          try {
+            await runAutomaticTeacherSync(lesson.teacher_id);
+          } catch (syncError) {
+            console.error("Falha ao sincronizar apos reagendar a aula:", syncError);
+            alert(
+              syncError instanceof Error
+                ? `Aula reagendada, mas a sincronizacao automatica falhou: ${syncError.message}`
+                : "Aula reagendada, mas a sincronizacao automatica falhou.",
+            );
+          }
         }
+
+        await fetchStudentLessons();
       }
 
-      await fetchStudentLessons();
+    } finally {
+      setReschedulingLessonId(null);
     }
-
-    setReschedulingLessonId(null);
   };
 
   if (loading) {
@@ -589,6 +599,7 @@ export const StudentLessons = () => {
 
   return (
     <div className="app-bg">
+      <AgendaActivity active={refreshCount > 0 || Boolean(bookingLessonId || cancellingLessonId || reschedulingLessonId)} />
       <div className="mx-auto max-w-6xl px-4 py-8">
         <header className="relative overflow-hidden rounded-3xl bg-white/5 p-5 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-6">
           <div className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-brand-pink/15 blur-3xl" />
@@ -729,7 +740,7 @@ export const StudentLessons = () => {
               title="Horarios disponiveis na plataforma"
               description={`Use a agenda da ${activeTeacherName} no topo para reservar direto no Google ou escolha um horario publicado dentro da plataforma.`}
               customContent={
-                filteredAvailableLessons.length === 0 ? (
+                filteredAvailableLessons.length === 0 && !selectedAvailableDate ? (
                   <div className="mt-6 rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
                     {linkedTeacherIds.length === 0
                       ? "Voce ainda nao foi vinculado a uma professora para receber horarios."

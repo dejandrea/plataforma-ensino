@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import { AgendaActivity } from "../components/AgendaActivity";
 
 const initialReservationForm = {
   sessionTrack: "mentoring",
@@ -208,6 +209,8 @@ export const TeacherScheduling = () => {
   const [accessCounts, setAccessCounts] = useState<Record<string, number>>({});
   const [calendarSettings, setCalendarSettings] = useState(initialCalendarSettings);
   const [loading, setLoading] = useState(true);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [pendingLessonActions, setPendingLessonActions] = useState(0);
   const [saving, setSaving] = useState(false);
   const [savingCalendarSettings, setSavingCalendarSettings] = useState(false);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
@@ -315,155 +318,162 @@ export const TeacherScheduling = () => {
   ]);
 
   async function fetchSchedulingData() {
-    setLoading(true);
+    // Loading replaces the page only on its first render. Refreshes keep the
+    // agenda mounted so scrolling, calendar selection and open panels survive.
+    setRefreshCount((count) => count + 1);
+    try {
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    setCurrentUserId(user.id);
-
-    const [
-      { data: linkedStudents },
-      { data: scheduledLessons, error: lessonsError },
-      { data: teacherSettings, error: settingsError },
-    ] = await Promise.all([
-      supabase
-        .from("teacher_student_relations")
-        .select(
-          `
-            student_id,
-            student:profiles!student_id (
-              id,
-              full_name
-            )
-          `,
-        )
-        .eq("teacher_id", user.id),
-      supabase
-        .from("scheduled_lessons")
-        .select("*")
-        .eq("teacher_id", user.id)
-        .order("starts_at", { ascending: true }),
-      supabase
-        .from("teacher_calendar_settings")
-        .select("*")
-        .eq("teacher_id", user.id)
-        .maybeSingle(),
-    ]);
-
-    const studentRows = (linkedStudents || [])
-      .map((item: any) => item.student)
-      .filter(Boolean);
-    setStudents(studentRows);
-
-    if (settingsError) {
-      console.error("Erro ao buscar configuracao da agenda:", settingsError.message);
-      setCalendarSettings(initialCalendarSettings);
-    } else if (teacherSettings) {
-      const eventCalendarIds =
-        teacherSettings.event_calendar_ids?.length
-          ? teacherSettings.event_calendar_ids
-          : teacherSettings.sync_calendar_ids?.length
-            ? teacherSettings.sync_calendar_ids
-            : teacherSettings.calendar_id
-              ? [teacherSettings.calendar_id]
-              : [];
-      const eventCalendarNames =
-        teacherSettings.event_calendar_names?.length
-          ? teacherSettings.event_calendar_names
-          : teacherSettings.sync_calendar_names?.length
-            ? teacherSettings.sync_calendar_names
-            : teacherSettings.calendar_name
-              ? [teacherSettings.calendar_name]
-              : [];
-      const availabilityCalendarIds =
-        teacherSettings.availability_calendar_ids?.length
-          ? teacherSettings.availability_calendar_ids
-          : teacherSettings.sync_calendar_ids?.length
-            ? teacherSettings.sync_calendar_ids
-            : eventCalendarIds;
-      const availabilityCalendarNames =
-        teacherSettings.availability_calendar_names?.length
-          ? teacherSettings.availability_calendar_names
-          : teacherSettings.sync_calendar_names?.length
-            ? teacherSettings.sync_calendar_names
-            : eventCalendarNames;
-
-      setCalendarSettings({
-        providerAccountEmail: teacherSettings.provider_account_email || "",
-        calendarId: teacherSettings.calendar_id || "",
-        calendarName: teacherSettings.calendar_name || "",
-        eventCalendarIds,
-        eventCalendarNames,
-        availabilityCalendarIds,
-        availabilityCalendarNames,
-        bookingPageUrl: teacherSettings.booking_page_url || "",
-        timezone: teacherSettings.timezone || "America/Bahia",
-        syncMode: teacherSettings.sync_mode || "booking_link",
-        availabilityWeekdays:
-          teacherSettings.availability_weekdays?.length
-            ? teacherSettings.availability_weekdays
-            : [1, 2, 3, 4, 5],
-        availabilityStartTime: teacherSettings.availability_start_time || "08:00",
-        availabilityEndTime: teacherSettings.availability_end_time || "18:00",
-        availabilitySlotMinutes: String(
-          teacherSettings.availability_slot_minutes || 60,
-        ),
-        availabilityHorizonDays: String(
-          teacherSettings.availability_horizon_days || 21,
-        ),
-        autoCreateMeet: teacherSettings.auto_create_meet ?? true,
-        isActive: teacherSettings.is_active ?? true,
-        connectionStatus: teacherSettings.connection_status || "disconnected",
-        lastSyncedAt: teacherSettings.last_synced_at || "",
-        lastSyncError: teacherSettings.last_sync_error || "",
-      });
-    } else {
-      setCalendarSettings(initialCalendarSettings);
-    }
-
-    if (lessonsError) {
-      console.error("Erro ao buscar agenda da professora:", lessonsError.message);
-      setSessions([]);
-      setAccessCounts({});
-      setLoading(false);
-      return;
-    }
-
-    const lessonRows = scheduledLessons || [];
-    setSessions(lessonRows);
-
-    if (lessonRows.length > 0) {
-      const lessonIds = lessonRows.map((lesson) => lesson.id);
-      const { data: logs, error: logsError } = await supabase
-        .from("lesson_access_logs")
-        .select("scheduled_lesson_id")
-        .in("scheduled_lesson_id", lessonIds);
-
-      if (logsError) {
-        console.error("Erro ao buscar acessos:", logsError.message);
-        setAccessCounts({});
-      } else {
-        const groupedCounts = (logs || []).reduce(
-          (acc: Record<string, number>, log: { scheduled_lesson_id: string }) => {
-            acc[log.scheduled_lesson_id] = (acc[log.scheduled_lesson_id] || 0) + 1;
-            return acc;
-          },
-          {},
-        );
-        setAccessCounts(groupedCounts);
+      if (!user) {
+        setLoading(false);
+        return;
       }
-    } else {
-      setAccessCounts({});
-    }
 
-    setLoading(false);
+      setCurrentUserId(user.id);
+
+      const [
+        { data: linkedStudents },
+        { data: scheduledLessons, error: lessonsError },
+        { data: teacherSettings, error: settingsError },
+      ] = await Promise.all([
+        supabase
+          .from("teacher_student_relations")
+          .select(
+            `
+              student_id,
+              student:profiles!student_id (
+                id,
+                full_name
+              )
+            `,
+          )
+          .eq("teacher_id", user.id),
+        supabase
+          .from("scheduled_lessons")
+          .select("*")
+          .eq("teacher_id", user.id)
+          .order("starts_at", { ascending: true }),
+        supabase
+          .from("teacher_calendar_settings")
+          .select("*")
+          .eq("teacher_id", user.id)
+          .maybeSingle(),
+      ]);
+
+      const studentRows = (linkedStudents || [])
+        .map((item: any) => item.student)
+        .filter(Boolean);
+      setStudents(studentRows);
+
+      if (settingsError) {
+        console.error("Erro ao buscar configuracao da agenda:", settingsError.message);
+        setCalendarSettings(initialCalendarSettings);
+      } else if (teacherSettings) {
+        const eventCalendarIds =
+          teacherSettings.event_calendar_ids?.length
+            ? teacherSettings.event_calendar_ids
+            : teacherSettings.sync_calendar_ids?.length
+              ? teacherSettings.sync_calendar_ids
+              : teacherSettings.calendar_id
+                ? [teacherSettings.calendar_id]
+                : [];
+        const eventCalendarNames =
+          teacherSettings.event_calendar_names?.length
+            ? teacherSettings.event_calendar_names
+            : teacherSettings.sync_calendar_names?.length
+              ? teacherSettings.sync_calendar_names
+              : teacherSettings.calendar_name
+                ? [teacherSettings.calendar_name]
+                : [];
+        const availabilityCalendarIds =
+          teacherSettings.availability_calendar_ids?.length
+            ? teacherSettings.availability_calendar_ids
+            : teacherSettings.sync_calendar_ids?.length
+              ? teacherSettings.sync_calendar_ids
+              : eventCalendarIds;
+        const availabilityCalendarNames =
+          teacherSettings.availability_calendar_names?.length
+            ? teacherSettings.availability_calendar_names
+            : teacherSettings.sync_calendar_names?.length
+              ? teacherSettings.sync_calendar_names
+              : eventCalendarNames;
+
+        setCalendarSettings({
+          providerAccountEmail: teacherSettings.provider_account_email || "",
+          calendarId: teacherSettings.calendar_id || "",
+          calendarName: teacherSettings.calendar_name || "",
+          eventCalendarIds,
+          eventCalendarNames,
+          availabilityCalendarIds,
+          availabilityCalendarNames,
+          bookingPageUrl: teacherSettings.booking_page_url || "",
+          timezone: teacherSettings.timezone || "America/Bahia",
+          syncMode: teacherSettings.sync_mode || "booking_link",
+          availabilityWeekdays:
+            teacherSettings.availability_weekdays?.length
+              ? teacherSettings.availability_weekdays
+              : [1, 2, 3, 4, 5],
+          availabilityStartTime: teacherSettings.availability_start_time || "08:00",
+          availabilityEndTime: teacherSettings.availability_end_time || "18:00",
+          availabilitySlotMinutes: String(
+            teacherSettings.availability_slot_minutes || 60,
+          ),
+          availabilityHorizonDays: String(
+            teacherSettings.availability_horizon_days || 21,
+          ),
+          autoCreateMeet: teacherSettings.auto_create_meet ?? true,
+          isActive: teacherSettings.is_active ?? true,
+          connectionStatus: teacherSettings.connection_status || "disconnected",
+          lastSyncedAt: teacherSettings.last_synced_at || "",
+          lastSyncError: teacherSettings.last_sync_error || "",
+        });
+      } else {
+        setCalendarSettings(initialCalendarSettings);
+      }
+
+      if (lessonsError) {
+        console.error("Erro ao buscar agenda da professora:", lessonsError.message);
+        setSessions([]);
+        setAccessCounts({});
+        setLoading(false);
+        return;
+      }
+
+      const lessonRows = scheduledLessons || [];
+      setSessions(lessonRows);
+
+      if (lessonRows.length > 0) {
+        const lessonIds = lessonRows.map((lesson) => lesson.id);
+        const { data: logs, error: logsError } = await supabase
+          .from("lesson_access_logs")
+          .select("scheduled_lesson_id")
+          .in("scheduled_lesson_id", lessonIds);
+
+        if (logsError) {
+          console.error("Erro ao buscar acessos:", logsError.message);
+          setAccessCounts({});
+        } else {
+          const groupedCounts = (logs || []).reduce(
+            (acc: Record<string, number>, log: { scheduled_lesson_id: string }) => {
+              acc[log.scheduled_lesson_id] = (acc[log.scheduled_lesson_id] || 0) + 1;
+              return acc;
+            },
+            {},
+          );
+          setAccessCounts(groupedCounts);
+        }
+      } else {
+        setAccessCounts({});
+      }
+
+      setLoading(false);
+    } finally {
+      setRefreshCount((count) => count - 1);
+      setLoading(false);
+    }
   }
 
   const studentNameMap = useMemo(
@@ -577,38 +587,24 @@ export const TeacherScheduling = () => {
   }, [eventGroupingMode, upcomingEvents]);
 
   useEffect(() => {
-    if (availableSessions.length === 0) {
-      setSelectedAvailabilityDate("");
+    if (selectedAvailabilityDate || availableSessions.length === 0) {
       return;
     }
 
-    const hasSelectedDate = selectedAvailabilityDate
-      ? availableSessionsByDay.has(selectedAvailabilityDate)
-      : false;
-
-    if (!hasSelectedDate) {
-      const firstAvailableDate = toDayKey(availableSessions[0].starts_at);
-      setSelectedAvailabilityDate(firstAvailableDate);
-      setAvailabilityCalendarMonth(startOfMonth(new Date(availableSessions[0].starts_at)));
-    }
-  }, [availableSessions, availableSessionsByDay, selectedAvailabilityDate]);
+    const firstAvailableDate = toDayKey(availableSessions[0].starts_at);
+    setSelectedAvailabilityDate(firstAvailableDate);
+    setAvailabilityCalendarMonth(startOfMonth(new Date(availableSessions[0].starts_at)));
+  }, [availableSessions, selectedAvailabilityDate]);
 
   useEffect(() => {
-    if (upcomingEvents.length === 0) {
-      setSelectedEventDate("");
+    if (selectedEventDate || upcomingEvents.length === 0) {
       return;
     }
 
-    const hasSelectedDate = selectedEventDate
-      ? upcomingEventsByDay.has(selectedEventDate)
-      : false;
-
-    if (!hasSelectedDate) {
-      const firstEventDate = toDayKey(upcomingEvents[0].starts_at);
-      setSelectedEventDate(firstEventDate);
-      setEventCalendarMonth(startOfMonth(new Date(upcomingEvents[0].starts_at)));
-    }
-  }, [selectedEventDate, upcomingEvents, upcomingEventsByDay]);
+    const firstEventDate = toDayKey(upcomingEvents[0].starts_at);
+    setSelectedEventDate(firstEventDate);
+    setEventCalendarMonth(startOfMonth(new Date(upcomingEvents[0].starts_at)));
+  }, [selectedEventDate, upcomingEvents]);
 
   const fetchGoogleCalendars = async () => {
     const { data, error } = await supabase.functions.invoke(
@@ -1025,32 +1021,37 @@ export const TeacherScheduling = () => {
     lessonId: string,
     scope: CancellationScope = "single",
   ) => {
-    let mutationSucceeded = false;
-    const { error } = await supabase.functions.invoke("cancel-platform-lesson", {
-      body: { lessonId, scope },
-    });
-
-    if (error) {
-      alert(await getFunctionErrorMessage(error));
-    } else {
-      mutationSucceeded = true;
-    }
-
-    if (!mutationSucceeded) {
-      return;
-    }
-
+    setPendingLessonActions((count) => count + 1);
     try {
-      await runAutomaticSchedulingSync();
-    } catch (syncError) {
-      console.error("Falha ao sincronizar apos cancelar a aula:", syncError);
-      alert(
-        syncError instanceof Error
-          ? `Aula cancelada, mas a sincronizacao automatica falhou: ${syncError.message}`
-          : "Aula cancelada, mas a sincronizacao automatica falhou.",
-      );
+      let mutationSucceeded = false;
+      const { error } = await supabase.functions.invoke("cancel-platform-lesson", {
+        body: { lessonId, scope },
+      });
+
+      if (error) {
+        alert(await getFunctionErrorMessage(error));
+      } else {
+        mutationSucceeded = true;
+      }
+
+      if (!mutationSucceeded) {
+        return;
+      }
+
+      try {
+        await runAutomaticSchedulingSync();
+      } catch (syncError) {
+        console.error("Falha ao sincronizar apos cancelar a aula:", syncError);
+        alert(
+          syncError instanceof Error
+            ? `Aula cancelada, mas a sincronizacao automatica falhou: ${syncError.message}`
+            : "Aula cancelada, mas a sincronizacao automatica falhou.",
+        );
+      } finally {
+        await fetchSchedulingData();
+      }
     } finally {
-      await fetchSchedulingData();
+      setPendingLessonActions((count) => count - 1);
     }
   };
 
@@ -1065,38 +1066,41 @@ export const TeacherScheduling = () => {
     }
 
     setRescheduling(true);
+    try {
 
-    const { error } = await supabase.functions.invoke("reschedule-platform-lesson", {
-      body: {
-        lessonId: rescheduleTarget.id,
-        startsAt: new Date(rescheduleForm.startsAt).toISOString(),
-        scope: rescheduleForm.scope,
-      },
-    });
+      const { error } = await supabase.functions.invoke("reschedule-platform-lesson", {
+        body: {
+          lessonId: rescheduleTarget.id,
+          startsAt: new Date(rescheduleForm.startsAt).toISOString(),
+          scope: rescheduleForm.scope,
+        },
+      });
 
-    if (error) {
-      alert(await getFunctionErrorMessage(error));
-    } else {
-      setRescheduleTarget(null);
-      try {
-        await runAutomaticSchedulingSync();
-      } catch (syncError) {
-        console.error("Falha ao sincronizar apos reagendar a aula:", syncError);
+      if (error) {
+        alert(await getFunctionErrorMessage(error));
+      } else {
+        setRescheduleTarget(null);
+        try {
+          await runAutomaticSchedulingSync();
+        } catch (syncError) {
+          console.error("Falha ao sincronizar apos reagendar a aula:", syncError);
+          alert(
+            syncError instanceof Error
+              ? `Aula reagendada, mas a sincronizacao automatica falhou: ${syncError.message}`
+              : "Aula reagendada, mas a sincronizacao automatica falhou.",
+          );
+        }
         alert(
-          syncError instanceof Error
-            ? `Aula reagendada, mas a sincronizacao automatica falhou: ${syncError.message}`
-            : "Aula reagendada, mas a sincronizacao automatica falhou.",
+          rescheduleForm.scope === "this_and_following"
+            ? "Aula e proximos encontros da recorrencia reagendados com sucesso."
+            : "Aula reagendada com sucesso.",
         );
+        await fetchSchedulingData();
       }
-      alert(
-        rescheduleForm.scope === "this_and_following"
-          ? "Aula e proximos encontros da recorrencia reagendados com sucesso."
-          : "Aula reagendada com sucesso.",
-      );
-      await fetchSchedulingData();
-    }
 
-    setRescheduling(false);
+    } finally {
+      setRescheduling(false);
+    }
   };
 
   const updateSessionStatus = async (
@@ -1113,23 +1117,28 @@ export const TeacherScheduling = () => {
       return;
     }
 
-    const updates =
-      {
-        status,
-        completed_at: new Date().toISOString(),
-        completed_by: currentUserId || null,
-        updated_at: new Date().toISOString(),
-      };
+    setPendingLessonActions((count) => count + 1);
+    try {
+      const updates =
+        {
+          status,
+          completed_at: new Date().toISOString(),
+          completed_by: currentUserId || null,
+          updated_at: new Date().toISOString(),
+        };
 
-    const { error } = await supabase
-      .from("scheduled_lessons")
-      .update(updates)
-      .eq("id", session.id);
+      const { error } = await supabase
+        .from("scheduled_lessons")
+        .update(updates)
+        .eq("id", session.id);
 
-    if (error) {
-      alert(error.message);
-    } else {
-      fetchSchedulingData();
+      if (error) {
+        alert(error.message);
+      } else {
+        await fetchSchedulingData();
+      }
+    } finally {
+      setPendingLessonActions((count) => count - 1);
     }
   };
 
@@ -1147,6 +1156,7 @@ export const TeacherScheduling = () => {
 
   return (
     <div className="app-bg min-h-screen">
+      <AgendaActivity active={refreshCount > 0 || pendingLessonActions > 0 || saving || savingCalendarSettings || connectingGoogle || syncingGoogle || syncingAvailability || processingGoogleCallback || rescheduling} />
       <div className="mx-auto max-w-6xl px-4 py-6">
         <header className="rounded-3xl bg-white/5 p-5 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
@@ -1448,7 +1458,7 @@ export const TeacherScheduling = () => {
               </div>
 
               <div className="mt-6 space-y-6">
-                {upcomingEvents.length === 0 ? (
+                {upcomingEvents.length === 0 && eventGroupingMode !== "calendar" ? (
                   <div className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
                     Nenhuma aula futura agendada no momento.
                   </div>
