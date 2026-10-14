@@ -8,7 +8,7 @@ export const StudentFeedback = ({ evaluation }: { evaluation: any }) => {
     !("error" in evaluation.ai_feedback_json);
 
   const aiFeedbacks = hasAiFeedback
-    ? Object.entries(evaluation.ai_feedback_json)
+    ? Object.entries(evaluation.ai_feedback_json).filter(([key]) => key !== "general")
     : [];
 
   return (
@@ -37,14 +37,20 @@ export const StudentFeedback = ({ evaluation }: { evaluation: any }) => {
         )}
       </div>
 
-      <div className="mt-6 p-4 bg-purple-100 rounded-xl">
+      {typeof evaluation.ai_feedback_json?.general === "string" && (
+        <section className="mt-6 rounded-xl bg-white/80 p-4 text-gray-700">
+          <h4 className="font-bold text-blue-700">Avaliação geral</h4>
+          <p className="mt-2 text-sm leading-6">{evaluation.ai_feedback_json.general}</p>
+        </section>
+      )}
+      {(!evaluation.ai_feedback_json?.general || evaluation.teacher_comment !== evaluation.ai_feedback_json.general) && <div className="mt-6 p-4 bg-purple-100 rounded-xl">
         <p className="text-xs font-bold text-purple-500 uppercase">
           Recado da professora:
         </p>
         <p className="text-purple-900 italic font-medium">
           "{evaluation.teacher_comment}"
         </p>
-      </div>
+      </div>}
     </div>
   );
 };

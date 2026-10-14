@@ -141,7 +141,7 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
     evaluation.ai_feedback_json &&
     typeof evaluation.ai_feedback_json === "object" &&
     !("error" in evaluation.ai_feedback_json)
-      ? Object.values(evaluation.ai_feedback_json)
+      ? Object.entries(evaluation.ai_feedback_json).filter(([key]) => key !== "general").map(([, value]) => value)
       : [];
 
   const shouldUseTeacherFallback = feedbackEntries.length === 0;
@@ -201,14 +201,20 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white/5 p-5 ring-1 ring-white/10">
+        {typeof evaluation.ai_feedback_json?.general === "string" && (
+          <section className="rounded-3xl bg-brand-lavender/10 p-5 ring-1 ring-brand-lavender/20">
+            <h3 className="text-sm font-bold text-brand-ice">Avaliação geral</h3>
+            <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-brand-ice">{evaluation.ai_feedback_json.general}</p>
+          </section>
+        )}
+        {(!evaluation.ai_feedback_json?.general || evaluation.teacher_comment !== evaluation.ai_feedback_json.general) && <div className="rounded-3xl bg-white/5 p-5 ring-1 ring-white/10">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
             Comentario da professora
           </p>
           <p className="mt-4 text-sm leading-7 text-white/75">
             {evaluation.teacher_comment || "Nenhum comentario adicional foi registrado."}
           </p>
-        </div>
+        </div>}
       </div>
     </article>
   );
