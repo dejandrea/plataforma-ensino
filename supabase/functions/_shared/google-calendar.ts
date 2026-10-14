@@ -199,18 +199,20 @@ export const getGoogleCalendarEvents = async ({
   url.searchParams.set("timeMin", timeMin);
   url.searchParams.set("timeMax", timeMax);
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json?.error?.message || "Falha ao listar eventos do Google Calendar.");
-  }
-
-  return Array.isArray(json?.items) ? json.items : [];
+  const events: any[] = [];
+  do {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const json = await response.json();
+    if (!response.ok) {
+      throw new Error(json?.error?.message || "Falha ao listar eventos do Google Calendar.");
+    }
+    events.push(...(Array.isArray(json?.items) ? json.items : []));
+    if (!json.nextPageToken) break;
+    url.searchParams.set("pageToken", json.nextPageToken);
+  } while (true);
+  return events;
 };
 
 export const getGoogleCalendarFreeBusy = async ({
@@ -252,10 +254,12 @@ export const getGoogleCalendarEvent = async ({
   accessToken,
   calendarId,
   eventId,
+  allowMissing = false,
 }: {
   accessToken: string;
   calendarId: string;
   eventId: string;
+  allowMissing?: boolean;
 }) => {
   const url = new URL(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
@@ -268,6 +272,9 @@ export const getGoogleCalendarEvent = async ({
   });
 
   const json = await response.json().catch(() => null);
+  if (allowMissing && (response.status === 404 || response.status === 410)) {
+    return { id: eventId, status: "cancelled" };
+  }
   if (!response.ok) {
     throw new Error(json?.error?.message || "Falha ao buscar evento no Google Calendar.");
   }

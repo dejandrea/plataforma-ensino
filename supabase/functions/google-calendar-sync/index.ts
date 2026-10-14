@@ -4,6 +4,7 @@ import {
   ensureFreshGoogleAccessToken,
   extractMeetLink,
   getGoogleCalendarEvents,
+  getGoogleCalendarEvent,
 } from "../_shared/google-calendar.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
 
@@ -101,7 +102,41 @@ serve(async (req) => {
 
     const googleEvents = googleEventsByCalendar.flat();
 
+    // Deleted events may contain only an ID. Handle them before filtering
+    // importable lessons, preserving the existing lesson and its student.
+    const { data: existingLessons, error: existingError } = await adminClient
+      .from("scheduled_lessons")
+      .select("id, calendar_calendar_id, calendar_event_id")
+      .eq("teacher_id", teacherId)
+      .eq("calendar_provider", "google_calendar")
+      .in("calendar_calendar_id", selectedCalendarIds)
+      .neq("status", "cancelled")
+      .gt("ends_at", timeMin)
+      .lt("starts_at", timeMax);
+    if (existingError) throw new Error(existingError.message);
+
+    const eventsByCalendar = new Map<string, Map<string, any>>();
+    for (const event of googleEvents) {
+      if (!eventsByCalendar.has(event.__calendar_id)) {
+        eventsByCalendar.set(event.__calendar_id, new Map());
+      }
+      eventsByCalendar.get(event.__calendar_id)!.set(event.id, event);
+    }
+    const cancelledLessonIds: string[] = [];
+    for (const lesson of existingLessons || []) {
+      if (!lesson.calendar_event_id) continue;
+      const event = eventsByCalendar.get(lesson.calendar_calendar_id)?.get(lesson.calendar_event_id)
+        || await getGoogleCalendarEvent({
+          accessToken: tokenInfo.accessToken,
+          calendarId: lesson.calendar_calendar_id,
+          eventId: lesson.calendar_event_id,
+          allowMissing: true,
+        });
+      if (event.status === "cancelled") cancelledLessonIds.push(lesson.id);
+    }
+
     const relevantEvents = googleEvents.filter((event: any) => {
+      if (event.status === "cancelled") return false;
       if (!event?.start?.dateTime || !event?.end?.dateTime) return false;
 
       const attendeeEmails = Array.isArray(event.attendees)
@@ -220,6 +255,16 @@ serve(async (req) => {
       }
     }
 
+    for (let offset = 0; offset < cancelledLessonIds.length; offset += 100) {
+      const { error: cancelError } = await adminClient
+        .from("scheduled_lessons")
+        .update({ status: "cancelled", updated_at: new Date().toISOString() })
+        .eq("teacher_id", teacherId)
+        .eq("calendar_provider", "google_calendar")
+        .in("id", cancelledLessonIds.slice(offset, offset + 100));
+      if (cancelError) throw new Error(cancelError.message);
+    }
+
     const { error: updateSettingsError } = await adminClient
       .from("teacher_calendar_settings")
       .update({
@@ -241,6 +286,7 @@ serve(async (req) => {
       JSON.stringify({
         synced: true,
         importedEvents: rowsToUpsert.length,
+        cancelledEvents: cancelledLessonIds.length,
       }),
       {
         status: 200,
