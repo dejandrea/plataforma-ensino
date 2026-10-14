@@ -217,6 +217,7 @@ export const TabUsers = () => {
   const [commercialRates, setCommercialRates] = useState<CommercialRateOption[]>([]);
   const [commercialPackages, setCommercialPackages] = useState<CommercialPackageOption[]>([]);
   const [loading, setLoading] = useState(false);
+  const [resendingUserKey, setResendingUserKey] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<AccessInvite | null>(null);
   const [editLoading, setEditLoading] = useState(false);
   const [newUser, setNewUser] = useState(initialUserForm);
@@ -511,6 +512,28 @@ export const TabUsers = () => {
     }
 
     setLoading(false);
+  };
+
+  const handleResendActivation = async (user: AccessInvite) => {
+    const key = user.invite_id || user.user_id;
+    if (!key || resendingUserKey) return;
+    setResendingUserKey(key);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-platform-user", {
+        body: {
+          action: "resend_activation",
+          inviteId: user.invite_id,
+          userId: user.user_id,
+          redirectTo: `${window.location.origin}/redefinir-senha`,
+        },
+      });
+      if (error) throw error;
+      alert(data?.message || "E-mail de ativação reenviado com sucesso.");
+    } catch (error) {
+      alert("Erro ao reenviar e-mail de ativação: " + await getFunctionErrorMessage(error));
+    } finally {
+      setResendingUserKey(null);
+    }
   };
 
   const getInitialPricingMode = (user: AccessInvite): StudentPricingMode => {
@@ -812,7 +835,19 @@ export const TabUsers = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-3">
+                    <div className="flex items-center justify-end gap-3">
+                      {(user.invite_id || user.user_id) && (
+                        <button
+                          type="button"
+                          onClick={() => void handleResendActivation(user)}
+                          disabled={resendingUserKey !== null}
+                          className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-brand-lavender/30 bg-brand-lavender/10 px-4 py-2 text-xs font-semibold text-brand-lavender shadow-sm transition-colors hover:border-brand-lavender/60 hover:bg-brand-lavender/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-[#140f25] disabled:cursor-wait disabled:opacity-50"
+                        >
+                          {resendingUserKey === (user.invite_id || user.user_id)
+                            ? "Enviando..."
+                            : "Reenviar e-mail de ativação"}
+                        </button>
+                      )}
                       <button
                         onClick={() => openEditModal(user)}
                         className="text-white/50 transition-colors hover:text-brand-lavender"

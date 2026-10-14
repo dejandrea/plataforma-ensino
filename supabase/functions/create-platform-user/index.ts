@@ -3,6 +3,9 @@ import { corsHeaders } from "../_shared/cors.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
 
 type CreatePlatformUserPayload = {
+  action?: "resend_activation";
+  inviteId?: string | null;
+  userId?: string | null;
   email?: string;
   fullName?: string;
   lastName?: string | null;
@@ -419,6 +422,36 @@ serve(async (req) => {
     }
 
     const payload = (await req.json()) as CreatePlatformUserPayload;
+    if (payload.action === "resend_activation") {
+      const redirectTo = String(payload.redirectTo || "").trim();
+      if (!redirectTo) throw new Error("O destino do link de ativação é obrigatório.");
+
+      let email: string | undefined;
+      let authUser = null;
+      if (payload.userId) {
+        const { data, error } = await adminClient.auth.admin.getUserById(payload.userId);
+        if (error) throw error;
+        authUser = data.user;
+        email = authUser?.email;
+      } else if (payload.inviteId) {
+        const { data, error } = await adminClient.from("access_invites")
+          .select("email").eq("id", payload.inviteId).single();
+        if (error) throw error;
+        email = data.email;
+        if (email) authUser = await findAuthUserByEmail(adminClient, normalizeEmail(email));
+      }
+
+      if (!email) throw new Error("Usuário sem e-mail cadastrado para ativação.");
+      const { error } = authUser?.email_confirmed_at
+        ? await adminClient.auth.resetPasswordForEmail(email, { redirectTo })
+        : await adminClient.auth.admin.inviteUserByEmail(email, { redirectTo });
+      if (error) throw new Error(error.message);
+
+      return new Response(JSON.stringify({ message: "E-mail de ativação reenviado com sucesso. O usuário receberá um link para definir a senha." }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const email = normalizeEmail(payload.email || "");
     const fullName = String(payload.fullName || "").trim();
     const lastName = payload.lastName?.trim() || null;
