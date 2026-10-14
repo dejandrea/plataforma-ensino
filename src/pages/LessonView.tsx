@@ -64,7 +64,7 @@ export const LessonView = () => {
     return (
       <div className="app-bg">
         <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Carregando conteudo...
           </div>
         </div>
@@ -75,7 +75,7 @@ export const LessonView = () => {
   return (
     <div className="app-bg">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -top-20 right-0 h-64 w-64 rounded-full bg-brand-pink/15 blur-3xl" />
 
           <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -92,7 +92,7 @@ export const LessonView = () => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/65 ring-1 ring-white/10">
+            <div className="rounded-2xl bg-surface px-4 py-3 text-sm text-white/65 ring-1 ring-white/10">
               {lesson.duration_minutes
                 ? `${lesson.duration_minutes} min estimados`
                 : "Duracao livre"}
@@ -119,7 +119,7 @@ export const LessonView = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                 Sobre esta aula
               </p>
@@ -130,7 +130,7 @@ export const LessonView = () => {
           </section>
 
           <aside className="space-y-6">
-            <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-lavender">
                 Materiais de apoio
               </p>
@@ -141,7 +141,7 @@ export const LessonView = () => {
                     href={lesson.pdf_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-2xl bg-white/5 px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/10 transition hover:bg-white/10"
+                    className="block rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/10 transition hover:bg-surface-elevated"
                   >
                     Abrir PDF ou slides
                   </a>
@@ -152,7 +152,7 @@ export const LessonView = () => {
                     href={lesson.slides_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-2xl bg-white/5 px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/10 transition hover:bg-white/10"
+                    className="block rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/10 transition hover:bg-surface-elevated"
                   >
                     Abrir apresentacao
                   </a>
@@ -163,7 +163,7 @@ export const LessonView = () => {
                     href={lesson.meet_link}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-2xl bg-white/5 px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/10 transition hover:bg-white/10"
+                    className="block rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/10 transition hover:bg-surface-elevated"
                   >
                     Entrar no encontro
                   </a>
@@ -177,7 +177,7 @@ export const LessonView = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                 Finalizar etapa
               </p>

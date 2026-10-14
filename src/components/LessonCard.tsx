@@ -34,7 +34,7 @@ export const LessonCard = ({
       className={`group flex w-full items-center gap-4 rounded-3xl p-5 text-left ring-1 transition ${
         isCompleted
           ? "bg-emerald-500/10 ring-emerald-400/20"
-          : "bg-white/5 ring-white/10 hover:bg-white/7"
+          : "bg-surface ring-white/10 hover:bg-white/7"
       }`}
     >
       <div
@@ -50,7 +50,7 @@ export const LessonCard = ({
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-base font-bold text-white">{title}</h3>
-          <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45 ring-1 ring-white/10">
+          <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45 ring-1 ring-white/10">
             {lessonTypeLabel[type]}
           </span>
         </div>

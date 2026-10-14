@@ -161,7 +161,7 @@ export const StudentHistory = () => {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-4xl p-6">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Carregando jornada do aluno...
           </div>
         </div>
@@ -172,7 +172,7 @@ export const StudentHistory = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-4xl p-6">
-        <header className="mb-8 flex items-center gap-6 rounded-3xl bg-white/5 p-8 shadow-soft ring-1 ring-white/10">
+        <header className="mb-8 flex items-center gap-6 rounded-3xl bg-surface p-8 shadow-soft ring-1 ring-white/10">
           <div className="grid h-24 w-24 place-items-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink text-4xl font-bold text-white shadow-soft ring-1 ring-white/10">
             {student?.full_name?.charAt(0) || "A"}
           </div>
@@ -180,14 +180,14 @@ export const StudentHistory = () => {
             <div>
               <h1 className="text-3xl font-bold text-white">{student?.full_name}</h1>
               <p className="font-medium text-white/55">Historico de aprendizagem</p>
-              <div className="mt-2 inline-block rounded-full bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-lavender ring-1 ring-white/10">
+              <div className="mt-2 inline-block rounded-full bg-surface px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-lavender ring-1 ring-white/10">
                 {evaluations.length} modulos concluidos
               </div>
             </div>
 
             <Link
               to="/relatorios?tab=student_lessons"
-              className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
             >
               Voltar para relatorios &gt; aulas
             </Link>
@@ -195,7 +195,7 @@ export const StudentHistory = () => {
         </header>
 
         <div className="space-y-6">
-          <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
               Aulas realizadas
             </p>
@@ -216,7 +216,7 @@ export const StudentHistory = () => {
                 monthlyCompletedReports.map((report) => (
                   <div
                     key={report.key}
-                    className="rounded-[2rem] bg-white/5 p-5 ring-1 ring-white/10"
+                    className="rounded-[2rem] bg-surface p-5 ring-1 ring-white/10"
                   >
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div>
@@ -236,7 +236,7 @@ export const StudentHistory = () => {
                         <button
                           type="button"
                           onClick={() => void copyMonthlySummary(report)}
-                          className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                          className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                         >
                           Copiar resumo do mes
                         </button>
@@ -300,12 +300,12 @@ export const StudentHistory = () => {
                           className="rounded-2xl bg-brand-900/35 p-4 ring-1 ring-white/10"
                         >
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+                            <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                               {lesson.session_track === "course"
                                 ? "Curso completo"
                                 : "Mentoria"}
                             </span>
-                            <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
+                            <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
                               Concluida
                             </span>
                           </div>
@@ -324,7 +324,7 @@ export const StudentHistory = () => {
           </section>
 
           {evaluations.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-white/15 bg-white/5 p-12 text-center">
+            <div className="rounded-3xl border border-dashed border-white/15 bg-surface p-12 text-center">
               <p className="text-white/45">
                 Nenhuma avaliacao encontrada para este aluno.
               </p>
@@ -340,7 +340,7 @@ export const StudentHistory = () => {
             evaluations.map((item) => (
               <div
                 key={item.id}
-                className="relative overflow-hidden rounded-2xl bg-white/5 p-6 ring-1 ring-white/10"
+                className="relative overflow-hidden rounded-2xl bg-surface p-6 ring-1 ring-white/10"
               >
                 <div className="absolute bottom-0 left-0 top-0 w-2 bg-gradient-to-b from-brand-purple to-brand-pink" />
 
@@ -365,7 +365,7 @@ export const StudentHistory = () => {
                   ].map((stat) => (
                     <div
                       key={stat.label}
-                      className="rounded-xl bg-white/5 p-3 text-center ring-1 ring-white/10"
+                      className="rounded-xl bg-surface p-3 text-center ring-1 ring-white/10"
                     >
                       <p className="mb-1 text-[10px] font-bold uppercase text-white/35">
                         {stat.label}

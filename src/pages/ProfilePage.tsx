@@ -5,7 +5,7 @@ import { avatarPresets } from "../lib/avatarPresets";
 import { supabase } from "../lib/supabaseClient";
 
 const fieldClass =
-  "w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition placeholder:text-white/30 focus:ring-2 focus:ring-brand-lavender";
+  "w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition placeholder:text-white/30 focus:ring-2 focus:ring-brand-lavender";
 
 type ProfileForm = {
   full_name: string;
@@ -401,7 +401,7 @@ export const ProfilePage = () => {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-5xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Carregando perfil...
           </div>
         </div>
@@ -412,7 +412,7 @@ export const ProfilePage = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-5xl px-4 py-8">
-        <header className="rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-white/40">
             Meu perfil
           </p>
@@ -426,7 +426,7 @@ export const ProfilePage = () => {
         </header>
 
         <form onSubmit={saveProfile} className="mt-8 grid gap-8 lg:grid-cols-[320px,1fr]">
-          <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur">
+          <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-white/35">
               Avatar
             </p>
@@ -466,7 +466,7 @@ export const ProfilePage = () => {
                 className={`w-full rounded-2xl px-4 py-3 text-sm font-bold transition ${
                   profile.avatar_mode === "preset"
                     ? "bg-white text-brand-900"
-                    : "bg-white/5 text-white ring-1 ring-white/10 hover:bg-white/10"
+                    : "bg-surface text-white ring-1 ring-white/10 hover:bg-surface-elevated"
                 }`}
               >
                 Usar avatar da plataforma
@@ -502,7 +502,7 @@ export const ProfilePage = () => {
                       avatar_url: "",
                     }))
                   }
-                  className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/10 transition hover:bg-white/10"
+                  className="w-full rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/10 transition hover:bg-surface-elevated"
                 >
                   Remover foto e voltar ao avatar
                 </button>
@@ -523,8 +523,8 @@ export const ProfilePage = () => {
                   }
                   className={`rounded-2xl p-3 ring-1 transition ${
                     profile.avatar_preset === preset.id && profile.avatar_mode === "preset"
-                      ? "bg-white/10 ring-white/30"
-                      : "bg-white/5 ring-white/10 hover:bg-white/10"
+                      ? "bg-surface-elevated ring-white/30"
+                      : "bg-surface ring-white/10 hover:bg-surface-elevated"
                   }`}
                 >
                   <div className="mx-auto">
@@ -541,7 +541,7 @@ export const ProfilePage = () => {
             </div>
           </section>
 
-          <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur md:p-8">
+          <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur md:p-8">
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Nome completo">
                 <input className={fieldClass} value={profile.full_name} disabled />
@@ -698,7 +698,7 @@ export const ProfilePage = () => {
                       }))
                     }
                     disabled={!profile.whatsapp || profile.phone === profile.whatsapp}
-                    className="rounded-xl bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-xl bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-surface-elevated hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Copiar do WhatsApp
                   </button>
@@ -727,7 +727,7 @@ export const ProfilePage = () => {
                       type="button"
                       onClick={() => void lookupGithubProfile()}
                       disabled={githubLookupStatus === "loading"}
-                      className="rounded-xl bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                      className="rounded-xl bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-surface-elevated hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {githubLookupStatus === "loading"
                         ? "Buscando..."
@@ -738,7 +738,7 @@ export const ProfilePage = () => {
                       onClick={() =>
                         openExternalProfile(profile.github_url, "https://github.com")
                       }
-                      className="rounded-xl bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white"
+                      className="rounded-xl bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-surface-elevated hover:text-white"
                     >
                       Abrir GitHub
                     </button>
@@ -816,7 +816,7 @@ export const ProfilePage = () => {
               <button
                 type="button"
                 onClick={() => void loadProfile()}
-                className="rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Recarregar
               </button>
@@ -859,7 +859,7 @@ const Field = ({
         <button
           type="button"
           onClick={onAction}
-          className="rounded-xl bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white"
+          className="rounded-xl bg-surface px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/10 transition hover:bg-surface-elevated hover:text-white"
         >
           {actionLabel}
         </button>

@@ -11,12 +11,12 @@ export const StudentCard = ({
   const evaluationsCount = student.module_evaluations?.length || 0;
 
   return (
-    <div className="group relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur transition hover:bg-white/7">
+    <div className="group relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur transition hover:bg-white/7">
       <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-brand-pink/15 blur-3xl opacity-0 transition group-hover:opacity-100" />
 
       <button
         onClick={() => onUnlink(student.id)}
-        className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-xl px-2 py-1 text-xs font-semibold text-white/45 transition hover:bg-white/10 hover:text-rose-300"
+        className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-xl px-2 py-1 text-xs font-semibold text-white/45 transition hover:bg-surface-elevated hover:text-rose-300"
         title="Desvincular aluno"
         type="button"
       >
@@ -45,7 +45,7 @@ export const StudentCard = ({
         </div>
       </div>
 
-      <div className="mb-6 flex items-center justify-between rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+      <div className="mb-6 flex items-center justify-between rounded-2xl bg-surface p-4 ring-1 ring-white/10">
         <div className="flex flex-col">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-lavender/90">
             Jornada
@@ -64,23 +64,23 @@ export const StudentCard = ({
         <Link
           to={`/admin/avaliar?studentId=${student.id}`}
           state={{ from: "/dashboard-professor" }}
-          className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-3 text-sm font-bold text-white shadow-soft ring-1 ring-white/10 transition hover:brightness-110 active:brightness-95"
+          className="btn-primary"
         >
           Avaliar
         </Link>
 
         <Link
           to={`/agendamentos?studentId=${student.id}`}
-          className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white/85 ring-1 ring-white/15 transition hover:bg-white/10 active:bg-white/15"
+          className="btn-secondary"
         >
           Aulas
         </Link>
 
         <Link
           to={`/historico/${student.id}`}
-          className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white/85 ring-1 ring-white/15 transition hover:bg-white/10 active:bg-white/15 sm:col-span-2"
+          className="btn-secondary sm:col-span-2"
         >
-          Historico completo
+          Histórico completo
         </Link>
       </div>
     </div>

@@ -641,7 +641,7 @@ export const TabUsers = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <section className="rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur">
+      <section className="rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur">
         <h2 className="text-xl font-bold text-white italic">
           Cadastrar novo usuario
         </h2>
@@ -658,7 +658,7 @@ export const TabUsers = () => {
               <input
                 required
                 placeholder="Ex: Ana"
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                 value={newUser.name}
                 onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
               />
@@ -671,7 +671,7 @@ export const TabUsers = () => {
               <input
                 required
                 placeholder="Ex: Silva"
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                 value={newUser.lastName}
                 onChange={(e) =>
                   setNewUser({ ...newUser, lastName: e.target.value })
@@ -685,7 +685,7 @@ export const TabUsers = () => {
               </label>
               <input
                 placeholder="Aninha"
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                 value={newUser.nickname}
                 onChange={(e) =>
                   setNewUser({ ...newUser, nickname: e.target.value })
@@ -701,7 +701,7 @@ export const TabUsers = () => {
                 required
                 type="email"
                 placeholder="ana@email.com"
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                 value={newUser.email}
                 onChange={(e) =>
                   setNewUser({ ...newUser, email: e.target.value })
@@ -716,7 +716,7 @@ export const TabUsers = () => {
               <input
                 required
                 type="date"
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                 value={newUser.birthDate}
                 onChange={(e) =>
                   setNewUser({ ...newUser, birthDate: e.target.value })
@@ -729,7 +729,7 @@ export const TabUsers = () => {
                 Nivel de acesso
               </label>
               <select
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                 style={selectStyle}
                 value={newUser.role}
                 onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
@@ -772,7 +772,7 @@ export const TabUsers = () => {
           Usuarios com acesso ({users.length})
         </h3>
 
-        <div className="overflow-hidden rounded-3xl bg-white/5 ring-1 ring-white/10 backdrop-blur">
+        <div className="overflow-hidden rounded-3xl bg-surface ring-1 ring-white/10 backdrop-blur">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-white/10 text-[11px] uppercase text-white/40">
               <tr>
@@ -787,7 +787,7 @@ export const TabUsers = () => {
               {users.map((user, index) => (
                 <tr
                   key={user.invite_id || user.user_id || user.email || `user-row-${index}`}
-                  className="group transition hover:bg-white/5"
+                  className="group transition hover:bg-surface"
                 >
                   <td className="px-6 py-4 font-bold text-white">
                     {user.full_name || "Sem nome"}
@@ -874,7 +874,7 @@ export const TabUsers = () => {
           onClick={closeEditModal}
         >
           <div
-            className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
@@ -890,7 +890,7 @@ export const TabUsers = () => {
               <button
                 type="button"
                 onClick={closeEditModal}
-                className="rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
@@ -907,7 +907,7 @@ export const TabUsers = () => {
                 </label>
                 <input
                   required
-                  className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                 />
@@ -919,7 +919,7 @@ export const TabUsers = () => {
                 </label>
                 <input
                   required
-                  className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={editForm.lastName}
                   onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
                 />
@@ -930,7 +930,7 @@ export const TabUsers = () => {
                   Apelido
                 </label>
                 <input
-                  className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={editForm.nickname}
                   onChange={(e) => setEditForm({ ...editForm, nickname: e.target.value })}
                 />
@@ -943,7 +943,7 @@ export const TabUsers = () => {
                 <input
                   required
                   type="email"
-                  className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={editForm.email}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                 />
@@ -956,7 +956,7 @@ export const TabUsers = () => {
                 <input
                   required
                   type="date"
-                  className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={editForm.birthDate}
                   onChange={(e) => setEditForm({ ...editForm, birthDate: e.target.value })}
                 />
@@ -967,7 +967,7 @@ export const TabUsers = () => {
                   Nivel de acesso
                 </label>
                 <select
-                  className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   style={selectStyle}
                   value={editForm.role}
                   onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
@@ -1005,7 +1005,7 @@ export const TabUsers = () => {
                         is_active: !(editingUser.is_active ?? true),
                       })
                     }
-                    className="rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                    className="rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                   >
                     {editingUser.is_active === false ? "Deixar ativo" : "Deixar inativo"}
                   </button>
@@ -1013,7 +1013,7 @@ export const TabUsers = () => {
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -1071,7 +1071,7 @@ const StudentCommercialFields = ({
     };
 
   return (
-    <div className="space-y-3 rounded-3xl bg-white/5 p-4 ring-1 ring-white/10 md:col-span-2">
+    <div className="space-y-3 rounded-3xl bg-surface p-4 ring-1 ring-white/10 md:col-span-2">
       <div className="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)] md:items-end">
         <div className="space-y-1">
           <label className="ml-1 text-[10px] font-black uppercase text-white/30">
@@ -1079,7 +1079,7 @@ const StudentCommercialFields = ({
           </label>
         </div>
         <div className="flex flex-wrap gap-3">
-          <label className="inline-flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15">
+          <label className="inline-flex items-center gap-3 rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15">
             <input
               type="checkbox"
               className="h-4 w-4 rounded border-white/20 bg-transparent accent-brand-magenta"
@@ -1088,7 +1088,7 @@ const StudentCommercialFields = ({
             />
             <span>Mentoria</span>
           </label>
-          <label className="inline-flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15">
+          <label className="inline-flex items-center gap-3 rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15">
             <input
               type="checkbox"
               className="h-4 w-4 rounded border-white/20 bg-transparent accent-brand-magenta"
@@ -1122,7 +1122,7 @@ const StudentCommercialFields = ({
                 <div>
                   <p className="text-sm font-bold text-white">{getTrackLabel(track)}</p>
                 </div>
-                <span className="inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/40 ring-1 ring-white/10">
+                <span className="inline-flex rounded-full bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/40 ring-1 ring-white/10">
                   {track === "course" ? "Curso" : "Mentoria"}
                 </span>
               </div>
@@ -1132,7 +1132,7 @@ const StudentCommercialFields = ({
                     Plano
                   </label>
                   <select
-                    className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                    className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                     style={selectStyle}
                     value={selectedPricingMode}
                     onChange={(event) =>
@@ -1166,7 +1166,7 @@ const StudentCommercialFields = ({
                       Pacote
                     </label>
                     <select
-                      className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                      className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                       style={selectStyle}
                       value={selectedPackageId}
                       onChange={(event) =>
@@ -1206,7 +1206,7 @@ const StudentCommercialFields = ({
                     </label>
                     <select
                       disabled
-                      className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/80 ring-1 ring-white/15 outline-none transition disabled:cursor-not-allowed disabled:opacity-80"
+                      className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white/80 ring-1 ring-white/15 outline-none transition disabled:cursor-not-allowed disabled:opacity-80"
                       style={selectStyle}
                       value={selectedRate?.session_track || track}
                     >

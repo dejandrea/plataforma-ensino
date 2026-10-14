@@ -1,3 +1,4 @@
+import { Footer } from "./components/Footer";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "./lib/supabaseClient";
@@ -58,7 +59,7 @@ const RoleRoute = ({
     return (
       <div className="app-bg">
         <div className="mx-auto max-w-4xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center font-bold text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center font-bold text-white/70 ring-1 ring-white/10">
             Verificando permissoes...
           </div>
         </div>
@@ -82,177 +83,182 @@ const RoleRoute = ({
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/redefinir-senha" element={<ResetPassword />} />
+      <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/redefinir-senha" element={<ResetPassword />} />
 
-        <Route
-          path="/dashboard"
-          element={
-            <RoleRoute allowedRole="student">
-              <>
-                <Navbar />
-                <Dashboard />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/lesson/:id"
-          element={
-            <RoleRoute allowedRole="student">
-              <>
-                <Navbar />
-                <LessonView />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/minhas-aulas"
-          element={
-            <RoleRoute allowedRole="student">
-              <>
-                <Navbar />
-                <StudentLessons />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/sala/aula/:lessonId"
-          element={
-            <RoleRoute allowedRoles={["admin", "professor", "student"]}>
-              <LessonRoom />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/meu-boletim"
-          element={
-            <RoleRoute allowedRole="student">
-              <>
-                <Navbar />
-                <StudentReport />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/perfil"
-          element={
-            <RoleRoute allowedRole="student">
-              <>
-                <Navbar />
-                <ProfilePage />
-              </>
-            </RoleRoute>
-          }
-        />
+            <Route
+              path="/dashboard"
+              element={
+                <RoleRoute allowedRole="student">
+                  <>
+                    <Navbar />
+                    <Dashboard />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/lesson/:id"
+              element={
+                <RoleRoute allowedRole="student">
+                  <>
+                    <Navbar />
+                    <LessonView />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/minhas-aulas"
+              element={
+                <RoleRoute allowedRole="student">
+                  <>
+                    <Navbar />
+                    <StudentLessons />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/sala/aula/:lessonId"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor", "student"]}>
+                  <LessonRoom />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/meu-boletim"
+              element={
+                <RoleRoute allowedRole="student">
+                  <>
+                    <Navbar />
+                    <StudentReport />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/perfil"
+              element={
+                <RoleRoute allowedRole="student">
+                  <>
+                    <Navbar />
+                    <ProfilePage />
+                  </>
+                </RoleRoute>
+              }
+            />
 
-        <Route
-          path="/dashboard-professor"
-          element={
-            <RoleRoute allowedRoles={["admin", "professor"]}>
-              <>
-                <StaffNavbar />
-                <TeacherDashboard />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/perfil-profissional"
-          element={
-            <RoleRoute allowedRoles={["admin", "professor"]}>
-              <>
-                <StaffNavbar />
-                <ProfilePage />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/agendamentos"
-          element={
-            <RoleRoute allowedRoles={["admin", "professor"]}>
-              <>
-                <StaffNavbar />
-                <TeacherScheduling />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/relatorios"
-          element={
-            <RoleRoute allowedRoles={["admin", "professor"]}>
-              <>
-                <StaffNavbar />
-                <TeacherReports />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/avaliar"
-          element={
-            <RoleRoute allowedRoles={["admin", "professor"]}>
-              <>
-                <StaffNavbar />
-                <AdminEvaluations />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/historico/:studentId"
-          element={
-            <RoleRoute allowedRoles={["admin", "professor"]}>
-              <>
-                <StaffNavbar />
-                <StudentHistory />
-              </>
-            </RoleRoute>
-          }
-        />
+            <Route
+              path="/dashboard-professor"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor"]}>
+                  <>
+                    <StaffNavbar />
+                    <TeacherDashboard />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/perfil-profissional"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor"]}>
+                  <>
+                    <StaffNavbar />
+                    <ProfilePage />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/agendamentos"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor"]}>
+                  <>
+                    <StaffNavbar />
+                    <TeacherScheduling />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/relatorios"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor"]}>
+                  <>
+                    <StaffNavbar />
+                    <TeacherReports />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/admin/avaliar"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor"]}>
+                  <>
+                    <StaffNavbar />
+                    <AdminEvaluations />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/historico/:studentId"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor"]}>
+                  <>
+                    <StaffNavbar />
+                    <StudentHistory />
+                  </>
+                </RoleRoute>
+              }
+            />
 
-        <Route
-          path="/gestao"
-          element={
-            <RoleRoute allowedRole="admin">
-              <>
-                <StaffNavbar />
-                <SystemManagement />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/comercial"
-          element={
-            <RoleRoute allowedRole="admin">
-              <>
-                <StaffNavbar />
-                <CommercialManagement />
-              </>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/vincular-aluno"
-          element={
-            <RoleRoute allowedRole="admin">
-              <>
-                <StaffNavbar />
-                <LinkStudent />
-              </>
-            </RoleRoute>
-          }
-        />
+            <Route
+              path="/gestao"
+              element={
+                <RoleRoute allowedRole="admin">
+                  <>
+                    <StaffNavbar />
+                    <SystemManagement />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/comercial"
+              element={
+                <RoleRoute allowedRole="admin">
+                  <>
+                    <StaffNavbar />
+                    <CommercialManagement />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/vincular-aluno"
+              element={
+                <RoleRoute allowedRole="admin">
+                  <>
+                    <StaffNavbar />
+                    <LinkStudent />
+                  </>
+                </RoleRoute>
+              }
+            />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }

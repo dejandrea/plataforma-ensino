@@ -23,7 +23,7 @@ export const SystemManagement = () => {
     <div className="app-bg min-h-screen text-white">
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* HEADER SIMPLIFICADO */}
-        <header className="mb-8 flex justify-between items-center bg-white/5 p-6 rounded-3xl ring-1 ring-white/10 backdrop-blur">
+        <header className="mb-8 flex justify-between items-center bg-surface p-6 rounded-3xl ring-1 ring-white/10 backdrop-blur">
           <h1 className="text-3xl font-extrabold italic italic">Torre de Controle 🏗️</h1>
           <span className="text-xs font-bold text-white/40 uppercase tracking-widest">
             {userRole === "admin" ? "Modo Administrador" : "Acesso Negado"}

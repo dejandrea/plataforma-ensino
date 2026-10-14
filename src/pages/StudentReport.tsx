@@ -70,7 +70,7 @@ export const StudentReport = () => {
     return (
       <div className="app-bg">
         <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Abrindo seu boletim...
           </div>
         </div>
@@ -81,7 +81,7 @@ export const StudentReport = () => {
   return (
     <div className="app-bg">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
 
           <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -98,7 +98,7 @@ export const StudentReport = () => {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white/5 px-5 py-4 text-center ring-1 ring-white/10">
+            <div className="rounded-2xl bg-surface px-5 py-4 text-center ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                 Avaliacoes
               </p>
@@ -111,7 +111,7 @@ export const StudentReport = () => {
 
         <section className="mt-8">
           {evaluations.length === 0 ? (
-            <div className="rounded-3xl bg-white/5 p-10 text-center ring-1 ring-white/10">
+            <div className="rounded-3xl bg-surface p-10 text-center ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                 Nada por aqui ainda
               </p>
@@ -147,7 +147,7 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
   const shouldUseTeacherFallback = feedbackEntries.length === 0;
 
   return (
-    <article className="overflow-hidden rounded-[2rem] bg-white/5 shadow-soft ring-1 ring-white/10">
+    <article className="overflow-hidden rounded-[2rem] bg-surface shadow-soft ring-1 ring-white/10">
       <div className="bg-gradient-to-r from-brand-purple/80 to-brand-pink/80 p-5 text-white">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -159,7 +159,7 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
             </h2>
           </div>
 
-          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ring-1 ring-white/15">
+          <span className="rounded-full bg-surface-elevated px-3 py-1 text-xs font-semibold ring-1 ring-white/15">
             {new Date(evaluation.created_at).toLocaleDateString()}
           </span>
         </div>
@@ -170,7 +170,7 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
           {Object.entries(criteriaLabels).map(([key, label]) => (
             <div
               key={key}
-              className="rounded-2xl bg-white/5 p-4 text-center ring-1 ring-white/10"
+              className="rounded-2xl bg-surface p-4 text-center ring-1 ring-white/10"
             >
               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">
                 {label}
@@ -207,7 +207,7 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
             <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-brand-ice">{evaluation.ai_feedback_json.general}</p>
           </section>
         )}
-        {(!evaluation.ai_feedback_json?.general || evaluation.teacher_comment !== evaluation.ai_feedback_json.general) && <div className="rounded-3xl bg-white/5 p-5 ring-1 ring-white/10">
+        {(!evaluation.ai_feedback_json?.general || evaluation.teacher_comment !== evaluation.ai_feedback_json.general) && <div className="rounded-3xl bg-surface p-5 ring-1 ring-white/10">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
             Comentario da professora
           </p>

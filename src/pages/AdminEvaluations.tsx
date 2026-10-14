@@ -116,7 +116,7 @@ export const AdminEvaluations = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <div className="rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <h1 className="text-3xl font-extrabold tracking-tight text-white">
             Painel de avaliacao
           </h1>
@@ -126,7 +126,7 @@ export const AdminEvaluations = () => {
         </div>
 
         <div className="mt-8 flex flex-col gap-8">
-          <aside className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <aside className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
@@ -136,7 +136,7 @@ export const AdminEvaluations = () => {
                   Resumo das avaliacoes
                 </h2>
               </div>
-              <div className="rounded-2xl bg-white/5 px-3 py-2 text-sm font-bold text-white ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface px-3 py-2 text-sm font-bold text-white ring-1 ring-white/10">
                 {studentEvaluations.length}
               </div>
             </div>
@@ -162,10 +162,10 @@ export const AdminEvaluations = () => {
                     aria-expanded={viewedEvaluation?.id === evaluation.id}
                     aria-controls="evaluation-details"
                     key={evaluation.id}
-                    className={`flex h-full w-full flex-col rounded-2xl p-5 text-left ring-1 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender ${
+                    className={`flex h-full w-full flex-col rounded-2xl p-5 text-left ring-1 transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender ${
                       viewedEvaluation?.id === evaluation.id
                         ? "bg-brand-lavender/15 ring-brand-lavender/30"
-                        : "bg-white/5 ring-white/10"
+                        : "bg-surface ring-white/10"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -177,7 +177,7 @@ export const AdminEvaluations = () => {
                           {new Date(evaluation.created_at).toLocaleDateString("pt-BR")}
                         </p>
                       </div>
-                      <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/55 ring-1 ring-white/10">
+                      <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/55 ring-1 ring-white/10">
                         Avaliado
                       </span>
                     </div>
@@ -203,7 +203,7 @@ export const AdminEvaluations = () => {
             )}
           </aside>
           <div className="space-y-8">
-            <div className="grid grid-cols-1 gap-4 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 rounded-3xl bg-surface p-6 ring-1 ring-white/10 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-white/70">
                   Selecionar aluno
@@ -265,7 +265,7 @@ export const AdminEvaluations = () => {
                   onSaved={() => navigate(returnTo)}
                 />
               ) : (
-                <div className="rounded-3xl border border-dashed border-white/15 bg-white/5 p-10 text-center text-white/45">
+                <div className="rounded-3xl border border-dashed border-white/15 bg-surface p-10 text-center text-white/45">
                   Selecione um aluno e {isMonthly ? "um mês pendente" : "um módulo"} para iniciar a avaliação.
                 </div>
               )}

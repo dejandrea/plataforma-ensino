@@ -1,0 +1,28 @@
+/* Bitaria Design System v1.0 — Dark only */
+:root {
+  color-scheme: dark;
+  --color-bg: #13101F;
+  --color-surface: #201936;
+  --color-surface-raised: #2D2345;
+  --color-surface-hover: #382B53;
+  --color-border: #493B62;
+  --color-primary: #A855D4;
+  --color-primary-hover: #B96AE0;
+  --color-secondary: #E956C9;
+  --color-accent: #39D5E8;
+  --color-text: #F7F4FC;
+  --color-text-muted: #C8BCD8;
+  --color-text-subtle: #AFA2C5;
+  --color-success: #48D5A0;
+  --color-warning: #F4BD62;
+  --color-danger: #FF7A94;
+  --gradient-brand: linear-gradient(90deg, #8234AC 0%, #E82DBB 100%);
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-display: 'Chakra Petch', 'Inter', sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --shadow-card: 0 8px 28px rgb(0 0 0 / 20%);
+  --focus-ring: 0 0 0 3px rgb(57 213 232 / 65%);
+}

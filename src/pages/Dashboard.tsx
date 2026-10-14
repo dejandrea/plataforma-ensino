@@ -182,7 +182,7 @@ export const Dashboard = () => {
     return (
       <div className="app-bg">
         <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Carregando sua jornada...
           </div>
         </div>
@@ -199,7 +199,7 @@ export const Dashboard = () => {
   return (
     <div className="app-bg">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-brand-lavender/15 blur-3xl" />
 
@@ -219,7 +219,7 @@ export const Dashboard = () => {
 
             <Link
               to="/meu-boletim"
-              className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-5 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-2xl bg-surface px-5 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
             >
               Ver meu boletim
             </Link>
@@ -240,7 +240,7 @@ export const Dashboard = () => {
 
         <section className="mt-8 space-y-6">
           {modules.length === 0 ? (
-            <div className="rounded-3xl bg-white/5 p-10 text-center ring-1 ring-white/10">
+            <div className="rounded-3xl bg-surface p-10 text-center ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                 Em breve
               </p>
@@ -262,7 +262,7 @@ export const Dashboard = () => {
               return (
                 <section
                   key={module.id}
-                  className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur"
+                  className="rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur"
                 >
                   <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -274,14 +274,14 @@ export const Dashboard = () => {
                       </h2>
                     </div>
 
-                    <div className="w-full max-w-2xl rounded-2xl bg-white/5 px-4 py-4 ring-1 ring-white/10">
+                    <div className="w-full max-w-2xl rounded-2xl bg-surface px-4 py-4 ring-1 ring-white/10">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                         <div className="flex shrink-0 items-center justify-between gap-3 lg:min-w-[240px]">
                           <span className="text-sm font-semibold text-white/70">
                             {module.total_lessons} aulas em {moduleSubmodules.length}{" "}
                             submodulos
                           </span>
-                          <span className="rounded-full bg-white/5 px-2.5 py-1 text-xs font-black uppercase tracking-[0.18em] text-brand-ice ring-1 ring-white/10">
+                          <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-black uppercase tracking-[0.18em] text-brand-ice ring-1 ring-white/10">
                             {moduleProgress}%
                           </span>
                         </div>
@@ -304,9 +304,9 @@ export const Dashboard = () => {
 
                   <div className="mt-6 space-y-5">
                     {module.is_locked ? (
-                      <p className="rounded-3xl bg-white/5 p-6 text-sm text-white/60">Conclua todas as aulas do modulo anterior para liberar esta etapa.</p>
+                      <p className="rounded-3xl bg-surface p-6 text-sm text-white/60">Conclua todas as aulas do modulo anterior para liberar esta etapa.</p>
                     ) : moduleSubmodules.length === 0 ? (
-                      <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-white/50">
+                      <div className="rounded-3xl border border-dashed border-white/10 bg-surface p-6 text-sm text-white/50">
                         Este modulo ainda nao recebeu submodulos.
                       </div>
                     ) : (
@@ -336,7 +336,7 @@ export const Dashboard = () => {
                                 </h3>
                               </div>
 
-                              <div className="flex w-full max-w-xl items-center gap-3 rounded-2xl bg-white/5 px-4 py-3 ring-1 ring-white/10">
+                              <div className="flex w-full max-w-xl items-center gap-3 rounded-2xl bg-surface px-4 py-3 ring-1 ring-white/10">
                                 <span className="shrink-0 text-xs font-semibold text-white/60">
                                   {submoduleLessons.length} aulas
                                 </span>
@@ -354,7 +354,7 @@ export const Dashboard = () => {
 
                             <div className="mt-4 grid gap-4">
                               {submoduleLessons.length === 0 ? (
-                                <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-5 text-sm text-white/45">
+                                <div className="rounded-2xl border border-dashed border-white/10 bg-surface p-5 text-sm text-white/45">
                                   Este submodulo ainda nao tem aulas.
                                 </div>
                               ) : (
@@ -391,7 +391,7 @@ export const Dashboard = () => {
         </section>
 
         {modules.length > 0 && totalLessons === 0 && (
-          <div className="mt-8 rounded-3xl border border-dashed border-white/15 bg-white/5 p-6 text-sm text-white/50">
+          <div className="mt-8 rounded-3xl border border-dashed border-white/15 bg-surface p-6 text-sm text-white/50">
             Os modulos ja existem, mas ainda nao ha aulas cadastradas dentro dos
             submodulos.
           </div>
@@ -408,7 +408,7 @@ const SummaryCard = ({
   label: string;
   value: number;
 }) => (
-  <div className="rounded-3xl bg-white/5 p-5 ring-1 ring-white/10">
+  <div className="rounded-3xl bg-surface p-5 ring-1 ring-white/10">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {label}
     </p>

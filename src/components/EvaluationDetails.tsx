@@ -25,7 +25,7 @@ export const EvaluationDetails = ({ evaluation }: { evaluation: any }) => {
       <div className="space-y-6 p-5 md:p-6">
         <dl className="grid gap-3 sm:grid-cols-2">
           {criteria.map(([key, label]) => (
-            <div key={key} className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+            <div key={key} className="rounded-xl bg-surface p-4 ring-1 ring-white/10">
               <dt className="text-sm text-white/60">{label}</dt>
               <dd className="mt-2 text-lg font-bold text-brand-ice">{evaluation[`score_${key}`] ?? "—"}/5</dd>
               {typeof feedback?.[key] === "string" && (
@@ -35,7 +35,7 @@ export const EvaluationDetails = ({ evaluation }: { evaluation: any }) => {
           ))}
         </dl>
         {typeof feedback?.general === "string" && (
-          <section className="rounded-xl bg-white/5 p-5 ring-1 ring-white/10">
+          <section className="rounded-xl bg-surface p-5 ring-1 ring-white/10">
             <h4 className="text-sm font-bold text-white">Avaliação geral</h4>
             <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-white/75">{feedback.general}</p>
           </section>

@@ -203,7 +203,7 @@ export const LessonRoom = () => {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-5xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Preparando a sala da aula...
           </div>
         </div>
@@ -215,7 +215,7 @@ export const LessonRoom = () => {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-5xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-8 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-8 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.22em] text-white/35">
               Sala interna
             </p>
@@ -227,7 +227,7 @@ export const LessonRoom = () => {
             </p>
             <Link
               to={backTarget}
-              className="mt-6 inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+              className="mt-6 inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
             >
               {backLabel}
             </Link>
@@ -240,7 +240,7 @@ export const LessonRoom = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-5xl px-4 py-8">
-        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -right-20 top-0 h-64 w-64 rounded-full bg-brand-pink/15 blur-3xl" />
 
           <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -262,13 +262,13 @@ export const LessonRoom = () => {
                 type="button"
                 onClick={() => void fetchRoomData(true)}
                 disabled={refreshing}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {refreshing ? "Atualizando..." : "Atualizar sala"}
               </button>
               <Link
                 to={backTarget}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 {backLabel}
               </Link>
@@ -278,12 +278,12 @@ export const LessonRoom = () => {
 
         <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.9fr)]">
           <section className="space-y-6">
-            <div className="rounded-[2rem] bg-white/5 p-6 ring-1 ring-white/10">
+            <div className="rounded-[2rem] bg-surface p-6 ring-1 ring-white/10">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                   {lesson.session_track === "course" ? "Curso completo" : "Mentoria"}
                 </span>
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
                   {lesson.status === "completed"
                     ? "Concluida"
                     : lesson.status === "cancelled"
@@ -306,7 +306,7 @@ export const LessonRoom = () => {
               </div>
             </div>
 
-            <div className="rounded-[2rem] bg-white/5 p-6 ring-1 ring-white/10">
+            <div className="rounded-[2rem] bg-surface p-6 ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-white/35">
                 Linha do tempo da aula
               </p>
@@ -342,7 +342,7 @@ export const LessonRoom = () => {
           </section>
 
           <aside className="space-y-6">
-            <div className="rounded-[2rem] bg-white/5 p-6 ring-1 ring-white/10">
+            <div className="rounded-[2rem] bg-surface p-6 ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-pink/80">
                 Passo da sessao
               </p>
@@ -388,7 +388,7 @@ export const LessonRoom = () => {
             </div>
 
             {isTeacherView && (
-              <div className="rounded-[2rem] bg-white/5 p-6 ring-1 ring-white/10">
+              <div className="rounded-[2rem] bg-surface p-6 ring-1 ring-white/10">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-white/35">
                   Fechamento da aula
                 </p>
@@ -405,7 +405,7 @@ export const LessonRoom = () => {
                   type="button"
                   onClick={handleCompleteLesson}
                   disabled={completingLesson || lesson.status !== "scheduled"}
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {completingLesson
                     ? "Concluindo..."

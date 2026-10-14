@@ -73,7 +73,7 @@ export const ResetPassword = () => {
       </div>
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md rounded-3xl bg-white/5 p-7 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <div className="w-full max-w-md rounded-3xl bg-surface p-7 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="text-center">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-soft ring-1 ring-white/10">
               <span className="text-2xl">🔐</span>
@@ -95,7 +95,7 @@ export const ResetPassword = () => {
                 </label>
                 <input
                   type="password"
-                  className="mt-2 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="mt-2 w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -109,7 +109,7 @@ export const ResetPassword = () => {
                 </label>
                 <input
                   type="password"
-                  className="mt-2 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="mt-2 w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -126,14 +126,14 @@ export const ResetPassword = () => {
               </button>
             </form>
           ) : (
-            <div className="mt-7 rounded-2xl bg-white/5 p-4 text-sm text-white/70 ring-1 ring-white/10">
+            <div className="mt-7 rounded-2xl bg-surface p-4 text-sm text-white/70 ring-1 ring-white/10">
               Abra esta tela pelo link enviado no e-mail de recuperacao para
               redefinir sua senha com seguranca.
             </div>
           )}
 
           {message && (
-            <div className="mt-5 rounded-2xl bg-white/5 p-4 text-sm text-white/80 ring-1 ring-white/10">
+            <div className="mt-5 rounded-2xl bg-surface p-4 text-sm text-white/80 ring-1 ring-white/10">
               {message}
             </div>
           )}

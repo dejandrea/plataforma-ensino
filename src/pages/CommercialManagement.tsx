@@ -34,7 +34,7 @@ const initialPackageForm = {
 };
 
 const fieldClassName =
-  "w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-brand-pink/50";
+  "w-full rounded-2xl border border-white/10 bg-surface px-4 py-3 text-white outline-none transition focus:border-brand-pink/50";
 
 const selectStyle = {
   backgroundColor: "#241d33",
@@ -206,7 +206,7 @@ export const CommercialManagement = () => {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Carregando configuracoes comerciais...
           </div>
         </div>
@@ -217,7 +217,7 @@ export const CommercialManagement = () => {
   return (
     <div className="app-bg min-h-screen text-white">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-white/40">
@@ -264,7 +264,7 @@ export const CommercialManagement = () => {
         </header>
 
         {activeTab === "rates" && (
-          <section className="mt-8 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <section className="mt-8 rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
               Precos base
             </p>
@@ -324,7 +324,7 @@ export const CommercialManagement = () => {
 
         {activeTab === "packages" && (
           <div className="mt-8 grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
-            <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+            <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                 Pacotes cadastrados
               </p>
@@ -346,10 +346,10 @@ export const CommercialManagement = () => {
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+                            <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                               {getTrackLabel(item.session_track)}
                             </span>
-                            <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
+                            <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
                               {item.is_active ? "Ativo" : "Inativo"}
                             </span>
                           </div>
@@ -365,14 +365,14 @@ export const CommercialManagement = () => {
                           <button
                             type="button"
                             onClick={() => handleEditPackage(item)}
-                            className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                            className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                           >
                             Editar
                           </button>
                           <button
                             type="button"
                             onClick={() => void togglePackageStatus(item)}
-                            className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                            className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                           >
                             {item.is_active ? "Inativar" : "Reativar"}
                           </button>
@@ -401,7 +401,7 @@ export const CommercialManagement = () => {
               </div>
             </section>
 
-            <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+            <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                 {packageForm.id ? "Editar pacote" : "Novo pacote"}
               </p>
@@ -545,7 +545,7 @@ export const CommercialManagement = () => {
                   <button
                     type="button"
                     onClick={resetPackageForm}
-                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                    className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                   >
                     Limpar formulario
                   </button>
@@ -567,7 +567,7 @@ export const CommercialManagement = () => {
         )}
 
         {activeTab === "rules" && (
-          <section className="mt-8 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <section className="mt-8 rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
               Regras comerciais
             </p>
@@ -611,7 +611,7 @@ const CommercialStat = ({
   label: string;
   value: number;
 }) => (
-  <div className="rounded-2xl bg-white/5 px-5 py-4 text-center ring-1 ring-white/10">
+  <div className="rounded-2xl bg-surface px-5 py-4 text-center ring-1 ring-white/10">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {label}
     </p>
@@ -626,7 +626,7 @@ const CommercialMetric = ({
   label: string;
   value: string;
 }) => (
-  <div className="rounded-2xl bg-white/5 px-4 py-3 text-center ring-1 ring-white/10">
+  <div className="rounded-2xl bg-surface px-4 py-3 text-center ring-1 ring-white/10">
     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
       {label}
     </p>

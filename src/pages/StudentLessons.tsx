@@ -590,7 +590,7 @@ export const StudentLessons = () => {
     return (
       <div className="app-bg">
         <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Organizando suas aulas...
           </div>
         </div>
@@ -602,7 +602,7 @@ export const StudentLessons = () => {
     <div className="app-bg">
       <AgendaActivity active={refreshCount > 0 || Boolean(bookingLessonId || cancellingLessonId || reschedulingLessonId)} />
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-5 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-6">
+        <header className="relative overflow-hidden rounded-3xl bg-surface p-5 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-6">
           <div className="pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-brand-pink/15 blur-3xl" />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -672,7 +672,7 @@ export const StudentLessons = () => {
                         className={`inline-flex items-center rounded-2xl px-4 py-2.5 text-sm font-bold transition ${
                           activeTeacherId === teacher.id
                             ? "bg-white text-brand-900"
-                            : "bg-white/5 text-white/70 ring-1 ring-white/10 hover:bg-white/10 hover:text-white"
+                            : "bg-surface text-white/70 ring-1 ring-white/10 hover:bg-surface-elevated hover:text-white"
                         }`}
                       >
                         {teacher.name}
@@ -684,7 +684,7 @@ export const StudentLessons = () => {
             </div>
 
             <div className="w-full lg:w-[21rem]">
-              <div className="rounded-[2rem] bg-white/5 p-5 ring-1 ring-white/10">
+              <div className="rounded-[2rem] bg-surface p-5 ring-1 ring-white/10">
                 <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-pink/80">
                   Agenda da professora
                 </p>
@@ -701,7 +701,7 @@ export const StudentLessons = () => {
                     {filteredTeacherBookingPages.map((setting) => (
                       <div
                         key={setting.teacher_id}
-                        className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10"
+                        className="rounded-2xl bg-surface p-4 ring-1 ring-white/10"
                       >
                         <p className="text-sm font-bold text-white">
                           {teacherNames[setting.teacher_id] || "Professora"}
@@ -723,7 +723,7 @@ export const StudentLessons = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="mt-4 rounded-2xl bg-white/5 p-4 text-sm leading-6 text-white/55 ring-1 ring-white/10">
+                  <div className="mt-4 rounded-2xl bg-surface p-4 text-sm leading-6 text-white/55 ring-1 ring-white/10">
                     {linkedTeacherIds.length === 0
                       ? "Voce ainda nao foi vinculado a uma professora."
                       : `Nenhuma booking page do Google foi configurada ainda para ${activeTeacherName}.`}
@@ -766,7 +766,7 @@ export const StudentLessons = () => {
                             onClick={() =>
                               setAvailabilityCalendarMonth((current) => addMonths(current, -1))
                             }
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 text-white ring-1 ring-white/10 transition hover:bg-white/10"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-surface text-white ring-1 ring-white/10 transition hover:bg-surface-elevated"
                           >
                             ←
                           </button>
@@ -775,7 +775,7 @@ export const StudentLessons = () => {
                             onClick={() =>
                               setAvailabilityCalendarMonth((current) => addMonths(current, 1))
                             }
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 text-white ring-1 ring-white/10 transition hover:bg-white/10"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-surface text-white ring-1 ring-white/10 transition hover:bg-surface-elevated"
                           >
                             →
                           </button>
@@ -807,7 +807,7 @@ export const StudentLessons = () => {
                                 isSelected
                                   ? "bg-white text-brand-900 ring-white"
                                   : dayLessons.length > 0
-                                    ? "bg-white/5 text-white ring-white/10 hover:bg-white/10"
+                                    ? "bg-surface text-white ring-white/10 hover:bg-surface-elevated"
                                     : "bg-transparent text-white/25 ring-white/5"
                               } ${!isCurrentMonth ? "opacity-35" : ""}`}
                             >
@@ -974,7 +974,7 @@ export const StudentLessons = () => {
           onClick={() => setSelectedAvailableLesson(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="w-full max-w-2xl rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
@@ -993,14 +993,14 @@ export const StudentLessons = () => {
               <button
                 type="button"
                 onClick={() => setSelectedAvailableLesson(null)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
                   Horario selecionado
                 </p>
@@ -1022,7 +1022,7 @@ export const StudentLessons = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedAvailableLesson(null)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -1048,7 +1048,7 @@ export const StudentLessons = () => {
           onClick={() => setRescheduleTarget(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="w-full max-w-2xl rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
@@ -1068,14 +1068,14 @@ export const StudentLessons = () => {
               <button
                 type="button"
                 onClick={() => setRescheduleTarget(null)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
             </div>
 
             <form onSubmit={handleRescheduleLesson} className="mt-6 space-y-4">
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
                   Aula selecionada
                 </p>
@@ -1104,7 +1104,7 @@ export const StudentLessons = () => {
                 <button
                   type="button"
                   onClick={() => setRescheduleTarget(null)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -1134,7 +1134,7 @@ const SummaryCard = ({
   label: string;
   value: number;
 }) => (
-  <div className="rounded-2xl bg-white/5 px-4 py-4 text-center ring-1 ring-white/10">
+  <div className="rounded-2xl bg-surface px-4 py-4 text-center ring-1 ring-white/10">
     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
       {label}
     </p>
@@ -1161,7 +1161,7 @@ const SectionCard = ({
   gridClassName?: string;
   customContent?: ReactNode;
 }) => (
-  <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur">
+  <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {eyebrow}
     </p>
@@ -1238,17 +1238,17 @@ const LessonCard = ({
   hideStatusBadge?: boolean;
 }) => (
   <div
-    className={`rounded-[2rem] bg-white/5 ring-1 ring-white/10 ${
+    className={`rounded-[2rem] bg-surface ring-1 ring-white/10 ${
       compact ? "p-4" : "p-5"
     }`}
   >
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+        <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
           {getTrackLabel(lesson.session_track)}
         </span>
         {!hideStatusBadge && (
-          <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
+          <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
             {lesson.status === "available"
               ? "Disponivel"
               : lesson.status === "completed"
@@ -1298,7 +1298,7 @@ const StudentActionIconButton = ({
         ? "bg-amber-500/12 text-amber-100 ring-amber-300/25 hover:bg-amber-500/22"
         : tone === "accent"
           ? "bg-brand-magenta/20 text-white ring-brand-magenta/30 hover:brightness-110"
-          : "bg-white/5 text-white ring-white/15 hover:bg-white/10";
+          : "bg-surface text-white ring-white/15 hover:bg-surface-elevated";
 
   return (
     <button

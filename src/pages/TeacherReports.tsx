@@ -48,7 +48,7 @@ const getLessonHours = (lesson: { starts_at: string; ends_at: string }) =>
   (new Date(lesson.ends_at).getTime() - new Date(lesson.starts_at).getTime()) / 3_600_000;
 
 const reportSelectClassName =
-  "rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-brand-pink/50";
+  "rounded-2xl border border-white/10 bg-surface px-4 py-3 text-white outline-none transition focus:border-brand-pink/50";
 
 const reportSelectStyle = {
   backgroundColor: "#241d33",
@@ -441,7 +441,7 @@ export const TeacherReports = () => {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Carregando relatorios...
           </div>
         </div>
@@ -452,7 +452,7 @@ export const TeacherReports = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
 
           <div className="relative">
@@ -519,7 +519,7 @@ export const TeacherReports = () => {
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Limpar filtros
                 </button>
@@ -578,7 +578,7 @@ export const TeacherReports = () => {
                     type="date"
                     value={periodStart}
                     onChange={(event) => setPeriodStart(event.target.value)}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-brand-pink/50"
+                    className="rounded-2xl border border-white/10 bg-surface px-4 py-3 text-white outline-none transition focus:border-brand-pink/50"
                   />
                 </label>
 
@@ -590,7 +590,7 @@ export const TeacherReports = () => {
                     type="date"
                     value={periodEnd}
                     onChange={(event) => setPeriodEnd(event.target.value)}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-brand-pink/50"
+                    className="rounded-2xl border border-white/10 bg-surface px-4 py-3 text-white outline-none transition focus:border-brand-pink/50"
                   />
                 </label>
 
@@ -632,7 +632,7 @@ export const TeacherReports = () => {
           ))}
         </section>
 
-        {statusMessage && <p role="status" className="mt-6 rounded-2xl bg-white/5 px-5 py-4 text-sm text-white ring-1 ring-white/10">{statusMessage}</p>}
+        {statusMessage && <p role="status" className="mt-6 rounded-2xl bg-surface px-5 py-4 text-sm text-white ring-1 ring-white/10">{statusMessage}</p>}
         {activeTab === "history" && (
           <div
             className={`mt-8 grid gap-8 ${
@@ -669,7 +669,7 @@ export const TeacherReports = () => {
         )}
 
         {activeTab === "student_lessons" && (
-          <section className="mt-8 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <section className="mt-8 rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
               Aulas por aluno
             </p>
@@ -721,7 +721,7 @@ export const TeacherReports = () => {
                         <div className="mt-4 grid max-w-[30rem] gap-3 sm:grid-cols-2">
                           <Link
                             to={`/historico/${item.student.id}`}
-                            className="inline-flex min-h-[4rem] items-center justify-center rounded-[1.2rem] bg-white/5 px-3 py-2 text-left text-[0.9rem] font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                            className="inline-flex min-h-[4rem] items-center justify-center rounded-[1.2rem] bg-surface px-3 py-2 text-left text-[0.9rem] font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                           >
                             Historico completo
                           </Link>
@@ -765,7 +765,7 @@ export const TeacherReports = () => {
         )}
 
         {activeTab === "financial" && (
-          <section className="mt-8 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <section className="mt-8 rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
               Financeiro
             </p>
@@ -782,7 +782,7 @@ export const TeacherReports = () => {
                 studentSummaries.map((item) => (
                   <article
                     key={item.student.id}
-                    className="rounded-[2rem] bg-white/5 p-5 ring-1 ring-white/10"
+                    className="rounded-[2rem] bg-surface p-5 ring-1 ring-white/10"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -801,7 +801,7 @@ export const TeacherReports = () => {
                       </div>
                       <Link
                         to={`/historico/${item.student.id}`}
-                        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                        className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                       >
                         Ver aluno
                       </Link>
@@ -848,7 +848,7 @@ export const TeacherReports = () => {
         )}
 
         {activeTab === "attendance" && (
-          <section className="mt-8 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+          <section className="mt-8 rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
               Presenca
             </p>
@@ -865,11 +865,11 @@ export const TeacherReports = () => {
                 attendanceSummary.map((item) => (
                   <article
                     key={item.session.id}
-                    className="rounded-[2rem] bg-white/5 p-4 ring-1 ring-white/10"
+                    className="rounded-[2rem] bg-surface p-4 ring-1 ring-white/10"
                   >
                     <div className="space-y-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+                        <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                           {item.session.session_track === "course"
                             ? "Curso completo"
                             : "Mentoria"}
@@ -945,7 +945,7 @@ const HistoryColumn = ({
   teacherNames: Record<string, string>;
   showTeacher: boolean;
 }) => (
-  <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+  <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {eyebrow}
     </p>
@@ -960,11 +960,11 @@ const HistoryColumn = ({
         sessions.map((session) => (
           <article
             key={session.id}
-            className="rounded-[2rem] bg-white/5 p-4 ring-1 ring-white/10"
+            className="rounded-[2rem] bg-surface p-4 ring-1 ring-white/10"
           >
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                   {session.session_track === "course" ? "Curso completo" : "Mentoria"}
                 </span>
               </div>
@@ -993,7 +993,7 @@ const HistoryColumn = ({
                 <div className="pt-1">
                   <Link
                     to={`/historico/${session.student_id}`}
-                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                    className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                   >
                     Ver aluno
                   </Link>
@@ -1024,7 +1024,7 @@ const ReportStat = ({
   label: string;
   value: number | string;
 }) => (
-  <div className="rounded-2xl bg-white/5 px-5 py-4 text-center ring-1 ring-white/10">
+  <div className="rounded-2xl bg-surface px-5 py-4 text-center ring-1 ring-white/10">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {label}
     </p>

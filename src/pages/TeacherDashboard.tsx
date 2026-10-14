@@ -113,7 +113,7 @@ export const TeacherDashboard = () => {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Carregando painel da turma...
           </div>
         </div>
@@ -124,7 +124,7 @@ export const TeacherDashboard = () => {
   return (
     <div className="app-bg min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="relative overflow-hidden rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+        <header className="relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
 
           <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -178,7 +178,7 @@ const SummaryCard = ({
   label: string;
   value: number;
 }) => (
-  <div className="rounded-2xl bg-white/5 px-5 py-4 text-center ring-1 ring-white/10">
+  <div className="rounded-2xl bg-surface px-5 py-4 text-center ring-1 ring-white/10">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {label}
     </p>
@@ -193,7 +193,7 @@ const EmptyState = ({
   title: string;
   description: string;
 }) => (
-  <div className="rounded-3xl bg-white/5 p-10 text-center ring-1 ring-white/10">
+  <div className="rounded-3xl bg-surface p-10 text-center ring-1 ring-white/10">
     <h2 className="text-2xl font-bold text-white">{title}</h2>
     <p className="mt-3 text-sm text-white/60">{description}</p>
   </div>

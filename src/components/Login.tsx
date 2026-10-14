@@ -1,3 +1,4 @@
+import mascotLogo from "../assets/logo/logo-mascote.png";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
@@ -93,17 +94,17 @@ export const Login = () => {
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
-          <div className="rounded-3xl bg-white/5 p-7 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
+          <div className="rounded-3xl bg-surface p-7 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
             <div className="text-center">
-              <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-soft ring-1 ring-white/10">
-                <span className="text-2xl">🚀</span>
-              </div>
-
-              <h2 className="mt-5 text-3xl font-extrabold tracking-tight">
-                Escola de Devs
-              </h2>
-              <p className="mt-2 text-sm text-white/65">
-                Sua jornada tech comeca aqui.
+              <img
+                src={mascotLogo}
+                alt="Bitaria"
+                className="mx-auto h-48 w-48 rounded-2xl object-contain"
+                width={2000}
+                height={2000}
+              />
+              <p className="mt-3 text-sm text-white/65">
+                Aprenda. Crie. Evolua.
               </p>
             </div>
 
@@ -115,7 +116,7 @@ export const Login = () => {
                 <input
                   type="email"
                   placeholder="exemplo@email.com"
-                  className="mt-2 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="mt-2 w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -130,7 +131,7 @@ export const Login = () => {
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="mt-2 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
+                  className="mt-2 w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -165,7 +166,7 @@ export const Login = () => {
             </div>
 
             {message && (
-              <div className="mt-4 rounded-2xl bg-white/5 p-4 text-sm text-white/80 ring-1 ring-white/10">
+              <div className="mt-4 rounded-2xl bg-surface p-4 text-sm text-white/80 ring-1 ring-white/10">
                 {message}
               </div>
             )}

@@ -1147,7 +1147,7 @@ export const TeacherScheduling = () => {
     return (
       <div className="app-bg">
         <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="rounded-3xl bg-white/5 p-10 text-center text-white/70 ring-1 ring-white/10">
+          <div className="rounded-3xl bg-surface p-10 text-center text-white/70 ring-1 ring-white/10">
             Organizando agenda...
           </div>
         </div>
@@ -1159,7 +1159,7 @@ export const TeacherScheduling = () => {
     <div className="app-bg min-h-screen">
       <AgendaActivity active={refreshCount > 0 || pendingLessonActions > 0 || saving || savingCalendarSettings || connectingGoogle || syncingGoogle || syncingAvailability || processingGoogleCallback || rescheduling} />
       <div className="mx-auto max-w-6xl px-4 py-6">
-        <header className="rounded-3xl bg-white/5 p-5 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-6">
+        <header className="rounded-3xl bg-surface p-5 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
             <div className="flex-1">
               <p className="text-xs font-black uppercase tracking-[0.22em] text-white/40">
@@ -1210,7 +1210,7 @@ export const TeacherScheduling = () => {
             </div>
 
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-6">
-              <div className="rounded-2xl bg-white/5 p-3 ring-1 ring-white/10 lg:w-[18.5rem]">
+              <div className="rounded-2xl bg-surface p-3 ring-1 ring-white/10 lg:w-[18.5rem]">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
                   Status da conexao
                 </p>
@@ -1235,21 +1235,21 @@ export const TeacherScheduling = () => {
                 )}
                 <div className="mt-2 flex flex-wrap gap-2 text-xs">
                   {calendarSettings.calendarName && (
-                    <span className="rounded-full bg-white/5 px-2.5 py-1 text-brand-ice ring-1 ring-white/10">
+                    <span className="rounded-full bg-surface px-2.5 py-1 text-brand-ice ring-1 ring-white/10">
                       {calendarSettings.calendarName}
                     </span>
                   )}
                   {calendarSettings.eventCalendarNames.length > 1 && (
-                    <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/60 ring-1 ring-white/10">
+                    <span className="rounded-full bg-surface px-2.5 py-1 text-white/60 ring-1 ring-white/10">
                       + {calendarSettings.eventCalendarNames.length - 1} agenda(s) de eventos
                     </span>
                   )}
                   {calendarSettings.availabilityCalendarNames.length > 0 && (
-                    <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/60 ring-1 ring-white/10">
+                    <span className="rounded-full bg-surface px-2.5 py-1 text-white/60 ring-1 ring-white/10">
                       {calendarSettings.availabilityCalendarNames.length} agenda(s) bloqueando disponibilidade
                     </span>
                   )}
-                  <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/60 ring-1 ring-white/10">
+                  <span className="rounded-full bg-surface px-2.5 py-1 text-white/60 ring-1 ring-white/10">
                     {calendarSettings.availabilityStartTime} - {calendarSettings.availabilityEndTime} | {calendarSettings.availabilitySlotMinutes} min
                   </span>
                 </div>
@@ -1259,7 +1259,7 @@ export const TeacherScheduling = () => {
                 <button
                   type="button"
                   onClick={() => setShowEventSettingsModal(true)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-2.5 py-4 text-xs font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-2.5 py-4 text-xs font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Configurar Agenda
                 </button>
@@ -1282,7 +1282,7 @@ export const TeacherScheduling = () => {
                 <button
                   type="button"
                   onClick={() => setShowAvailabilitySettingsModal(true)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-2.5 py-4 text-xs font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-2.5 py-4 text-xs font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Configurar Disponibilidade
                 </button>
@@ -1328,7 +1328,7 @@ export const TeacherScheduling = () => {
               <button
                 type="button"
                 onClick={() => setRecurrenceFeedback(null)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar aviso
               </button>
@@ -1338,7 +1338,7 @@ export const TeacherScheduling = () => {
               {recurrenceFeedback.adjustedOccurrences.map((item) => (
                 <article
                   key={`${item.recurrenceIndex}-${item.assignedStartsAt}`}
-                  className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10"
+                  className="rounded-2xl bg-surface p-4 ring-1 ring-white/10"
                 >
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-100/70">
                     Encontro {item.recurrenceIndex}
@@ -1367,7 +1367,7 @@ export const TeacherScheduling = () => {
             </div>
           </div>
 
-          <div className="hidden mt-3 rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
+          <div className="hidden mt-3 rounded-2xl bg-surface p-3 ring-1 ring-white/10">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
               Status da conexao
             </p>
@@ -1392,17 +1392,17 @@ export const TeacherScheduling = () => {
             )}
             <div className="mt-2 flex flex-wrap gap-2 text-xs">
               {calendarSettings.calendarName && (
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-brand-ice ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-brand-ice ring-1 ring-white/10">
                   {calendarSettings.calendarName}
                 </span>
               )}
               {calendarSettings.eventCalendarNames.length > 1 && (
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/60 ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-white/60 ring-1 ring-white/10">
                   + {calendarSettings.eventCalendarNames.length - 1} agenda(s) de eventos
                 </span>
               )}
               {calendarSettings.availabilityCalendarNames.length > 0 && (
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/60 ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-white/60 ring-1 ring-white/10">
                   {calendarSettings.availabilityCalendarNames.length} agenda(s) bloqueando disponibilidade
                 </span>
               )}
@@ -1418,7 +1418,7 @@ export const TeacherScheduling = () => {
 
         {activeView === "events" ? (
           <div className="mt-8 grid gap-8">
-            <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+            <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
@@ -1476,7 +1476,7 @@ export const TeacherScheduling = () => {
                             onClick={() =>
                               setEventCalendarMonth((current) => addMonths(current, -1))
                             }
-                            className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                            className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                           >
                             Mes anterior
                           </button>
@@ -1485,7 +1485,7 @@ export const TeacherScheduling = () => {
                             onClick={() =>
                               setEventCalendarMonth((current) => addMonths(current, 1))
                             }
-                            className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                            className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                           >
                             Proximo mes
                           </button>
@@ -1516,9 +1516,9 @@ export const TeacherScheduling = () => {
                               onClick={() => setSelectedEventDate(dayKey)}
                               className={`min-h-[88px] rounded-2xl border p-3 text-left transition ${
                                 isSelected
-                                  ? "border-brand-lavender bg-white/10"
+                                  ? "border-brand-lavender bg-surface-elevated"
                                   : daySessions.length > 0
-                                    ? "border-white/10 bg-white/5 hover:bg-white/10"
+                                    ? "border-white/10 bg-surface hover:bg-surface-elevated"
                                     : "border-white/5 bg-white/[0.03] hover:bg-white/[0.05]"
                               } ${!isCurrentMonth ? "opacity-45" : ""}`}
                             >
@@ -1590,7 +1590,7 @@ export const TeacherScheduling = () => {
           </div>
         ) : (
           <div className="mt-8">
-            <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+            <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
@@ -1611,7 +1611,7 @@ export const TeacherScheduling = () => {
                     onClick={() =>
                       setAvailabilityCalendarMonth((current) => addMonths(current, -1))
                     }
-                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                    className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                   >
                     Mes anterior
                   </button>
@@ -1620,7 +1620,7 @@ export const TeacherScheduling = () => {
                     onClick={() =>
                       setAvailabilityCalendarMonth((current) => addMonths(current, 1))
                     }
-                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                    className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                   >
                     Proximo mes
                   </button>
@@ -1661,9 +1661,9 @@ export const TeacherScheduling = () => {
                         onClick={() => setSelectedAvailabilityDate(dayKey)}
                         className={`min-h-[88px] rounded-2xl border p-3 text-left transition ${
                           isSelected
-                            ? "border-brand-lavender bg-white/10"
+                            ? "border-brand-lavender bg-surface-elevated"
                             : daySessions.length > 0
-                              ? "border-white/10 bg-white/5 hover:bg-white/10"
+                              ? "border-white/10 bg-surface hover:bg-surface-elevated"
                               : "border-white/5 bg-white/[0.03] hover:bg-white/[0.05]"
                         } ${!isCurrentMonth ? "opacity-45" : ""}`}
                       >
@@ -1712,7 +1712,7 @@ export const TeacherScheduling = () => {
           onClick={() => setSelectedSlotForReservation(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="w-full max-w-2xl rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
@@ -1731,14 +1731,14 @@ export const TeacherScheduling = () => {
               <button
                 type="button"
                 onClick={() => setSelectedSlotForReservation(null)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
             </div>
 
             <form onSubmit={handleConfirmReservation} className="mt-6 space-y-4">
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
                   Horario selecionado
                 </p>
@@ -1793,7 +1793,7 @@ export const TeacherScheduling = () => {
                 </Field>
               </div>
 
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <label className="flex items-center gap-3 text-sm font-semibold text-white">
                   <input
                     type="checkbox"
@@ -1837,7 +1837,7 @@ export const TeacherScheduling = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedSlotForReservation(null)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -1860,7 +1860,7 @@ export const TeacherScheduling = () => {
           onClick={() => setRescheduleTarget(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="w-full max-w-2xl rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
@@ -1880,14 +1880,14 @@ export const TeacherScheduling = () => {
               <button
                 type="button"
                 onClick={() => setRescheduleTarget(null)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
             </div>
 
             <form onSubmit={handleRescheduleLesson} className="mt-6 space-y-4">
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
                   Aula atual
                 </p>
@@ -1950,7 +1950,7 @@ export const TeacherScheduling = () => {
                 <button
                   type="button"
                   onClick={() => setRescheduleTarget(null)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -1973,7 +1973,7 @@ export const TeacherScheduling = () => {
           onClick={() => setCancellationTarget(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="w-full max-w-2xl rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
@@ -1993,13 +1993,13 @@ export const TeacherScheduling = () => {
               <button
                 type="button"
                 onClick={() => setCancellationTarget(null)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
             </div>
 
-            <div className="mt-6 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+            <div className="mt-6 rounded-2xl bg-surface p-4 ring-1 ring-white/10">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
                 Aula selecionada
               </p>
@@ -2021,7 +2021,7 @@ export const TeacherScheduling = () => {
                   setCancellationTarget(null);
                   await cancelLesson(lessonId, "single");
                 }}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Cancelar apenas esta aula
               </button>
@@ -2047,7 +2047,7 @@ export const TeacherScheduling = () => {
           onClick={() => setShowEventSettingsModal(false)}
         >
           <div
-            className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
@@ -2067,7 +2067,7 @@ export const TeacherScheduling = () => {
               <button
                 type="button"
                 onClick={() => setShowEventSettingsModal(false)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
@@ -2162,7 +2162,7 @@ export const TeacherScheduling = () => {
                           return (
                             <label
                               key={calendar.id}
-                              className="flex items-start gap-3 rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/10"
+                              className="flex items-start gap-3 rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/10"
                             >
                               <input
                                 type="checkbox"
@@ -2241,7 +2241,7 @@ export const TeacherScheduling = () => {
                 compromissos pessoais na geracao dos horarios livres.
               </div>
 
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
@@ -2272,7 +2272,7 @@ export const TeacherScheduling = () => {
                     type="button"
                     onClick={connectGoogleCalendar}
                     disabled={connectingGoogle || processingGoogleCallback}
-                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {connectingGoogle ? "Conectando..." : "Conectar Google"}
                   </button>
@@ -2281,7 +2281,7 @@ export const TeacherScheduling = () => {
                     <button
                       type="button"
                       onClick={fetchGoogleCalendars}
-                      className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                      className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                     >
                       Atualizar agendas
                     </button>
@@ -2300,7 +2300,7 @@ export const TeacherScheduling = () => {
                 <button
                   type="button"
                   onClick={() => setShowEventSettingsModal(false)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -2317,7 +2317,7 @@ export const TeacherScheduling = () => {
                     href={calendarSettings.bookingPageUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                    className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                   >
                     Abrir booking page
                   </a>
@@ -2334,7 +2334,7 @@ export const TeacherScheduling = () => {
           onClick={() => setShowAvailabilitySettingsModal(false)}
         >
           <div
-            className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-[#140f25] p-6 shadow-soft ring-1 ring-white/10 md:p-8"
+            className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-surface-elevated p-6 shadow-soft ring-1 ring-white/10 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-start md:justify-between">
@@ -2355,7 +2355,7 @@ export const TeacherScheduling = () => {
               <button
                 type="button"
                 onClick={() => setShowAvailabilitySettingsModal(false)}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
               >
                 Fechar
               </button>
@@ -2382,7 +2382,7 @@ export const TeacherScheduling = () => {
                         return (
                           <label
                             key={calendar.id}
-                            className="flex items-start gap-3 rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/10"
+                            className="flex items-start gap-3 rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/10"
                           >
                             <input
                               type="checkbox"
@@ -2446,7 +2446,7 @@ export const TeacherScheduling = () => {
                 </Field>
               </div>
 
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-white/35">
                   Janela de atendimento
                 </p>
@@ -2551,7 +2551,7 @@ export const TeacherScheduling = () => {
                 <button
                   type="button"
                   onClick={() => setShowAvailabilitySettingsModal(false)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-4 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -2599,7 +2599,7 @@ const AvailableSlotList = ({
   studentNameMap: Record<string, string>;
   onReserve: (session: any) => void;
 }) => (
-  <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+  <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       Pagina de agendamento
     </p>
@@ -2619,14 +2619,14 @@ const AvailableSlotList = ({
         sessions.map((session) => (
           <article
             key={session.id}
-            className="rounded-[2rem] bg-white/5 p-4 ring-1 ring-white/10"
+            className="rounded-[2rem] bg-surface p-4 ring-1 ring-white/10"
           >
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                   {session.session_track === "course" ? "Curso completo" : "Mentoria"}
                 </span>
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200 ring-1 ring-white/10">
+                <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200 ring-1 ring-white/10">
                   Disponivel
                 </span>
               </div>
@@ -2676,7 +2676,7 @@ const SmallStat = ({
   label: string;
   value: number;
 }) => (
-  <div className="rounded-2xl bg-white/5 px-2 py-2 text-center ring-1 ring-white/10">
+  <div className="rounded-2xl bg-surface px-2 py-2 text-center ring-1 ring-white/10">
     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
       {label}
     </p>
@@ -2705,7 +2705,7 @@ const SessionCard = ({
 }) => (
   <article
     key={session.id}
-    className={`rounded-[2rem] bg-white/5 ring-1 ring-white/10 ${
+    className={`rounded-[2rem] bg-surface ring-1 ring-white/10 ${
       compactGrid ? "p-4" : "p-5"
     }`}
   >
@@ -2716,11 +2716,11 @@ const SessionCard = ({
     >
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
+          <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
             {session.session_track === "course" ? "Curso completo" : "Mentoria"}
           </span>
           {!past && (
-            <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
+            <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50 ring-1 ring-white/10">
               {session.status === "available"
                 ? "Disponivel"
                 : session.status === "completed"
@@ -2809,7 +2809,7 @@ const SessionCard = ({
           <Link
             to={`/historico/${session.student_id}`}
             title="Ver aluno"
-            className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-2xl bg-white/5 text-white ring-1 ring-white/15 transition hover:bg-white/10"
+            className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-2xl bg-surface text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
           >
             <StudentIcon />
           </Link>
@@ -2841,7 +2841,7 @@ const IconActionButton = ({
           ? "bg-amber-500/12 text-amber-100 ring-amber-300/25 hover:bg-amber-500/22"
       : tone === "accent"
         ? "bg-brand-magenta/20 text-white ring-brand-magenta/30 hover:brightness-110"
-        : "bg-white/5 text-white ring-white/15 hover:bg-white/10";
+        : "bg-surface text-white ring-white/15 hover:bg-surface-elevated";
 
   return (
     <button
@@ -2952,7 +2952,7 @@ const HistoryPreviewSection = ({
   onReschedule: (session: any) => void;
   onOpenRoom: (session: any) => void;
 }) => (
-  <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+  <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
@@ -2967,7 +2967,7 @@ const HistoryPreviewSection = ({
 
       <Link
         to="/relatorios"
-        className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-5 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-white/10"
+        className="inline-flex items-center justify-center rounded-2xl bg-surface px-5 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
       >
         Ver historico completo
       </Link>
@@ -3063,7 +3063,7 @@ const SessionList = ({
   past?: boolean;
   compactGrid?: boolean;
 }) => (
-  <section className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+  <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {eyebrow}
     </p>

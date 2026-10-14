@@ -298,7 +298,7 @@ export const TabContent = () => {
 
   return (
     <div className="mt-8 space-y-8 animate-in fade-in duration-500">
-      <div className="relative flex flex-wrap items-center gap-4 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-sm">
+      <div className="relative flex flex-wrap items-center gap-4 rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur-sm">
         <div className="min-w-[250px] flex-1">
           <label className="ml-1 text-[10px] font-black uppercase text-white/40">
             Curso atual
@@ -333,7 +333,7 @@ export const TabContent = () => {
             <h3 className="mb-4 font-bold italic text-white">Novo curso</h3>
             <form onSubmit={handleCreateCourse} className="space-y-3">
               <input
-                className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none"
+                className="w-full rounded-xl border border-white/10 bg-surface p-3 text-white outline-none"
                 placeholder="Titulo"
                 value={newCourseData.title}
                 onChange={(e) =>
@@ -342,7 +342,7 @@ export const TabContent = () => {
                 required
               />
               <textarea
-                className="min-h-24 w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none"
+                className="min-h-24 w-full rounded-xl border border-white/10 bg-surface p-3 text-white outline-none"
                 placeholder="Descricao"
                 value={newCourseData.description}
                 onChange={(e) =>
@@ -354,7 +354,7 @@ export const TabContent = () => {
               />
               <input
                 type="number"
-                className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-white outline-none"
+                className="w-full rounded-xl border border-white/10 bg-surface p-3 text-white outline-none"
                 placeholder="Carga horaria (horas)"
                 value={newCourseData.total_hours}
                 onChange={(e) =>
@@ -373,7 +373,7 @@ export const TabContent = () => {
               <button
                 type="button"
                 onClick={() => setIsCreatingCourse(false)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 py-3 font-bold text-white transition hover:bg-white/10"
+                className="w-full rounded-xl border border-white/10 bg-surface py-3 font-bold text-white transition hover:bg-surface-elevated"
               >
                 Cancelar
               </button>
@@ -413,7 +413,7 @@ export const TabContent = () => {
                   className={`cursor-pointer rounded-3xl border p-5 transition-all ${
                     selectedModuleId === module.id
                       ? "border-brand-lavender bg-brand-purple/20 shadow-lg"
-                      : "border-white/5 bg-white/5 hover:bg-white/10"
+                      : "border-white/5 bg-surface hover:bg-surface-elevated"
                   } ${!module.is_active ? "opacity-50 grayscale" : ""}`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -493,7 +493,7 @@ export const TabContent = () => {
                     className={`cursor-pointer rounded-3xl border p-5 transition-all ${
                       selectedSubmoduleId === submodule.id
                         ? "border-brand-pink bg-brand-pink/15 shadow-lg"
-                        : "border-white/5 bg-white/5 hover:bg-white/10"
+                        : "border-white/5 bg-surface hover:bg-surface-elevated"
                     } ${!submodule.is_active ? "opacity-50 grayscale" : ""}`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -552,7 +552,7 @@ export const TabContent = () => {
           <div className="xl:col-span-6">
             {selectedSubmoduleId ? (
               <div className="space-y-6">
-                <header className="flex items-center justify-between rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
+                <header className="flex items-center justify-between rounded-3xl bg-surface p-6 ring-1 ring-white/10">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
                       Etapa final
@@ -577,7 +577,7 @@ export const TabContent = () => {
                 {isEditingLesson && (
                   <form
                     onSubmit={handleSaveLesson}
-                    className="space-y-4 rounded-3xl border border-brand-lavender/30 bg-white/5 p-6 animate-in slide-in-from-top-4"
+                    className="space-y-4 rounded-3xl border border-brand-lavender/30 bg-surface p-6 animate-in slide-in-from-top-4"
                   >
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                       <input
@@ -687,7 +687,7 @@ export const TabContent = () => {
                       <button
                         type="button"
                         onClick={resetLessonForm}
-                        className="rounded-xl bg-white/10 px-6 text-white"
+                        className="rounded-xl bg-surface-elevated px-6 text-white"
                       >
                         X
                       </button>
@@ -699,7 +699,7 @@ export const TabContent = () => {
                   {lessons.map((lesson) => (
                     <div
                       key={lesson.id}
-                      className="rounded-[2rem] bg-white/5 p-6 ring-1 ring-white/10"
+                      className="rounded-[2rem] bg-surface p-6 ring-1 ring-white/10"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex gap-4">
@@ -737,7 +737,7 @@ export const TabContent = () => {
                               slides_url: lesson.slides_url || "",
                             });
                           }}
-                          className="rounded-xl bg-white/5 p-2 hover:bg-white/10"
+                          className="rounded-xl bg-surface p-2 hover:bg-surface-elevated"
                           type="button"
                         >
                           Editar
@@ -780,7 +780,7 @@ export const TabContent = () => {
           </div>
         </div>
       ) : (
-        <div className="rounded-3xl border border-white/10 bg-white/5 py-20 text-center">
+        <div className="rounded-3xl border border-white/10 bg-surface py-20 text-center">
           <span className="mb-4 block text-4xl">Curso</span>
           <h3 className="text-xl font-bold italic text-white">
             Selecione um curso para comecar
@@ -830,7 +830,7 @@ const ItemForm = ({
 }) => (
   <form
     onSubmit={onSubmit}
-    className="space-y-3 rounded-3xl border border-brand-lavender/30 bg-white/5 p-5 animate-in slide-in-from-top-2"
+    className="space-y-3 rounded-3xl border border-brand-lavender/30 bg-surface p-5 animate-in slide-in-from-top-2"
   >
     <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
       {title}
@@ -879,7 +879,7 @@ const EmptyState = ({
   tall?: boolean;
 }) => (
   <div
-    className={`flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/5 bg-white/5 px-6 text-center italic text-white/45 ${
+    className={`flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/5 bg-surface px-6 text-center italic text-white/45 ${
       tall ? "h-64" : "py-10"
     }`}
   >

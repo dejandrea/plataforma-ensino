@@ -78,7 +78,7 @@ export const LinkStudent = () => {
 
         <form
           onSubmit={handleLink}
-          className="space-y-6 rounded-3xl bg-white/5 p-8 shadow-soft ring-1 ring-white/10"
+          className="space-y-6 rounded-3xl bg-surface p-8 shadow-soft ring-1 ring-white/10"
         >
           <div>
             <label className="ml-1 text-xs font-black uppercase tracking-widest text-white/35">

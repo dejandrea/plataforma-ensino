@@ -88,7 +88,7 @@ export const TabLinks = () => {
       <div className="lg:col-span-1">
         <form
           onSubmit={handleCreateLink}
-          className="sticky top-6 rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 backdrop-blur"
+          className="sticky top-6 rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur"
         >
           <h2 className="mb-2 text-lg font-bold italic text-white">
             Criar conexao
@@ -104,7 +104,7 @@ export const TabLinks = () => {
                 Aluno(a)
               </label>
               <select
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-brand-lavender"
                 value={selectedStudent}
                 onChange={(event) => setSelectedStudent(event.target.value)}
               >
@@ -128,7 +128,7 @@ export const TabLinks = () => {
                 Professora ou admin responsavel
               </label>
               <select
-                className="w-full rounded-2xl bg-white/5 px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-brand-lavender"
+                className="w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-brand-lavender"
                 value={selectedTeacher}
                 onChange={(event) => setSelectedTeacher(event.target.value)}
               >
@@ -158,7 +158,7 @@ export const TabLinks = () => {
           Vinculos ativos ({relations.length})
         </h2>
 
-        <div className="overflow-hidden rounded-3xl bg-white/5 shadow-soft ring-1 ring-white/10 backdrop-blur">
+        <div className="overflow-hidden rounded-3xl bg-surface shadow-soft ring-1 ring-white/10 backdrop-blur">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-white/10 text-[11px] uppercase text-white/30">
               <tr>
@@ -169,7 +169,7 @@ export const TabLinks = () => {
             </thead>
             <tbody className="divide-y divide-white/5">
               {relations.map((relation, index) => (
-                <tr key={index} className="group transition hover:bg-white/5">
+                <tr key={index} className="group transition hover:bg-surface">
                   <td className="px-6 py-4 font-bold text-white">
                     {relation.student?.full_name}
                   </td>
