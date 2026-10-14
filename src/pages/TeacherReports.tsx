@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ProfileAvatar } from "../components/ProfileAvatar";
 import { supabase } from "../lib/supabaseClient";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 
 const formatSessionRange = (startsAt: string, endsAt: string) => {
   const startDate = new Date(startsAt);
@@ -67,6 +68,8 @@ export const TeacherReports = () => {
       : "history";
   });
   const [sessions, setSessions] = useState<any[]>([]);
+  const [updatingSessionId, setUpdatingSessionId] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
   const [students, setStudents] = useState<any[]>([]);
   const [teacherNames, setTeacherNames] = useState<Record<string, string>>({});
   const [accessCounts, setAccessCounts] = useState<Record<string, number>>({});
@@ -91,6 +94,30 @@ export const TeacherReports = () => {
 
     setActiveTab(normalizedTab);
   }, [searchParams]);
+
+  const updateHistoryStatus = async (session: any, status: "completed" | "cancelled") => {
+    if (updatingSessionId) return;
+    setUpdatingSessionId(session.id);
+    setStatusMessage("");
+    try {
+      const { data, error } = await supabase.functions.invoke("update-lesson-history-status", {
+        body: { lessonId: session.id, status },
+      });
+      if (error) throw error;
+      if (!data?.lesson?.id) throw new Error("Não foi possível confirmar a atualização da aula.");
+      setSessions((previous) => previous.map((item) => item.id === session.id ? data.lesson : item));
+      setStatusMessage(`Aula "${session.title}" marcada como ${status === "completed" ? "concluída" : "cancelada"}.`);
+    } catch (error) {
+      let message = error instanceof Error ? error.message : "Erro ao atualizar aula.";
+      if (error instanceof FunctionsHttpError) {
+        const body = await error.context.json().catch(() => null);
+        message = body?.error || message;
+      }
+      setStatusMessage(message);
+    } finally {
+      setUpdatingSessionId(null);
+    }
+  };
 
   const fetchReportData = async () => {
     setLoading(true);
@@ -605,6 +632,7 @@ export const TeacherReports = () => {
           ))}
         </section>
 
+        {statusMessage && <p role="status" className="mt-6 rounded-2xl bg-white/5 px-5 py-4 text-sm text-white ring-1 ring-white/10">{statusMessage}</p>}
         {activeTab === "history" && (
           <div
             className={`mt-8 grid gap-8 ${
@@ -616,6 +644,8 @@ export const TeacherReports = () => {
                 eyebrow="Historico"
                 title="Aulas concluidas"
                 sessions={completedSessions}
+                onUpdateStatus={updateHistoryStatus}
+                updatingSessionId={updatingSessionId}
                 studentNameMap={studentNameMap}
                 accessCounts={accessCounts}
                 teacherNames={teacherNames}
@@ -627,6 +657,8 @@ export const TeacherReports = () => {
                 eyebrow="Historico"
                 title="Aulas canceladas"
                 sessions={cancelledSessions}
+                onUpdateStatus={updateHistoryStatus}
+                updatingSessionId={updatingSessionId}
                 studentNameMap={studentNameMap}
                 accessCounts={accessCounts}
                 teacherNames={teacherNames}
@@ -893,6 +925,8 @@ export const TeacherReports = () => {
 };
 
 const HistoryColumn = ({
+  onUpdateStatus,
+  updatingSessionId,
   eyebrow,
   title,
   sessions,
@@ -901,6 +935,8 @@ const HistoryColumn = ({
   teacherNames,
   showTeacher,
 }: {
+  onUpdateStatus: (session: any, status: "completed" | "cancelled") => Promise<void>;
+  updatingSessionId: string | null;
   eyebrow: string;
   title: string;
   sessions: any[];
@@ -963,6 +999,16 @@ const HistoryColumn = ({
                   </Link>
                 </div>
               )}
+              <div className="border-t border-white/10 pt-3">
+                <button
+                  type="button"
+                  disabled={updatingSessionId !== null}
+                  onClick={() => void onUpdateStatus(session, session.status === "completed" ? "cancelled" : "completed")}
+                  className={`inline-flex min-h-10 w-full items-center justify-center rounded-xl border px-3 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender disabled:cursor-wait disabled:opacity-50 ${session.status === "completed" ? "border-rose-300/25 bg-rose-400/10 text-rose-200 hover:bg-rose-400/20" : "border-emerald-300/25 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20"}`}
+                >
+                  {updatingSessionId === session.id ? "Salvando..." : session.status === "completed" ? "Marcar como cancelada" : "Marcar como concluída"}
+                </button>
+              </div>
             </div>
           </article>
         ))
