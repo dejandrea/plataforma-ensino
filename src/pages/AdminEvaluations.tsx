@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { EvaluationForm } from "../components/EvaluationForm";
 import { fetchStudentModules } from "../lib/studentCourses";
+import { evaluationTitle, formatEvaluationMonth, getEvaluationScope } from "../lib/evaluationPeriods";
 
 export const AdminEvaluations = () => {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ export const AdminEvaluations = () => {
     searchParams.get("studentId") || "",
   );
   const [selectedModule, setSelectedModule] = useState("");
+  const [evaluationMode, setEvaluationMode] = useState<"mentoring" | "course">("mentoring");
+  const studentScope = getEvaluationScope(students.find((student) => student.id === selectedStudent));
+  const isMonthly = studentScope === "mentoring" || (studentScope === "both" && evaluationMode === "mentoring");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,16 +46,22 @@ export const AdminEvaluations = () => {
     setSelectedModule("");
     setModuleState({ studentId: selectedStudent, loading: Boolean(selectedStudent), error: "" });
     if (selectedStudent) {
-      fetchStudentModules(selectedStudent).then((data) => {
+      const fetchOptions = async () => {
+        if (!isMonthly) return fetchStudentModules(selectedStudent);
+        const { data, error } = await supabase.rpc("pending_mentoring_evaluation_months", { p_student_id: selectedStudent });
+        if (error) throw error;
+        return (data || []).map((item: { reference_month: string }) => ({ id: item.reference_month, title: formatEvaluationMonth(item.reference_month) }));
+      };
+      fetchOptions().then((data) => {
         if (cancelled) return;
         setModules(data);
         setModuleState({ studentId: selectedStudent, loading: false, error: "" });
       }).catch(() => {
-        if (!cancelled) setModuleState({ studentId: selectedStudent, loading: false, error: "Nao foi possivel carregar as materias do aluno." });
+        if (!cancelled) setModuleState({ studentId: selectedStudent, loading: false, error: "Não foi possível carregar as opções de avaliação do aluno." });
       });
     }
     return () => { cancelled = true; };
-  }, [selectedStudent]);
+  }, [selectedStudent, isMonthly]);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,7 +118,7 @@ export const AdminEvaluations = () => {
             Painel de avaliacao
           </h1>
           <p className="mt-2 text-sm text-white/65">
-            Escolha o aluno e o modulo antes de registrar a avaliacao.
+            Escolha o aluno e o período da mentoria ou o módulo do curso para avaliar.
           </p>
         </div>
 
@@ -134,25 +144,34 @@ export const AdminEvaluations = () => {
               </div>
 
               <div>
+                {studentScope === "both" && selectedStudent && (
+                  <div className="mb-4">
+                    <label htmlFor="evaluation-mode" className="block text-sm font-medium text-white/70">Tipo de avaliação</label>
+                    <select id="evaluation-mode" value={evaluationMode} onChange={(event) => { setSelectedModule(""); setEvaluationMode(event.target.value as "mentoring" | "course"); }} className="mt-2 w-full rounded-2xl bg-brand-900/60 p-3 text-white ring-1 ring-white/10">
+                      <option value="mentoring">Mentoria mensal</option>
+                      <option value="course">Curso por módulo</option>
+                    </select>
+                  </div>
+                )}
                 <label className="block text-sm font-medium text-white/70">
-                  Selecionar modulo
+                  {isMonthly ? "Mês de referência" : "Selecionar módulo"}
                 </label>
                 <select
                   className="mt-2 block w-full rounded-2xl bg-brand-900/60 p-3 text-white ring-1 ring-white/10 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   onChange={(e) => setSelectedModule(e.target.value)}
                   value={selectedModule}
-                  disabled={!selectedStudent || moduleState.loading || moduleState.studentId !== selectedStudent}
+                  disabled={!selectedStudent || loadingEvaluations || moduleState.loading || moduleState.studentId !== selectedStudent}
                 >
-                  <option value="">Escolha o modulo...</option>
+                  <option value="">{isMonthly ? "Escolha um mês pendente..." : "Escolha o módulo..."}</option>
                   {(moduleState.studentId === selectedStudent ? modules : []).map((module) => (
                     <option key={module.id} value={module.id}>
-                      {module.course_title} - {module.title}
-                      {evaluatedModuleIds.has(module.id) ? " - ja avaliado" : ""}
+                      {isMonthly ? module.title : `${module.course_title} - ${module.title}`}
+                      {!isMonthly && evaluatedModuleIds.has(module.id) ? " - ja avaliado" : ""}
                     </option>
                   ))}
                 </select>
                 <p className="mt-2 text-sm text-white/60" role="status">
-                  {moduleState.error || (moduleState.loading ? "Carregando materias concluidas..." : selectedStudent && modules.length === 0 ? "Este aluno ainda nao concluiu nenhuma materia. A avaliacao sera liberada depois de concluir todas as aulas dos modulos da materia." : "Somente modulos de materias que o aluno ja concluiu." )}
+                  {moduleState.error || (moduleState.loading ? "Carregando avaliações disponíveis..." : isMonthly ? (selectedStudent && modules.length === 0 ? "Nenhum mês pendente. O mês atual será liberado no dia 1º do próximo mês." : "Todo dia 1º, o mês anterior é liberado. Meses sem feedback desde o ingresso continuam disponíveis.") : selectedStudent && modules.length === 0 ? "Este aluno ainda não concluiu nenhuma matéria. A avaliação será liberada após a conclusão." : "Somente módulos de matérias que o aluno já concluiu.")}
                 </p>
               </div>
             </div>
@@ -160,14 +179,15 @@ export const AdminEvaluations = () => {
             <div>
               {selectedStudent && selectedModule && moduleState.studentId === selectedStudent && modules.some((module) => module.id === selectedModule) ? (
                 <EvaluationForm
-                  key={`${selectedStudent}:${selectedModule}`}
+                  key={`${selectedStudent}:${isMonthly}:${selectedModule}`}
                   studentId={selectedStudent}
-                  moduleId={selectedModule}
+                  moduleId={isMonthly ? undefined : selectedModule}
+                  referenceMonth={isMonthly ? selectedModule : undefined}
                   onSaved={() => navigate(returnTo)}
                 />
               ) : (
                 <div className="rounded-3xl border border-dashed border-white/15 bg-white/5 p-10 text-center text-white/45">
-                  Selecione um aluno e um modulo para iniciar a avaliacao.
+                  Selecione um aluno e {isMonthly ? "um mês pendente" : "um módulo"} para iniciar a avaliação.
                 </div>
               )}
             </div>
@@ -214,7 +234,7 @@ export const AdminEvaluations = () => {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-bold text-white">
-                          {evaluation.modules?.title || "Modulo"}
+                          {evaluationTitle(evaluation)}
                         </p>
                         <p className="mt-1 text-xs text-white/40">
                           {new Date(evaluation.created_at).toLocaleDateString("pt-BR")}

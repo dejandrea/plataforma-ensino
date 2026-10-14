@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { evaluationTitle } from "../lib/evaluationPeriods";
 
 const criteriaLabels: Record<string, string> = {
   score_technical: "Tech",
@@ -49,6 +50,7 @@ export const StudentReport = () => {
       console.error(error);
     } else {
       const visibleEvaluations = (data || []).filter((evaluation) => {
+        if (evaluation.reference_month) return true;
         if (!evaluation.modules?.is_active) return false;
 
         const relatedCourse = Array.isArray(evaluation.modules.courses)
@@ -91,7 +93,7 @@ export const StudentReport = () => {
                 Meu boletim
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-                Aqui ficam suas avaliacoes por modulo, com notas, observacoes e
+                Aqui ficam suas avaliações mensais de mentoria e por módulo do curso, com notas, observações e
                 feedback consolidado.
               </p>
             </div>
@@ -117,7 +119,7 @@ export const StudentReport = () => {
                 Sua primeira avaliacao vai aparecer neste painel.
               </h2>
               <p className="mt-3 text-sm text-white/60">
-                Assim que um modulo for finalizado e avaliado, o resultado fica
+                Assim que a professora registrar uma avaliação, o resultado fica
                 salvo aqui para consulta.
               </p>
             </div>
@@ -150,10 +152,10 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/60">
-              Modulo avaliado
+              {evaluation.reference_month ? "Avaliação mensal de mentoria" : "Módulo avaliado"}
             </p>
             <h2 className="mt-2 text-2xl font-bold">
-              {evaluation.modules?.title || "Modulo"}
+              {evaluationTitle(evaluation)}
             </h2>
           </div>
 

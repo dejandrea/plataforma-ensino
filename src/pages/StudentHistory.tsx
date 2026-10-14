@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { downloadLessonReportPdf } from "../lib/lessonReportPdf";
+import { evaluationTitle } from "../lib/evaluationPeriods";
 
 const formatDateTime = (value?: string | null) =>
   value
@@ -346,7 +347,7 @@ export const StudentHistory = () => {
                 <div className="mb-4 flex justify-between items-start">
                   <div>
                     <h3 className="text-xl font-bold text-white">
-                      {item.modules?.title}
+                      {evaluationTitle(item)}
                     </h3>
                     <p className="text-sm text-white/40">
                       Realizado em{" "}

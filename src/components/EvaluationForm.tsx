@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { fetchStudentModules } from "../lib/studentCourses";
+import { formatEvaluationMonth } from "../lib/evaluationPeriods";
 
 const criteria = [
   { id: "technical", label: "Proficiencia Tecnica" },
@@ -15,7 +16,8 @@ const criteria = [
 
 interface EvaluationFormProps {
   studentId: string;
-  moduleId: string;
+  moduleId?: string;
+  referenceMonth?: string;
   onSaved?: () => void;
 }
 
@@ -55,6 +57,7 @@ const mapEvaluationToScores = (evaluation: any) => ({
 export const EvaluationForm = ({
   studentId,
   moduleId,
+  referenceMonth,
   onSaved,
 }: EvaluationFormProps) => {
   const [scores, setScores] = useState<Record<string, number>>({});
@@ -67,12 +70,12 @@ export const EvaluationForm = ({
     async function fetchExistingEvaluation() {
       setLoadingExisting(true);
 
-      const { data, error } = await supabase
+      let query = supabase
         .from("module_evaluations")
         .select("*")
-        .eq("student_id", studentId)
-        .eq("module_id", moduleId)
-        .maybeSingle();
+        .eq("student_id", studentId);
+      query = referenceMonth ? query.eq("reference_month", referenceMonth) : query.eq("module_id", moduleId!);
+      const { data, error } = await query.maybeSingle();
 
       if (error) {
         console.error("Erro ao buscar avaliacao existente:", error.message);
@@ -93,7 +96,7 @@ export const EvaluationForm = ({
     }
 
     fetchExistingEvaluation();
-  }, [studentId, moduleId]);
+  }, [studentId, moduleId, referenceMonth]);
 
   const handleSubmit = async () => {
     if (existingEvaluation || loading || loadingExisting) return;
@@ -101,11 +104,22 @@ export const EvaluationForm = ({
     setLoading(true);
 
     try {
+      if (criteria.some((criterion) => !scores[criterion.id] || scores[criterion.id] < 1 || scores[criterion.id] > 5)) {
+        throw new Error("Preencha uma nota de 1 a 5 para todos os critérios.");
+      }
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) throw new Error("Entre novamente para registrar a avaliacao.");
-      const availableModules = await fetchStudentModules(studentId);
-      if (!availableModules.some((module) => module.id === moduleId)) {
-        throw new Error("O aluno so pode receber avaliacao de uma materia que ja concluiu.");
+      if (referenceMonth) {
+        const { data: months, error } = await supabase.rpc("pending_mentoring_evaluation_months", { p_student_id: studentId });
+        if (error) throw error;
+        if (!months?.some((item: { reference_month: string }) => item.reference_month === referenceMonth)) {
+          throw new Error("Este mês não está disponível para avaliação ou já foi avaliado.");
+        }
+      } else {
+        const availableModules = await fetchStudentModules(studentId);
+        if (!availableModules.some((module) => module.id === moduleId)) {
+          throw new Error("O aluno so pode receber avaliacao de uma materia que ja concluiu.");
+        }
       }
       let aiFeedbackJson: Record<string, string> | null = null;
       let usedTeacherFallback = false;
@@ -124,7 +138,8 @@ export const EvaluationForm = ({
       const { error } = await supabase.from("module_evaluations").insert({
         student_id: studentId,
         teacher_id: user.id,
-        module_id: moduleId,
+        module_id: referenceMonth ? null : moduleId,
+        reference_month: referenceMonth || null,
         teacher_comment: comment,
         ai_feedback_json: aiFeedbackJson,
         score_technical: scores.technical || 0,
@@ -171,7 +186,7 @@ export const EvaluationForm = ({
           Registro pedagogico
         </p>
         <h2 className="mt-2 text-3xl font-extrabold tracking-tight">
-          Avaliacao do modulo
+          {referenceMonth ? `Avaliação mensal — ${formatEvaluationMonth(referenceMonth)}` : "Avaliação do módulo"}
         </h2>
         <p className="mt-2 text-sm text-white/80">
           {isReadOnly
@@ -183,7 +198,7 @@ export const EvaluationForm = ({
       <div className="space-y-8 p-6 md:p-8">
         {isReadOnly && (
           <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            Este aluno ja possui avaliacao cadastrada para este modulo. A edicao
+            Este aluno já possui avaliação cadastrada para este período ou módulo. A edição
             ainda nao esta disponivel.
           </div>
         )}
