@@ -12,6 +12,8 @@ type DownloadLessonReportPdfParams = {
   totalLessons: number;
   totalHours: number;
   totalAmount: number;
+  grossAmount?: number;
+  discountAmount?: number;
   lessons: LessonReportLesson[];
 };
 
@@ -158,6 +160,8 @@ export const downloadLessonReportPdf = ({
   totalLessons,
   totalHours,
   totalAmount,
+  grossAmount,
+  discountAmount,
   lessons,
 }: DownloadLessonReportPdfParams) => {
   const lines: string[] = [];
@@ -185,7 +189,9 @@ export const downloadLessonReportPdf = ({
   lines.push(
     `Valor hora/aula: ${hourlyRate != null ? formatCurrency(hourlyRate) : "Nao definido"}`,
   );
-  lines.push(`Total: ${formatCurrency(totalAmount)}`);
+  if (grossAmount != null) lines.push(`Valor bruto: ${formatCurrency(grossAmount)}`);
+  if (discountAmount != null) lines.push(`Descontos: ${formatCurrency(discountAmount)}`);
+  lines.push(`Total: ${hourlyRate != null ? formatCurrency(totalAmount) : "A definir"}`);
 
   const pdfBytes = buildPdfBytes(buildPages(lines));
   const blob = new Blob([pdfBytes], { type: "application/pdf" });

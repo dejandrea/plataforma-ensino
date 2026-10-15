@@ -3,6 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { downloadLessonReportPdf } from "../lib/lessonReportPdf";
 import { evaluationTitle } from "../lib/evaluationPeriods";
+import { StudentDiscountPanel } from "../components/StudentDiscountPanel";
+import { StudentBillingPanel } from "../components/StudentBillingPanel";
+import { calculateStudentTotal, lessonMonth, normalizeHourlyRate, type StudentDiscount } from "../lib/discounts";
 
 const formatDateTime = (value?: string | null) =>
   value
@@ -33,9 +36,25 @@ export const StudentHistory = () => {
   const [evaluations, setEvaluations] = useState<any[]>([]);
   const [completedLessons, setCompletedLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [canManageDiscounts, setCanManageDiscounts] = useState(false);
+  const [discounts, setDiscounts] = useState<StudentDiscount[]>([]);
+  const [discountError, setDiscountError] = useState("Carregando descontos...");
+
+  const fetchDiscounts = async () => {
+    setDiscountError("Atualizando descontos...");
+    const { data, error } = await supabase.from("student_discounts").select("*").eq("student_id", studentId!);
+    setDiscounts(data || []);
+    setDiscountError(error ? "Não foi possível carregar os descontos. Totais e exportações indisponíveis." : "");
+  };
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
+    void fetchDiscounts();
+    void supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      const { data: viewer } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+      setCanManageDiscounts(viewer?.role === "admin");
+    });
   }, [studentId]);
 
   async function fetchData() {
@@ -92,9 +111,7 @@ export const StudentHistory = () => {
     >();
 
     for (const lesson of completedLessons) {
-      const referenceDate = lesson.completed_at || lesson.starts_at;
-      const date = new Date(referenceDate);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      const monthKey = lessonMonth(lesson.starts_at);
 
       if (!grouped.has(monthKey)) {
         grouped.set(monthKey, {
@@ -112,17 +129,19 @@ export const StudentHistory = () => {
       }
     }
 
-    return Array.from(grouped.values());
-  }, [completedLessons]);
+    return Array.from(grouped.values()).sort((a, b) => b.key.localeCompare(a.key)).map((report) => ({
+      ...report,
+      financial: calculateStudentTotal(studentId!, report.lessons, normalizeHourlyRate(student?.hourly_rate) || 0, discounts),
+    }));
+  }, [completedLessons, discounts, studentId, student?.hourly_rate]);
 
   const buildMonthlySummaryText = (report: {
     label: string;
     lessons: any[];
     totalHours: number;
   }) => {
-    const hourlyRate =
-      typeof student?.hourly_rate === "number" ? student.hourly_rate : null;
-    const totalAmount = hourlyRate != null ? report.totalHours * hourlyRate : 0;
+    const hourlyRate = normalizeHourlyRate(student?.hourly_rate);
+    const financial = calculateStudentTotal(studentId!, report.lessons, hourlyRate || 0, discounts);
     const header = [
       `Relatorio de aulas realizadas - ${student?.full_name || "Aluno"}`,
       `Periodo: ${report.label}`,
@@ -131,7 +150,9 @@ export const StudentHistory = () => {
       `Valor hora/aula: ${
         hourlyRate != null ? formatCurrency(hourlyRate) : "Nao definido"
       }`,
-      `Total: ${formatCurrency(totalAmount)}`,
+      `Valor bruto: ${formatCurrency(financial.gross)}`,
+      `Descontos: ${formatCurrency(financial.discount)}`,
+      `Total: ${hourlyRate != null ? formatCurrency(financial.net) : "A definir"}`,
       "",
     ];
 
@@ -194,6 +215,11 @@ export const StudentHistory = () => {
           </div>
         </header>
 
+        {canManageDiscounts && studentId && (
+          <div className="mb-8 space-y-5"><StudentDiscountPanel key={studentId} studentId={studentId} scope="recurring" onChanged={() => void fetchDiscounts()} /><StudentBillingPanel key={`billing-${studentId}`} studentId={studentId} /></div>
+        )}
+        {discountError && <p role="alert" className="mb-6 text-sm text-rose-300">{discountError} <button type="button" className="underline" onClick={() => void fetchDiscounts()}>Tentar novamente</button></p>}
+
         <div className="space-y-6">
           <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
@@ -235,6 +261,7 @@ export const StudentHistory = () => {
                       <div className="flex flex-col gap-3">
                         <button
                           type="button"
+                          disabled={Boolean(discountError)}
                           onClick={() => void copyMonthlySummary(report)}
                           className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
                         >
@@ -242,20 +269,17 @@ export const StudentHistory = () => {
                         </button>
                         <button
                           type="button"
+                          disabled={Boolean(discountError)}
                           onClick={() =>
                             downloadLessonReportPdf({
                               studentName: student?.full_name || "aluno",
                               periodLabel: report.label,
-                              hourlyRate:
-                                typeof student?.hourly_rate === "number"
-                                  ? student.hourly_rate
-                                  : null,
+                              hourlyRate: normalizeHourlyRate(student?.hourly_rate),
                               totalLessons: report.lessons.length,
                               totalHours: report.totalHours,
-                              totalAmount:
-                                typeof student?.hourly_rate === "number"
-                                  ? report.totalHours * student.hourly_rate
-                                  : 0,
+                              totalAmount: report.financial.net,
+                              grossAmount: report.financial.gross,
+                              discountAmount: report.financial.discount,
                               lessons: report.lessons,
                             })
                           }
@@ -278,20 +302,22 @@ export const StudentHistory = () => {
                       <ReportStat
                         label="Hora/aula"
                         value={
-                          typeof student?.hourly_rate === "number"
-                            ? formatCurrency(student.hourly_rate)
+                          normalizeHourlyRate(student?.hourly_rate) != null
+                            ? formatCurrency(normalizeHourlyRate(student?.hourly_rate)!)
                             : "Nao definido"
                         }
                       />
                       <ReportStat
                         label="Total"
                         value={
-                          typeof student?.hourly_rate === "number"
-                            ? formatCurrency(report.totalHours * student.hourly_rate)
+                          discountError ? "Indisponível" : normalizeHourlyRate(student?.hourly_rate) != null
+                            ? formatCurrency(report.financial.net)
                             : "A definir"
                         }
                       />
                     </div>
+
+                    {!discountError && report.financial.discount > 0 && <p className="mt-3 text-sm text-brand-ice">Bruto: {formatCurrency(report.financial.gross)} · Descontos: {formatCurrency(report.financial.discount)}</p>}
 
                     <div className="mt-5 space-y-3">
                       {report.lessons.map((lesson) => (

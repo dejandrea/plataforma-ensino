@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ProfileAvatar } from "../components/ProfileAvatar";
+import { StudentBillingSummary } from "../components/StudentBillingSummary";
 import { avatarPresets } from "../lib/avatarPresets";
 import { supabase } from "../lib/supabaseClient";
 
@@ -424,6 +425,8 @@ export const ProfilePage = () => {
             no contato e na experiencia dentro da plataforma.
           </p>
         </header>
+
+        {userRole === "student" && <StudentBillingSummary />}
 
         <form onSubmit={saveProfile} className="mt-8 grid gap-8 lg:grid-cols-[320px,1fr]">
           <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur">

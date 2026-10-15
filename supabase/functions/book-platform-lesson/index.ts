@@ -6,6 +6,7 @@ import {
   extractMeetLink,
 } from "../_shared/google-calendar.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
+import { assertStudentCanBook } from "../_shared/billing.ts";
 
 const buildLessonTitle = ({
   currentTitle,
@@ -109,6 +110,8 @@ serve(async (req) => {
     if (!relation) {
       throw new Error("Voce nao esta vinculado a esta professora.");
     }
+
+    await assertStudentCanBook(adminClient, user.id);
 
     const { data: settings, error: settingsError } = await adminClient
       .from("teacher_calendar_settings")

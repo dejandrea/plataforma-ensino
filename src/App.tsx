@@ -1,4 +1,5 @@
 import { Footer } from "./components/Footer";
+import { FinancialManagement } from "./pages/FinancialManagement";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "./lib/supabaseClient";
@@ -227,6 +228,17 @@ function App() {
                   <>
                     <StaffNavbar />
                     <SystemManagement />
+                  </>
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/financeiro"
+              element={
+                <RoleRoute allowedRoles={["admin", "professor"]}>
+                  <>
+                    <StaffNavbar />
+                    <FinancialManagement />
                   </>
                 </RoleRoute>
               }

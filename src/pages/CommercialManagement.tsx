@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { DiscountCatalog } from "../components/DiscountCatalog";
+import { Navigate, useSearchParams } from "react-router-dom";
 
-type CommercialTab = "rates" | "packages" | "rules";
+type CommercialTab = "rates" | "packages" | "discounts" | "rules";
 type SessionTrack = "mentoring" | "course";
 
 type RateRow = {
@@ -51,6 +53,7 @@ const getTrackLabel = (track: SessionTrack) =>
   track === "course" ? "Curso" : "Mentoria";
 
 export const CommercialManagement = () => {
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [savingRates, setSavingRates] = useState(false);
   const [savingPackage, setSavingPackage] = useState(false);
@@ -202,6 +205,10 @@ export const CommercialManagement = () => {
     }
   };
 
+  if (searchParams.get("tab") === "billing") {
+    return <Navigate to={`/financeiro?${searchParams.toString()}`} replace />;
+  }
+
   if (loading) {
     return (
       <div className="app-bg min-h-screen">
@@ -224,11 +231,11 @@ export const CommercialManagement = () => {
                 Comercial
               </p>
               <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-                Pacotes, precos e regras
+                Preços, pacotes e descontos
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">
-                Centralize aqui os valores da plataforma, os pacotes oferecidos e as
-                proximas regras comerciais da operacao.
+                Gerencie os valores da plataforma, os pacotes oferecidos e os
+                descontos disponíveis para os alunos.
               </p>
             </div>
 
@@ -240,10 +247,11 @@ export const CommercialManagement = () => {
           </div>
 
           <div className="mt-6">
-            <div className="inline-flex rounded-[1.6rem] bg-brand-900/70 p-1.5 ring-1 ring-white/10">
+            <div className="inline-flex flex-wrap rounded-[1.6rem] bg-brand-900/70 p-1.5 ring-1 ring-white/10">
               {[
                 { key: "rates", label: "Precos" },
                 { key: "packages", label: "Pacotes" },
+                { key: "discounts", label: "Descontos" },
                 { key: "rules", label: "Regras" },
               ].map((tab) => (
                 <button
@@ -566,6 +574,8 @@ export const CommercialManagement = () => {
           </div>
         )}
 
+        {activeTab === "discounts" && <DiscountCatalog />}
+
         {activeTab === "rules" && (
           <section className="mt-8 rounded-3xl bg-surface p-6 ring-1 ring-white/10">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
@@ -584,7 +594,6 @@ export const CommercialManagement = () => {
               {[
                 "Regras de cancelamento comercial",
                 "Expiracao de pacotes",
-                "Descontos e campanhas",
                 "Limites por professora",
                 "Politicas para curso e mentoria",
                 "Observacoes internas do financeiro",

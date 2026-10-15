@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import { StudentDiscountPanel } from "../StudentDiscountPanel";
+import { StudentBillingPanel } from "../StudentBillingPanel";
 import {
   FunctionsHttpError,
   FunctionsRelayError,
@@ -985,6 +987,7 @@ export const TabUsers = () => {
               </div>
 
               {editForm.role === "student" && (
+                <>
                 <StudentCommercialFields
                   form={editForm}
                   onChange={(patch) => setEditForm({ ...editForm, ...patch })}
@@ -992,6 +995,19 @@ export const TabUsers = () => {
                   packageOptions={commercialPackages}
                   allowLegacy
                 />
+                <div className="md:col-span-2">
+                  {editingUser.user_id || editingUser.claimed_user_id ? (
+                    <div className="space-y-5">
+                    <StudentDiscountPanel
+                      key={editingUser.user_id || editingUser.claimed_user_id!}
+                      studentId={(editingUser.user_id || editingUser.claimed_user_id)!}
+                      scope="recurring"
+                    />
+                    <StudentBillingPanel key={`billing-${editingUser.user_id || editingUser.claimed_user_id}`} studentId={(editingUser.user_id || editingUser.claimed_user_id)!} />
+                    </div>
+                  ) : <p className="text-sm text-brand-200">O desconto poderá ser aplicado após o aluno ativar o acesso.</p>}
+                </div>
+                </>
               )}
               </div>
 

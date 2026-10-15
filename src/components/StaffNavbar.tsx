@@ -84,7 +84,7 @@ export const StaffNavbar = () => {
           </NavLink>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <NavLink to="/dashboard-professor" className={navClass}>
             Meus alunos
           </NavLink>
@@ -93,6 +93,9 @@ export const StaffNavbar = () => {
           </NavLink>
           <NavLink to="/relatorios" className={navClass}>
             Relatorios
+          </NavLink>
+          <NavLink to="/financeiro" className={navClass}>
+            Financeiro
           </NavLink>
           {userRole === "admin" && (
             <NavLink to="/comercial" className={navClass}>

@@ -6,6 +6,7 @@ import {
   extractMeetLink,
 } from "../_shared/google-calendar.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
+import { assertStudentCanBook } from "../_shared/billing.ts";
 
 type LessonPayload = {
   mode: "available" | "scheduled";
@@ -96,8 +97,10 @@ serve(async (req) => {
     }
 
     const recurrenceCount = body.isRecurring
+      // Consumption happens on completion, without reserving credits here.
       ? Math.max(parseInt(String(body.recurrenceCount || "1"), 10) || 1, 1)
       : 1;
+    if (mode === "scheduled" && body.studentId) await assertStudentCanBook(adminClient, body.studentId);
     const recurrenceGroupId = recurrenceCount > 1 ? crypto.randomUUID() : null;
     const startDate = new Date(startsAt);
     const durationMinutes = Math.max(parseInt(String(body.durationMinutes || "60"), 10) || 60, 15);

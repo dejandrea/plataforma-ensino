@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { ProfileAvatar } from "../components/ProfileAvatar";
 import { supabase } from "../lib/supabaseClient";
 import { FunctionsHttpError } from "@supabase/supabase-js";
+import { StudentDiscountPanel } from "../components/StudentDiscountPanel";
+import { ManualLessonForm } from "../components/ManualLessonForm";
+import { calculateStudentTotal, discountLabel, normalizeHourlyRate, type StudentDiscount } from "../lib/discounts";
 
 const formatSessionRange = (startsAt: string, endsAt: string) => {
   const startDate = new Date(startsAt);
@@ -55,13 +58,14 @@ const reportSelectStyle = {
   color: "#ffffff",
 };
 
-export const TeacherReports = () => {
+export const TeacherReports = ({ financialOnly = false }: { financialOnly?: boolean }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string>("professor");
   const [activeTab, setActiveTab] = useState<
     "history" | "student_lessons" | "financial" | "attendance"
   >(() => {
+    if (financialOnly) return "financial";
     const tab = searchParams.get("tab");
     return tab === "student_lessons" || tab === "financial" || tab === "attendance"
       ? tab
@@ -71,6 +75,11 @@ export const TeacherReports = () => {
   const [updatingSessionId, setUpdatingSessionId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [students, setStudents] = useState<any[]>([]);
+  const [discounts, setDiscounts] = useState<StudentDiscount[]>([]);
+  const [discountError, setDiscountError] = useState("Carregando descontos...");
+  const [discountStudentId, setDiscountStudentId] = useState<string | null>(null);
+  const [showManualLessonForm, setShowManualLessonForm] = useState(false);
+  const [manualLessonMessage, setManualLessonMessage] = useState("");
   const [teacherNames, setTeacherNames] = useState<Record<string, string>>({});
   const [accessCounts, setAccessCounts] = useState<Record<string, number>>({});
   const [selectedStudentId, setSelectedStudentId] = useState("all");
@@ -85,7 +94,17 @@ export const TeacherReports = () => {
     void fetchReportData();
   }, []);
 
+  const fetchDiscounts = async () => {
+    setDiscountError("Atualizando descontos...");
+    const { data, error } = await supabase.from("student_discounts").select("*");
+    setDiscountError(error ? "Não foi possível carregar os descontos. Os totais líquidos estão indisponíveis." : "");
+    setDiscounts(data || []);
+  };
+
+  useEffect(() => { void fetchDiscounts(); }, []);
+
   useEffect(() => {
+    if (financialOnly) { setActiveTab("financial"); return; }
     const tab = searchParams.get("tab");
     const normalizedTab =
       tab === "student_lessons" || tab === "financial" || tab === "attendance"
@@ -93,7 +112,7 @@ export const TeacherReports = () => {
         : "history";
 
     setActiveTab(normalizedTab);
-  }, [searchParams]);
+  }, [searchParams, financialOnly]);
 
   const updateHistoryStatus = async (session: any, status: "completed" | "cancelled") => {
     if (updatingSessionId) return;
@@ -289,7 +308,7 @@ export const TeacherReports = () => {
     });
   }, [periodEnd, periodStart, selectedStudentId, selectedTeacherId, sessions]);
 
-  const completedSessions = filteredSessions.filter((session) => session.status === "completed");
+  const completedSessions = filteredSessions.filter((session) => session.status === "completed" && session.student_id);
   const cancelledSessions = filteredSessions.filter((session) => session.status === "cancelled");
 
   const financialStudents = useMemo(() => {
@@ -311,10 +330,9 @@ export const TeacherReports = () => {
         (sum, session) => sum + getLessonHours(session),
         0,
       );
-      const hourlyRate =
-        typeof student.hourly_rate === "number" ? student.hourly_rate : Number(student.hourly_rate);
-      const normalizedHourlyRate = Number.isFinite(hourlyRate) ? hourlyRate : null;
-      const totalAmount = normalizedHourlyRate != null ? totalHours * normalizedHourlyRate : 0;
+      const normalizedHourlyRate = normalizeHourlyRate(student.hourly_rate);
+      const financial = calculateStudentTotal(student.id, studentCompletedSessions, normalizedHourlyRate || 0, discounts);
+      const totalAmount = financial.net;
 
       return {
         student,
@@ -323,10 +341,11 @@ export const TeacherReports = () => {
         totalHours,
         hourlyRate: normalizedHourlyRate,
         totalAmount,
+        financial,
         lastCompletedSession: studentCompletedSessions[0] || null,
       };
     });
-  }, [completedSessions, financialStudents]);
+  }, [completedSessions, financialStudents, discounts]);
 
   const lessonStudentSummaries = useMemo(() => {
     return students
@@ -380,7 +399,7 @@ export const TeacherReports = () => {
       return [
         { label: "Alunos faturados", value: studentSummaries.length },
         { label: "Horas concluidas", value: `${totalHours.toFixed(1)}h` },
-        { label: "Total previsto", value: formatCurrency(totalAmount) },
+        { label: "Total previsto", value: discountError ? "Indisponível" : formatCurrency(totalAmount) },
       ];
     }
 
@@ -418,6 +437,7 @@ export const TeacherReports = () => {
     historyStatusFilter,
     lessonStudentSummaries,
     studentSummaries,
+    discountError,
   ]);
 
   const resetFilters = () => {
@@ -436,6 +456,12 @@ export const TeacherReports = () => {
       return nextParams;
     });
   };
+
+  if (!financialOnly && searchParams.get("tab") === "financial") {
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", "summary");
+    return <Navigate to={`/financeiro?${next.toString()}`} replace />;
+  }
 
   if (loading) {
     return (
@@ -456,12 +482,10 @@ export const TeacherReports = () => {
           <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
 
           <div className="relative">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-              Relatorios
-            </h1>
+            {financialOnly ? <h2 className="text-2xl font-bold text-white">Resumo financeiro</h2> : <h1 className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">Relatórios</h1>}
           </div>
 
-          <div className="relative mt-6">
+          {!financialOnly && <div className="relative mt-6">
             <div className="inline-flex rounded-[1.6rem] bg-brand-900/70 p-1.5 ring-1 ring-white/10">
               <button
                 type="button"
@@ -487,17 +511,6 @@ export const TeacherReports = () => {
               </button>
               <button
                 type="button"
-                onClick={() => handleTabChange("financial")}
-                className={`rounded-[1.2rem] px-5 py-2.5 text-sm font-bold transition ${
-                  activeTab === "financial"
-                    ? "bg-white text-brand-900"
-                    : "text-white/70 hover:text-white"
-                }`}
-              >
-                Financeiro
-              </button>
-              <button
-                type="button"
                 onClick={() => handleTabChange("attendance")}
                 className={`rounded-[1.2rem] px-5 py-2.5 text-sm font-bold transition ${
                   activeTab === "attendance"
@@ -508,7 +521,7 @@ export const TeacherReports = () => {
                 Presenca
               </button>
             </div>
-          </div>
+          </div>}
 
           <div className="relative mt-6 rounded-[1.8rem] bg-brand-900/35 p-4 ring-1 ring-white/10">
             <div className="flex flex-col gap-4">
@@ -677,6 +690,18 @@ export const TeacherReports = () => {
               Acompanhamento das aulas realizadas
             </h2>
 
+            {userRole === "admin" && (
+              <div className="mt-4">
+                {!showManualLessonForm && <button type="button" className="btn-primary" onClick={() => { setManualLessonMessage(""); setShowManualLessonForm(true); }}>Inserir aula manualmente</button>}
+                {showManualLessonForm && <ManualLessonForm students={studentOptions} teachers={teacherOptions} onCancel={() => setShowManualLessonForm(false)} onSaved={() => {
+                  setShowManualLessonForm(false);
+                  setManualLessonMessage("Aula registrada com sucesso. Ela já está disponível no histórico e no financeiro. Confira os filtros se ela não aparecer na lista.");
+                  void fetchReportData();
+                }} />}
+                {manualLessonMessage && <p role="status" className="mt-3 text-sm text-brand-ice">{manualLessonMessage}</p>}
+              </div>
+            )}
+
             <div className="mt-6 grid gap-4 xl:grid-cols-2">
               {lessonStudentSummaries.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
@@ -772,6 +797,12 @@ export const TeacherReports = () => {
             <h2 className="mt-2 text-2xl font-bold text-white">
               Fechamento por aluno
             </h2>
+            <p className="mt-3 text-sm text-brand-200">
+              Descontos são calculados por mês sobre as aulas do período filtrado. O ajuste mensal substitui o contínuo.
+              Valores fixos são abatidos uma vez por mês, limitados ao subtotal exibido.
+            </p>
+            {userRole === "admin" && <p className="mt-2 text-sm text-brand-200">Este resumo mostra os valores das aulas realizadas. Para mensalidades pré-pagas, vencimentos e pagamentos, acesse <Link className="underline" to="/financeiro?tab=billing">Financeiro → Cobranças</Link>.</p>}
+            {discountError && <p className="mt-3 text-sm text-rose-300" role="alert">{discountError} <button type="button" className="underline" onClick={() => void fetchDiscounts()}>Tentar novamente</button></p>}
 
             <div className="mt-6 grid gap-4 xl:grid-cols-2">
               {studentSummaries.length === 0 ? (
@@ -824,12 +855,37 @@ export const TeacherReports = () => {
                       <ReportTextStat
                         label="Total"
                         value={
-                          item.hourlyRate != null
+                          discountError ? "Indisponível" : item.hourlyRate != null
                             ? formatCurrency(item.totalAmount)
                             : "A definir"
                         }
                       />
                     </div>
+
+                    {!discountError && item.hourlyRate != null && (
+                      <div className="mt-4 space-y-2 rounded-2xl bg-background p-4 text-sm">
+                        <p className="flex justify-between gap-3"><span>Valor bruto</span><span>{formatCurrency(item.financial.gross)}</span></p>
+                        <p className="flex justify-between gap-3 text-brand-ice"><span>Descontos</span><span>− {formatCurrency(item.financial.discount)}</span></p>
+                        <p className="flex justify-between gap-3 font-bold"><span>Total líquido</span><span>{formatCurrency(item.financial.net)}</span></p>
+                        {item.financial.months.filter((row) => row.applied).map((row) => (
+                          <p key={row.month} className="text-xs text-brand-200">
+                            {row.month.split("-").reverse().join("/")}: {row.applied!.name}
+                            {row.applied!.discount_id ? ` (${discountLabel(row.applied!)})` : ""} — {formatCurrency(row.discount)}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                    {userRole === "admin" && (
+                      <div className="mt-4 space-y-3">
+                        <Link className="btn-secondary" to={`/financeiro?tab=billing&studentId=${item.student.id}`}>Gerenciar cobrança e pagamentos</Link>
+                        <button type="button" className="btn-secondary" onClick={() => setDiscountStudentId(discountStudentId === item.student.id ? null : item.student.id)}>
+                          {discountStudentId === item.student.id ? "Fechar descontos" : "Aplicar desconto mensal"}
+                        </button>
+                        {discountStudentId === item.student.id && (
+                          <StudentDiscountPanel key={item.student.id} studentId={item.student.id} scope="monthly" initialMonth={periodStart ? periodStart.slice(0, 7) : undefined} onChanged={() => void fetchDiscounts()} />
+                        )}
+                      </div>
+                    )}
 
                     {item.lastCompletedSession && (
                       <p className="mt-4 text-sm text-white/50">
