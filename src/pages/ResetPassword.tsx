@@ -90,36 +90,47 @@ export const ResetPassword = () => {
           {hasSession ? (
             <form onSubmit={handleUpdatePassword} className="mt-7 space-y-4">
               <div>
-                <label className="ml-1 text-xs font-semibold uppercase tracking-wide text-white/60">
+                <label htmlFor="new-password" className="ml-1 text-xs font-semibold uppercase tracking-wide text-white/60">
                   Nova senha
                 </label>
                 <input
+                  id="new-password"
                   type="password"
                   className="mt-2 w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                   autoComplete="new-password"
                 />
               </div>
 
               <div>
-                <label className="ml-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-                  Confirmar senha
+                <label htmlFor="confirm-new-password" className="ml-1 text-xs font-semibold uppercase tracking-wide text-white/60">
+                  Confirmar nova senha
                 </label>
                 <input
+                  id="confirm-new-password"
                   type="password"
                   className="mt-2 w-full rounded-2xl bg-surface px-4 py-3 text-sm text-white ring-1 ring-white/15 placeholder:text-white/35 outline-none transition focus:ring-2 focus:ring-brand-lavender"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
+                  minLength={6}
+                  aria-invalid={confirmPassword.length > 0 && password !== confirmPassword}
+                  aria-describedby={confirmPassword.length > 0 && password !== confirmPassword ? "password-mismatch" : undefined}
                   autoComplete="new-password"
                 />
+                {confirmPassword.length > 0 && password !== confirmPassword && (
+                  <p id="password-mismatch" className="mt-2 text-sm text-rose-300" role="status">
+                    As senhas não conferem. Digite a mesma senha nos dois campos.
+                  </p>
+                )}
               </div>
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || password.length < 6 || password !== confirmPassword}
                 className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-3 text-sm font-bold text-white shadow-soft ring-1 ring-white/10 transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? "Atualizando..." : "Salvar nova senha"}
