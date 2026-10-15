@@ -499,7 +499,7 @@ export const TeacherScheduling = () => {
         new Date(session.starts_at).getTime() < Date.now()),
   );
 
-  const completedPastEvents = pastEvents.filter((session) => session.status === "completed");
+  const completedPastEvents = pastEvents.filter((session) => session.status === "completed" && session.student_id);
   const cancelledPastEvents = pastEvents.filter((session) => session.status === "cancelled");
 
   const availableSessions = sessions.filter(

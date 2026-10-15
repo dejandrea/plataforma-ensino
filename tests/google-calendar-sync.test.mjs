@@ -69,3 +69,37 @@ test('sync preserves cancelled lesson details and checks absent events before ca
   assert.deepEqual(updates[1], ['minimal', 'missing']);
   assert.deepEqual(Object.keys(updates[0]).sort(), ['status', 'updated_at']);
 });
+
+test('sync skips past lessons without a student and preserves a previously confirmed student', async () => {
+  let handler;
+  let imported = [];
+  const client = { from(table) {
+    const query = new Proxy({}, { get(_, key) {
+      if (key === 'then') return (resolve) => resolve({ error: null, data:
+        table === 'teacher_calendar_settings' ? { is_active: true, event_calendar_ids: ['cal'] }
+        : table === 'scheduled_lessons' ? [{ id: 'stored', student_id: 'student', calendar_calendar_id: 'cal', calendar_event_id: 'confirmed' }]
+        : [] });
+      return (...args) => { if (key === 'upsert') imported = args[0]; return query; };
+    } });
+    return query;
+  } };
+  const event = (id, start, end) => ({ id, status: 'confirmed', start: { dateTime: start }, end: { dateTime: end } });
+  const events = [
+    event('unconfirmed', '2020-01-01T10:00:00Z', '2020-01-01T11:00:00Z'),
+    event('confirmed', '2020-01-02T10:00:00Z', '2020-01-02T11:00:00Z'),
+    event('future-unconfirmed', '2099-01-01T10:00:00Z', '2099-01-01T11:00:00Z'),
+  ];
+  const source = compile('supabase/functions/google-calendar-sync/index.ts').replace(/^import[\s\S]*?from .*?;\s*$/gm, '');
+  new Function('serve', 'corsHeaders', 'getAuthenticatedProfile', 'ensureFreshGoogleAccessToken', 'getGoogleCalendarEvents', 'getGoogleCalendarEvent', 'extractMeetLink', source)(
+    fn => { handler = fn; }, {}, async () => ({ adminClient: client, user: { id: 'teacher' }, profile: { role: 'professor' } }),
+    async () => ({ accessToken: 'token' }), async () => events, async () => ({ status: 'confirmed' }), () => 'https://meet.google.com/test',
+  );
+  const response = await handler(new Request('https://local/sync', { method: 'POST', body: '{}' }));
+  assert.equal(response.status, 200);
+  assert.equal(imported.length, 2);
+  assert.equal(imported.some(row => row.calendar_event_id === 'unconfirmed'), false);
+  const confirmed = imported.find(row => row.calendar_event_id === 'confirmed');
+  assert.equal(confirmed.student_id, 'student');
+  assert.equal(confirmed.status, 'completed');
+  assert.equal(imported.find(row => row.calendar_event_id === 'future-unconfirmed').status, 'available');
+});

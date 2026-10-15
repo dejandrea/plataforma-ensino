@@ -106,7 +106,7 @@ serve(async (req) => {
     // importable lessons, preserving the existing lesson and its student.
     const { data: existingLessons, error: existingError } = await adminClient
       .from("scheduled_lessons")
-      .select("id, calendar_calendar_id, calendar_event_id")
+      .select("id, student_id, calendar_calendar_id, calendar_event_id")
       .eq("teacher_id", teacherId)
       .eq("calendar_provider", "google_calendar")
       .in("calendar_calendar_id", selectedCalendarIds)
@@ -205,12 +205,15 @@ serve(async (req) => {
               ? inviteMap.get(email)
               : null,
           )
-          .find(Boolean) || null;
+          .find(Boolean) || (existingLessons || []).find((lesson: any) =>
+            lesson.calendar_calendar_id === event.__calendar_id && lesson.calendar_event_id === event.id,
+          )?.student_id || null;
 
       const startsAt = event.start.dateTime;
       const endsAt = event.end.dateTime;
       const hasEnded = new Date(endsAt).getTime() < Date.now();
-      const googleStatus = event.status === "cancelled" ? "cancelled" : hasEnded ? "completed" : "scheduled";
+      if (hasEnded && !matchedStudentId) return null;
+      const googleStatus = !matchedStudentId ? "available" : hasEnded ? "completed" : "scheduled";
 
       return {
         teacher_id: teacherId,
@@ -229,7 +232,7 @@ serve(async (req) => {
         booked_at: matchedStudentId ? event.created || new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
       };
-    });
+    }).filter(Boolean);
 
     const { error: cleanupError } = await adminClient
       .from("scheduled_lessons")

@@ -14,13 +14,16 @@ serve(async (req) => {
       throw new Error("Informe uma aula e um status válido.");
     }
     const { data: lesson, error: lookupError } = await adminClient.from("scheduled_lessons")
-      .select("id, teacher_id, status").eq("id", lessonId).single();
+      .select("id, teacher_id, student_id, status").eq("id", lessonId).single();
     if (lookupError || !lesson) throw new Error("Aula não encontrada.");
     if (profile.role !== "admin" && lesson.teacher_id !== user.id) {
       throw new Error("Você só pode alterar o histórico das suas aulas.");
     }
     if (!["completed", "cancelled"].includes(lesson.status)) {
       throw new Error("Esta aula não pertence ao histórico de concluídas ou canceladas.");
+    }
+    if (status === "completed" && !lesson.student_id) {
+      throw new Error("Vincule um aluno antes de marcar a aula como concluída.");
     }
     if (lesson.status === status) {
       return Response.json({ lesson }, { headers: corsHeaders });
