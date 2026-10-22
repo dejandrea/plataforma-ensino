@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "context": {
+    "courseTitle": "HTML",
+    "moduleTitle": "HTML Básico",
+    "submoduleTitle": "História e fundamentos"
+  },
+  "lesson": {
+    "key": "conhecendo-html",
+    "title": "Conhecendo o HTML",
+    "description": "A linguagem de marcação e seu papel na Web.",
+    "objectives": [
+      "Entender o papel do HTML na Web"
+    ],
+    "durationMinutes": 20
+  },
+  "activities": [
+    {
+      "key": "historia-slides",
+      "type": "slides",
+      "title": "Como a Web se organiza",
+      "orderIndex": 0,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "resourceUrl": "https://developer.mozilla.org/pt-BR/docs/Web/HTML",
+        "format": "link",
+        "altText": "Introdução ao HTML"
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [],
+    "lessonPlans": []
+  }
+}

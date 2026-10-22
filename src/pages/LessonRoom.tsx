@@ -1,6 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import TeacherLearningPanel from "../components/learning/TeacherLearningPanel";
+
+type RoomLesson = {
+  id: string; title: string; teacher_id: string; student_id: string | null;
+  session_track: string; status: string; starts_at: string; ends_at: string;
+  meet_link: string | null; started_at: string | null; student_joined_at: string | null;
+  teacher_joined_at: string | null; completed_at: string | null; completed_by: string | null;
+};
 
 const formatDateTime = (value?: string | null) =>
   value
@@ -28,21 +36,11 @@ export const LessonRoom = () => {
     role: string;
     full_name: string | null;
   } | null>(null);
-  const [lesson, setLesson] = useState<any | null>(null);
+  const [lesson, setLesson] = useState<RoomLesson | null>(null);
   const [profileNames, setProfileNames] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    if (!lessonId) {
-      setErrorMessage("Aula nao encontrada.");
-      setLoading(false);
-      return;
-    }
-
-    void fetchRoomData();
-  }, [lessonId]);
-
-  const fetchRoomData = async (silent = false) => {
+  const fetchRoomData = useCallback(async (silent = false) => {
     if (!lessonId) return;
 
     if (silent) {
@@ -50,7 +48,6 @@ export const LessonRoom = () => {
     } else {
       setLoading(true);
     }
-
     setErrorMessage("");
 
     const {
@@ -117,7 +114,13 @@ export const LessonRoom = () => {
 
     setLoading(false);
     setRefreshing(false);
-  };
+  }, [lessonId, navigate]);
+
+  useEffect(() => {
+    // Synchronize room state with Supabase when the routed meeting changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (lessonId) void fetchRoomData();
+  }, [lessonId, fetchRoomData]);
 
   const backTarget = currentUser?.role === "student" ? "/minhas-aulas" : "/agendamentos";
   const backLabel =
@@ -199,7 +202,7 @@ export const LessonRoom = () => {
     alert("Aula concluida com sucesso.");
   };
 
-  if (loading) {
+  if (loading && lessonId) {
     return (
       <div className="app-bg min-h-screen">
         <div className="mx-auto max-w-5xl px-4 py-10">
@@ -275,6 +278,10 @@ export const LessonRoom = () => {
             </div>
           </div>
         </header>
+
+        {isTeacherView && lesson.session_track === "course" && lesson.student_id && (
+          <TeacherLearningPanel scheduledLessonId={lesson.id} meetingStatus={lesson.status} />
+        )}
 
         <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.9fr)]">
           <section className="space-y-6">

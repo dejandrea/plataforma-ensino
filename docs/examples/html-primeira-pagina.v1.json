@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "context": {
+    "courseTitle": "HTML",
+    "moduleTitle": "HTML Básico",
+    "submoduleTitle": "Introdução ao HTML"
+  },
+  "lesson": {
+    "key": "minha-primeira-pagina",
+    "title": "Minha primeira página HTML",
+    "description": "Construa uma página sem executar código na Bitaria.",
+    "objectives": [
+      "Identificar html, head e body",
+      "Criar títulos e parágrafos semânticos"
+    ],
+    "durationMinutes": 90
+  },
+  "activities": [
+    {
+      "key": "estrutura-slides",
+      "type": "slides",
+      "title": "Estrutura de uma página",
+      "orderIndex": 0,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "resourceUrl": "https://developer.mozilla.org/pt-BR/docs/Learn_web_development/Core/Structuring_content/Basic_HTML_syntax",
+        "format": "link",
+        "altText": "Guia de introdução e estrutura do HTML"
+      }
+    },
+    {
+      "key": "estrutura-mapa",
+      "type": "mindmap",
+      "title": "Mapa de referências HTML",
+      "orderIndex": 1,
+      "required": false,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "mindmap",
+        "resourceUrl": "https://developer.mozilla.org/pt-BR/docs/Web/HTML/Reference/Elements",
+        "format": "link",
+        "altText": "Referência de elementos para construir um mapa mental"
+      }
+    },
+    {
+      "key": "estrutura-quiz",
+      "type": "quiz",
+      "title": "Confira o que aprendeu",
+      "orderIndex": 2,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "quiz",
+        "passingScore": 70,
+        "maxAttempts": 3,
+        "questions": [
+          {
+            "key": "conteudo-visivel",
+            "prompt": "Qual elemento contém o conteúdo visível da página?",
+            "options": [
+              {
+                "key": "head",
+                "text": "head"
+              },
+              {
+                "key": "body",
+                "text": "body"
+              },
+              {
+                "key": "title",
+                "text": "title"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "encontro-pratico",
+      "type": "online_lesson",
+      "title": "Vamos criar uma página juntas",
+      "orderIndex": 3,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "online_lesson",
+        "objective": "Construir uma página HTML com orientação.",
+        "preparation": [
+          "Instale um editor de texto",
+          "Crie uma pasta para o projeto"
+        ]
+      }
+    },
+    {
+      "key": "pagina-pessoal",
+      "type": "project",
+      "title": "Minha página pessoal",
+      "orderIndex": 4,
+      "required": true,
+      "prerequisites": [
+        "estrutura-quiz"
+      ],
+      "content": {
+        "schemaVersion": 1,
+        "type": "project",
+        "instructions": "Crie index.html com uma breve apresentação pessoal. Envie um link HTTPS público para o código ou resultado.",
+        "objectives": [
+          "Aplicar estrutura HTML",
+          "Explicar suas escolhas"
+        ],
+        "requirements": [
+          "Usar doctype, html, head e body",
+          "Definir idioma e charset",
+          "Incluir h1 e dois parágrafos"
+        ],
+        "assessmentCriteria": [
+          "Estrutura válida",
+          "Conteúdo legível",
+          "Uso de títulos semânticos"
+        ],
+        "resources": [
+          {
+            "title": "Referência HTML",
+            "url": "https://developer.mozilla.org/pt-BR/docs/Web/HTML"
+          }
+        ]
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [
+      {
+        "activityKey": "estrutura-quiz",
+        "content": {
+          "schemaVersion": 1,
+          "answers": [
+            {
+              "questionKey": "conteudo-visivel",
+              "optionKey": "body",
+              "feedback": "O body reúne o conteúdo exibido; head armazena metadados."
+            }
+          ]
+        }
+      }
+    ],
+    "lessonPlans": [
+      {
+        "activityKey": "encontro-pratico",
+        "content": {
+          "schemaVersion": 1,
+          "objectives": [
+            "Construir uma página e explicar sua estrutura"
+          ],
+          "prerequisites": [
+            "Reconhecer arquivos e pastas"
+          ],
+          "preparation": [
+            "Conferir editor e navegador",
+            "Abrir o exemplo localmente"
+          ],
+          "durationMinutes": 45,
+          "steps": [
+            {
+              "key": "criar-documento",
+              "title": "Criar o primeiro documento",
+              "objective": "Separar metadados e conteúdo visível.",
+              "durationMinutes": 25,
+              "guidance": "Peça ao aluno para digitar, salvar e abrir o arquivo no navegador.",
+              "code": {
+                "language": "html",
+                "file": "index.html",
+                "source": "<!doctype html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Minha página</title>\n</head>\n<body>\n  <h1>Olá, mundo!</h1>\n  <p>Estou aprendendo HTML.</p>\n</body>\n</html>",
+                "expectedResult": "Uma página com título e parágrafo; o nome aparece na aba."
+              },
+              "questions": [
+                {
+                  "prompt": "Onde aparece o conteúdo de title?",
+                  "expectedAnswer": "Na aba do navegador."
+                }
+              ],
+              "detailedExplanation": "O navegador interpreta os elementos e organiza a página. HTML descreve a estrutura.",
+              "playfulExplanation": "O head é a etiqueta da mochila; o body guarda o que mostramos na apresentação.",
+              "commonDifficulties": [
+                "Salvar como .txt",
+                "Esquecer uma tag de fechamento"
+              ],
+              "challenge": "Adicione um segundo parágrafo."
+            },
+            {
+              "key": "revisar-semantica",
+              "title": "Revisar e explicar",
+              "objective": "Verificar a compreensão.",
+              "durationMinutes": 20,
+              "guidance": "Peça que explique cada elemento e revise as alterações.",
+              "questions": [
+                {
+                  "prompt": "Por que usar h1?",
+                  "expectedAnswer": "Para identificar o título principal do conteúdo."
+                }
+              ],
+              "detailedExplanation": "Os títulos expressam a hierarquia do conteúdo.",
+              "playfulExplanation": "O h1 é o nome na capa do livro.",
+              "commonDifficulties": [
+                "Confundir title e h1"
+              ],
+              "challenge": "Explique a diferença entre o título da aba e o título da página."
+            }
+          ],
+          "assessmentCriteria": [
+            "Explica head e body",
+            "Altera o arquivo com autonomia"
+          ]
+        }
+      }
+    ]
+  }
+}

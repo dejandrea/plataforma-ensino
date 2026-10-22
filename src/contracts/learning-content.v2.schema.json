@@ -1,0 +1,1564 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:bitaria:learning-content:2",
+  "title": "Bitaria lesson authoring contract v2",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "courseTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "moduleTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "submoduleTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        }
+      },
+      "required": [
+        "courseTitle",
+        "moduleTitle",
+        "submoduleTitle"
+      ],
+      "additionalProperties": false
+    },
+    "lesson": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "minItems": 1,
+          "maxItems": 200
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1440
+        }
+      },
+      "required": [
+        "key",
+        "title",
+        "description",
+        "objectives",
+        "durationMinutes"
+      ],
+      "additionalProperties": false
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "slides"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 1
+                  },
+                  "type": {
+                    "const": "slides"
+                  },
+                  "resourceUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://[^\\s]+$",
+                    "maxLength": 2048
+                  },
+                  "format": {
+                    "enum": [
+                      "pdf",
+                      "image",
+                      "link"
+                    ]
+                  },
+                  "altText": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "resourceUrl",
+                  "format",
+                  "altText"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "mindmap"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 1
+                  },
+                  "type": {
+                    "const": "mindmap"
+                  },
+                  "resourceUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://[^\\s]+$",
+                    "maxLength": 2048
+                  },
+                  "format": {
+                    "enum": [
+                      "pdf",
+                      "image",
+                      "link"
+                    ]
+                  },
+                  "altText": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "resourceUrl",
+                  "format",
+                  "altText"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "quiz"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 1
+                  },
+                  "type": {
+                    "const": "quiz"
+                  },
+                  "passingScore": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "maxAttempts": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "questions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "prompt": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        },
+                        "options": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                              },
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 20000
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "text"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "minItems": 2,
+                          "maxItems": 12
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "prompt",
+                        "options"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "passingScore",
+                  "maxAttempts",
+                  "questions"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "online_lesson"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 1
+                  },
+                  "type": {
+                    "const": "online_lesson"
+                  },
+                  "objective": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  },
+                  "preparation": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 0,
+                    "maxItems": 200
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "objective",
+                  "preparation"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "project"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 1
+                  },
+                  "type": {
+                    "const": "project"
+                  },
+                  "instructions": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  },
+                  "objectives": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 1,
+                    "maxItems": 200
+                  },
+                  "requirements": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 1,
+                    "maxItems": 200
+                  },
+                  "assessmentCriteria": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 1,
+                    "maxItems": 200
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "pattern": "^https://[^\\s]+$",
+                          "maxLength": 2048
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 0,
+                    "maxItems": 200
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "instructions",
+                  "objectives",
+                  "requirements",
+                  "assessmentCriteria",
+                  "resources"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "interactive"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 2
+                  },
+                  "type": {
+                    "const": "interactive"
+                  },
+                  "interactionType": {
+                    "const": "ordering"
+                  },
+                  "instructions": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  },
+                  "passingScore": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "maxAttempts": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 2,
+                    "maxItems": 50
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "interactionType",
+                  "instructions",
+                  "passingScore",
+                  "maxAttempts",
+                  "items"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "interactive"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 2
+                  },
+                  "type": {
+                    "const": "interactive"
+                  },
+                  "interactionType": {
+                    "const": "matching"
+                  },
+                  "instructions": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  },
+                  "passingScore": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "maxAttempts": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "leftItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 2,
+                    "maxItems": 50
+                  },
+                  "rightItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 2,
+                    "maxItems": 50
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "interactionType",
+                  "instructions",
+                  "passingScore",
+                  "maxAttempts",
+                  "leftItems",
+                  "rightItems"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 200
+    },
+    "teacherOnly": {
+      "type": "object",
+      "properties": {
+        "quizKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "activityKey": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 1
+                  },
+                  "answers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "questionKey": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "optionKey": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "feedback": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        }
+                      },
+                      "required": [
+                        "questionKey",
+                        "optionKey",
+                        "feedback"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "answers"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "activityKey",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "lessonPlans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "activityKey": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 1
+                  },
+                  "objectives": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 1,
+                    "maxItems": 200
+                  },
+                  "prerequisites": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 0,
+                    "maxItems": 200
+                  },
+                  "preparation": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 0,
+                    "maxItems": 200
+                  },
+                  "durationMinutes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1440
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        },
+                        "objective": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        },
+                        "durationMinutes": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 1440
+                        },
+                        "guidance": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        },
+                        "code": {
+                          "type": "object",
+                          "properties": {
+                            "language": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            },
+                            "file": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            },
+                            "source": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            },
+                            "expectedResult": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            }
+                          },
+                          "required": [
+                            "language",
+                            "file",
+                            "source",
+                            "expectedResult"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "questions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "prompt": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 20000
+                              },
+                              "expectedAnswer": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 20000
+                              }
+                            },
+                            "required": [
+                              "prompt",
+                              "expectedAnswer"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "minItems": 0,
+                          "maxItems": 200
+                        },
+                        "detailedExplanation": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        },
+                        "playfulExplanation": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        },
+                        "commonDifficulties": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 20000
+                          },
+                          "minItems": 0,
+                          "maxItems": 200
+                        },
+                        "challenge": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "title",
+                        "objective",
+                        "durationMinutes",
+                        "guidance",
+                        "questions",
+                        "detailedExplanation",
+                        "playfulExplanation",
+                        "commonDifficulties",
+                        "challenge"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 200
+                  },
+                  "assessmentCriteria": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20000
+                    },
+                    "minItems": 1,
+                    "maxItems": 200
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "objectives",
+                  "prerequisites",
+                  "preparation",
+                  "durationMinutes",
+                  "steps",
+                  "assessmentCriteria"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "activityKey",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 200
+        },
+        "interactiveKeys": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "activityKey": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                  },
+                  "content": {
+                    "type": "object",
+                    "properties": {
+                      "schemaVersion": {
+                        "const": 2
+                      },
+                      "interactionType": {
+                        "const": "ordering"
+                      },
+                      "feedback": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "correctOrder": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "minItems": 2,
+                        "maxItems": 50,
+                        "uniqueItems": true
+                      }
+                    },
+                    "required": [
+                      "schemaVersion",
+                      "interactionType",
+                      "feedback",
+                      "correctOrder"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "activityKey",
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "activityKey": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                  },
+                  "content": {
+                    "type": "object",
+                    "properties": {
+                      "schemaVersion": {
+                        "const": 2
+                      },
+                      "interactionType": {
+                        "const": "matching"
+                      },
+                      "feedback": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "pairs": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "leftId": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                            },
+                            "rightId": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                            }
+                          },
+                          "required": [
+                            "leftId",
+                            "rightId"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "minItems": 2,
+                        "maxItems": 50
+                      }
+                    },
+                    "required": [
+                      "schemaVersion",
+                      "interactionType",
+                      "feedback",
+                      "pairs"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "activityKey",
+                  "content"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 200
+        }
+      },
+      "required": [
+        "quizKeys",
+        "lessonPlans",
+        "interactiveKeys"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "context",
+    "lesson",
+    "activities",
+    "teacherOnly"
+  ],
+  "additionalProperties": false
+}
