@@ -1,0 +1,402 @@
+{
+  "schemaVersion": 2,
+  "context": {
+    "courseTitle": "HTML",
+    "moduleTitle": "HTML Básico",
+    "submoduleTitle": "História dos computadores"
+  },
+  "lesson": {
+    "key": "html-m01-s01-a01",
+    "title": "Máquinas que Mudaram o Mundo",
+    "description": "LEVEL 01: descubra como instrumentos de cálculo e computadores evoluíram para resolver problemas. Estude os materiais, organize uma linha do tempo e revise o que mudou da sala ao bolso. Aula autônoma de 22 minutos, ou 24 minutos com o desafio extra de associação.",
+    "objectives": [
+      "Explicar com suas palavras para que servem computadores.",
+      "Reconhecer etapas da evolução dos instrumentos de cálculo e da computação.",
+      "Comparar máquinas antigas e dispositivos modernos.",
+      "Relacionar invenções à resolução de problemas.",
+      "Organizar exemplos em uma sequência histórica aproximada."
+    ],
+    "durationMinutes": 24
+  },
+  "activities": [
+    {
+      "key": "a01-v2-estudo-origens",
+      "type": "slides",
+      "title": "LEVEL 01 — Descobrir e compreender",
+      "description": "Abra o PDF e estude as páginas 1 a 4. Pense na pergunta da Bitara: como calcular antes das telas? Imagine três pedrinhas e acrescente duas. Na página 5, faça a missão usando os controles da atividade de ordenação da Bitaria; você não precisa escrever em papel. Pode voltar ao estudo sempre que precisar.",
+      "orderIndex": 0,
+      "durationMinutes": 7,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "resourceUrl": "https://drive.google.com/file/d/1e7q-xbKNMMj8l8cCFXffv1K9TS1eBs_h/view?usp=drivesdk",
+        "format": "pdf",
+        "altText": "Páginas 1 a 4: a Bitara apresenta a aula e pergunta como calcular antes das telas. Computadores seguem instruções para trabalhar com informações. No ábaco, a pessoa move as contas; calculadoras mecânicas usam rodas e engrenagens. Cartões perfurados controlavam padrões em teares. Babbage projetou a Máquina Analítica para seguir instruções e calcular; ela não foi concluída em sua vida. Essas ideias contribuíram para o desenvolvimento da programação; muitas pessoas participaram dessa história."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a01-v2-linha-do-tempo",
+      "type": "interactive",
+      "title": "MISSÃO — Organize a linha do tempo",
+      "description": "Use as pistas da página 5. Organize os itens na própria Bitaria, sem decorar datas. Você pode consultar os slides e o mapa.",
+      "orderIndex": 1,
+      "durationMinutes": 4,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "interactive",
+        "interactionType": "ordering",
+        "instructions": "Organize as quatro invenções do exemplo, da mais antiga à mais recente. Use as pistas sobre como funcionam. Mova os itens com os controles da atividade e envie sua sequência. Se quiser, volte aos slides ou consulte o mapa antes de responder.",
+        "passingScore": 100,
+        "maxAttempts": 10,
+        "items": [
+          {
+            "id": "abaco",
+            "label": "Ábaco"
+          },
+          {
+            "id": "calculadora-mecanica",
+            "label": "Calculadora mecânica"
+          },
+          {
+            "id": "tear-cartoes",
+            "label": "Tear controlado por cartões"
+          },
+          {
+            "id": "computador-eletronico",
+            "label": "Computador eletrônico de sala, como o ENIAC"
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_interactive",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a01-v2-estudo-evolucao",
+      "type": "slides",
+      "title": "DESCOBRIR — Da sala ao bolso",
+      "description": "Retome o mesmo PDF nas páginas 6 a 9. Observe tamanho e forma de uso do ENIAC e do celular ilustrado: pense em duas diferenças e em uma função compartilhada. Não precisa ter um celular próprio nem enviar uma resposta escrita. A associação opcional abaixo permite praticar na Bitaria. A tela final do PDF apresenta a próxima aula; conclua também o mapa e o desafio final deste percurso.",
+      "orderIndex": 2,
+      "durationMinutes": 4,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "resourceUrl": "https://drive.google.com/file/d/1e7q-xbKNMMj8l8cCFXffv1K9TS1eBs_h/view?usp=drivesdk",
+        "format": "pdf",
+        "altText": "Páginas 6 a 9: o ENIAC é um exemplo de computador eletrônico dos anos 1940; ocupava uma sala, exigia equipe e calculava rapidamente para a época. ENIAC é a sigla em inglês traduzida como Computador e Integrador Numérico Eletrônico. Mais tarde, computadores pessoais ampliaram o uso em casas e escolas. Componentes menores e mais rápidos em muitas tarefas permitiram dispositivos móveis. Celulares podem escrever, estudar, criar e calcular. O acesso cresceu, mas ainda é desigual, e computadores grandes continuam existindo. A síntese é Problemas, Ideias e Invenções; a próxima aula explorará pessoas que contribuíram para essa história."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a01-v2-maquinas-e-pistas",
+      "type": "interactive",
+      "title": "DESAFIO EXTRA — Cada máquina, uma pista",
+      "description": "Associação opcional para explorar diferenças entre as máquinas. Esta atividade não bloqueia a conclusão da aula.",
+      "orderIndex": 3,
+      "durationMinutes": 2,
+      "required": false,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "interactive",
+        "interactionType": "matching",
+        "instructions": "Associe cada máquina à pista que a caracteriza neste estudo. Cada pista será usada uma vez. Use os seletores da atividade e envie as associações. Observe a ação ou a forma de uso mais característica de cada exemplo. Você pode consultar os materiais.",
+        "passingScore": 100,
+        "maxAttempts": 10,
+        "leftItems": [
+          {
+            "id": "abaco",
+            "label": "Ábaco"
+          },
+          {
+            "id": "tear-cartoes",
+            "label": "Tear controlado por cartões"
+          },
+          {
+            "id": "eniac",
+            "label": "ENIAC"
+          },
+          {
+            "id": "celular",
+            "label": "Celular atual"
+          }
+        ],
+        "rightItems": [
+          {
+            "id": "contas-movidas",
+            "label": "A pessoa move contas para representar quantidades."
+          },
+          {
+            "id": "padrao-tecido",
+            "label": "Cartões com furos controlam o padrão do tecido."
+          },
+          {
+            "id": "sala-equipe",
+            "label": "Computador eletrônico dos anos 1940 que ocupava uma sala e exigia equipe."
+          },
+          {
+            "id": "portatil-pessoal",
+            "label": "Reúne recursos de computação em um aparelho de uso pessoal que cabe no bolso."
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_interactive",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a01-v2-mapa-sintese",
+      "type": "mindmap",
+      "title": "CONSOLIDAR — A evolução dos computadores",
+      "description": "Percorra os quatro grupos históricos e o achado central. Ligue cada invenção ao problema que ajudava a resolver. O mapa permanece disponível para consulta durante os desafios.",
+      "orderIndex": 4,
+      "durationMinutes": 2,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "mindmap",
+        "resourceUrl": "https://drive.google.com/file/d/1yHE-_NtwpSOUXh70gp9ov-_0bKx2IFPe/view?usp=drivesdk",
+        "format": "pdf",
+        "altText": "A Evolução dos Computadores: Máquinas que Mudaram o Mundo. Quatro grupos ligados por uma trilha: 1. Ábaco e calculadoras mecânicas ajudam no cálculo manual e mecânico. 2. Teares a cartão e projeto da Máquina Analítica representam a ideia de mudar instruções. 3. ENIAC representa a computação eletrônica de sala dos anos 1940. 4. Computadores pessoais e celulares ampliam o acesso e a portabilidade. Achado central: Problemas levam a Ideias e Invenções. A evolução reúne muitas contribuições; as tecnologias podem coexistir."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a01-v2-desafio-final",
+      "type": "quiz",
+      "title": "DESAFIO FINAL — Máquinas que mudaram o mundo",
+      "description": "Responda às cinco perguntas. Use o mapa e os slides sempre que precisar. O objetivo é compreender as mudanças e as funções das máquinas. Para concluir, acerte pelo menos três perguntas; você dispõe de até dez tentativas.",
+      "orderIndex": 5,
+      "durationMinutes": 5,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "quiz",
+        "passingScore": 60,
+        "maxAttempts": 10,
+        "questions": [
+          {
+            "key": "q-funcao",
+            "prompt": "Um celular calcula uma soma e um computador de mesa organiza um texto. O que essas tarefas têm em comum?",
+            "options": [
+              {
+                "key": "depende-internet",
+                "text": "Só funcionam se os aparelhos estiverem conectados à internet."
+              },
+              {
+                "key": "segue-instrucoes",
+                "text": "Os aparelhos seguem instruções para trabalhar com informações."
+              },
+              {
+                "key": "usa-engrenagens",
+                "text": "Os aparelhos precisam usar engrenagens para cada tarefa."
+              },
+              {
+                "key": "somente-mesa",
+                "text": "São tarefas que apenas computadores de mesa conseguem realizar."
+              }
+            ]
+          },
+          {
+            "key": "q-abaco",
+            "prompt": "Uma colega diz: 'O ábaco fazia as contas sozinho, como um aplicativo'. Qual explicação ajuda a corrigir essa ideia?",
+            "options": [
+              {
+                "key": "recebe-cartoes",
+                "text": "O ábaco recebia instruções por cartões perfurados."
+              },
+              {
+                "key": "depende-eletricidade",
+                "text": "O ábaco precisava de eletricidade para mover as contas."
+              },
+              {
+                "key": "pessoa-move-contas",
+                "text": "A pessoa precisava mover as contas e acompanhar o cálculo."
+              },
+              {
+                "key": "escreve-textos",
+                "text": "O ábaco servia para escrever textos, não para calcular."
+              }
+            ]
+          },
+          {
+            "key": "q-maquina-analitica",
+            "prompt": "Uma colega diz: \"Babbage terminou a Máquina Analítica e já a usava como um computador eletrônico\". Qual explicação é mais adequada?",
+            "options": [
+              {
+                "key": "projeto-mecanico-inacabado",
+                "text": "Era um projeto de máquina mecânica para seguir instruções e calcular; não foi concluído durante a vida de Babbage."
+              },
+              {
+                "key": "modelo-de-eniac",
+                "text": "Era um modelo do ENIAC feito para caber em casa."
+              },
+              {
+                "key": "celular-de-engrenagens",
+                "text": "Era um celular com engrenagens que acessava a internet."
+              },
+              {
+                "key": "tear-sem-instrucoes",
+                "text": "Era um tear que produzia qualquer tecido sem seguir instruções."
+              }
+            ]
+          },
+          {
+            "key": "q-cartoes",
+            "prompt": "Em um tear controlado por cartões, trocar a sequência de cartões pode mudar o desenho do tecido. Que ideia isso ajuda a entender?",
+            "options": [
+              {
+                "key": "instrucao-muda-resultado",
+                "text": "Mudar as instruções pode mudar o resultado de uma máquina."
+              },
+              {
+                "key": "todo-tear-eletronico",
+                "text": "Toda máquina que usa cartões é um computador eletrônico."
+              },
+              {
+                "key": "tamanho-define-padrao",
+                "text": "O tamanho da máquina determina sozinho o desenho produzido."
+              },
+              {
+                "key": "somente-numeros",
+                "text": "Cartões perfurados só serviam para registrar números."
+              }
+            ]
+          },
+          {
+            "key": "q-comparacao",
+            "prompt": "Ao comparar o ENIAC com um celular atual, qual conclusão é apoiada pelo que você estudou?",
+            "options": [
+              {
+                "key": "menor-menos-tarefas",
+                "text": "O celular faz menos tarefas porque é menor."
+              },
+              {
+                "key": "grandes-desapareceram",
+                "text": "Máquinas grandes deixaram de existir quando surgiram celulares."
+              },
+              {
+                "key": "calculo-comum-usos-distintos",
+                "text": "Ambos podem calcular, mas têm tamanhos e formas de uso muito diferentes."
+              },
+              {
+                "key": "eniac-domestico",
+                "text": "O ENIAC já era usado em casa como um celular."
+              }
+            ]
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_quiz",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [
+      {
+        "activityKey": "a01-v2-desafio-final",
+        "content": {
+          "schemaVersion": 1,
+          "answers": [
+            {
+              "questionKey": "q-funcao",
+              "optionKey": "segue-instrucoes",
+              "feedback": "Tanto calcular quanto organizar texto são formas de trabalhar com informações seguindo instruções. Algumas tarefas podem funcionar sem internet."
+            },
+            {
+              "questionKey": "q-abaco",
+              "optionKey": "pessoa-move-contas",
+              "feedback": "O ábaco ajuda a representar quantidades. A pessoa o manipula e conduz o cálculo; ele não executa sozinho um programa como um aplicativo."
+            },
+            {
+              "questionKey": "q-maquina-analitica",
+              "optionKey": "projeto-mecanico-inacabado",
+              "feedback": "Babbage projetou uma máquina mecânica programável, a Máquina Analítica. Ela não foi concluída em sua vida e não era um computador eletrônico. Projetos também podem contribuir com ideias para invenções posteriores."
+            },
+            {
+              "questionKey": "q-cartoes",
+              "optionKey": "instrucao-muda-resultado",
+              "feedback": "Os furos dos cartões controlavam ações do tear. Alterar as instruções podia alterar o padrão produzido. Isso ajuda a compreender a ideia de programação, sem transformar o tear em computador eletrônico."
+            },
+            {
+              "questionKey": "q-comparacao",
+              "optionKey": "calculo-comum-usos-distintos",
+              "feedback": "Calcular é uma função compartilhada. O ENIAC ocupava uma sala e exigia uma equipe; um celular é portátil e tem outra forma de interação. Ser menor não significa fazer menos tarefas."
+            }
+          ]
+        }
+      }
+    ],
+    "interactiveKeys": [
+      {
+        "activityKey": "a01-v2-linha-do-tempo",
+        "content": {
+          "schemaVersion": 2,
+          "interactionType": "ordering",
+          "correctOrder": [
+            "abaco",
+            "calculadora-mecanica",
+            "tear-cartoes",
+            "computador-eletronico"
+          ],
+          "feedback": "O ábaco precede as calculadoras mecânicas dos exemplos. Depois, teares como o de Jacquard usaram cartões para controlar padrões. Computadores eletrônicos de sala vieram mais tarde. São marcos selecionados: tecnologias antigas e novas podem coexistir."
+        }
+      },
+      {
+        "activityKey": "a01-v2-maquinas-e-pistas",
+        "content": {
+          "schemaVersion": 2,
+          "interactionType": "matching",
+          "pairs": [
+            {
+              "leftId": "abaco",
+              "rightId": "contas-movidas"
+            },
+            {
+              "leftId": "tear-cartoes",
+              "rightId": "padrao-tecido"
+            },
+            {
+              "leftId": "eniac",
+              "rightId": "sala-equipe"
+            },
+            {
+              "leftId": "celular",
+              "rightId": "portatil-pessoal"
+            }
+          ],
+          "feedback": "Observe a ação mais característica de cada exemplo: mover contas, seguir cartões no tear, operar uma máquina eletrônica de sala ou usar um aparelho portátil. A função de calcular pode existir em aparelhos diferentes."
+        }
+      }
+    ],
+    "lessonPlans": []
+  }
+}
