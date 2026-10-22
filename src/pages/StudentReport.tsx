@@ -1,17 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { evaluationTitle } from "../lib/evaluationPeriods";
-
-const criteriaLabels: Record<string, string> = {
-  score_technical: "Tech",
-  score_logic: "Logica",
-  score_creativity: "Criatividade",
-  score_autonomy: "Autonomia",
-  score_communication: "Troca",
-  score_organization: "Organizacao",
-  score_engagement: "Atitude",
-  score_patience: "Paciencia",
-};
+import { evaluationCriteria } from "../lib/evaluationDraft";
 
 export const StudentReport = () => {
   const [evaluations, setEvaluations] = useState<any[]>([]);
@@ -125,9 +115,32 @@ export const StudentReport = () => {
             </div>
           ) : (
             <div className="grid gap-8">
-              {evaluations.map((evaluation) => (
-                <EvaluationCard key={evaluation.id} evaluation={evaluation} />
-              ))}
+              <EvaluationCard evaluation={evaluations[0]} />
+              {evaluations.length > 1 && (
+                <section aria-labelledby="previous-evaluations-title">
+                  <h2 id="previous-evaluations-title" className="mb-4 text-xl font-bold text-white">
+                    Avaliações anteriores
+                  </h2>
+                  <div className="space-y-3">
+                    {evaluations.slice(1).map((evaluation) => (
+                      <details key={evaluation.id} className="group rounded-3xl bg-surface ring-1 ring-white/10">
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-3xl p-5 text-white transition hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-lavender [&::-webkit-details-marker]:hidden">
+                          <span className="min-w-0">
+                            <span className="block break-words font-bold">{evaluationTitle(evaluation)}</span>
+                            <span className="mt-1 block text-xs text-white/50">
+                              Registrada em {new Date(evaluation.created_at).toLocaleDateString("pt-BR")}
+                            </span>
+                          </span>
+                          <span aria-hidden="true" className="shrink-0 text-brand-lavender transition-transform group-open:rotate-180">⌄</span>
+                        </summary>
+                        <div className="px-3 pb-3 sm:px-5 sm:pb-5">
+                          <EvaluationCard evaluation={evaluation} />
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           )}
         </section>
@@ -137,14 +150,15 @@ export const StudentReport = () => {
 };
 
 const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
-  const feedbackEntries =
+  const feedback =
     evaluation.ai_feedback_json &&
     typeof evaluation.ai_feedback_json === "object" &&
+    !Array.isArray(evaluation.ai_feedback_json) &&
     !("error" in evaluation.ai_feedback_json)
-      ? Object.entries(evaluation.ai_feedback_json).filter(([key]) => key !== "general").map(([, value]) => value)
-      : [];
-
-  const shouldUseTeacherFallback = feedbackEntries.length === 0;
+      ? evaluation.ai_feedback_json
+      : null;
+  const generalFeedback = typeof feedback?.general === "string" ? feedback.general.trim() : "";
+  const teacherComment = typeof evaluation.teacher_comment === "string" ? evaluation.teacher_comment.trim() : "";
 
   return (
     <article className="overflow-hidden rounded-[2rem] bg-surface shadow-soft ring-1 ring-white/10">
@@ -166,55 +180,47 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
       </div>
 
       <div className="space-y-6 p-6">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {Object.entries(criteriaLabels).map(([key, label]) => (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {evaluationCriteria.map(({ id, label }) => {
+            const score = Number(evaluation[`score_${id}`]);
+            const hasScore = Number.isInteger(score) && score >= 1 && score <= 5;
+            const areaFeedback = typeof feedback?.[id] === "string" ? feedback[id].trim() : "";
+            return (
             <div
-              key={key}
-              className="rounded-2xl bg-surface p-4 text-center ring-1 ring-white/10"
+              key={id}
+              className="min-w-0 rounded-2xl bg-surface p-5 ring-1 ring-white/10"
             >
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">
+              <h3 className="text-sm font-bold text-white/80">
                 {label}
-              </p>
-              <p className="mt-2 text-lg font-bold text-brand-ice">
-                {Number(evaluation[key] || 0)}/5
+              </h3>
+              <div className="mt-3 flex gap-1 text-2xl" role="img" aria-label={hasScore ? `${label}: ${score} de 5 estrelas` : `${label}: sem nota registrada`}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star} aria-hidden="true" className={hasScore && star <= score ? "text-amber-400" : "text-white/20"}>★</span>
+                ))}
+              </div>
+              {!hasScore && <p className="mt-2 text-xs text-white/50">Sem nota registrada</p>}
+              <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-white/75">
+                {areaFeedback || "Nenhuma observação registrada para esta área."}
               </p>
             </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="rounded-3xl bg-brand-lavender/10 p-5 ring-1 ring-brand-lavender/20">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-ice/70">
-            {shouldUseTeacherFallback
-              ? "Feedback da professora"
-              : "Feedback consolidado"}
-          </p>
-
-          <div className="mt-4 space-y-3 text-sm leading-7 text-brand-ice">
-            {shouldUseTeacherFallback ? (
-              <p>
-                {evaluation.teacher_comment ||
-                  "Nenhum comentario adicional foi registrado."}
-              </p>
-            ) : (
-              feedbackEntries.map((text, index) => <p key={index}>{String(text)}</p>)
-            )}
-          </div>
-        </div>
-
-        {typeof evaluation.ai_feedback_json?.general === "string" && (
-          <section className="rounded-3xl bg-brand-lavender/10 p-5 ring-1 ring-brand-lavender/20">
-            <h3 className="text-sm font-bold text-brand-ice">Avaliação geral</h3>
-            <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-brand-ice">{evaluation.ai_feedback_json.general}</p>
-          </section>
-        )}
-        {(!evaluation.ai_feedback_json?.general || evaluation.teacher_comment !== evaluation.ai_feedback_json.general) && <div className="rounded-3xl bg-surface p-5 ring-1 ring-white/10">
+        {generalFeedback && teacherComment && teacherComment !== generalFeedback && <div className="rounded-3xl bg-surface p-5 ring-1 ring-white/10">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
-            Comentario da professora
+            Comentário da professora
           </p>
-          <p className="mt-4 text-sm leading-7 text-white/75">
-            {evaluation.teacher_comment || "Nenhum comentario adicional foi registrado."}
+          <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-white/75">
+            {teacherComment}
           </p>
         </div>}
+        <section className="rounded-3xl bg-brand-lavender/10 p-5 ring-1 ring-brand-lavender/20">
+          <h3 className="text-sm font-bold text-brand-ice">Avaliação geral</h3>
+          <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-white/85">
+            {generalFeedback || teacherComment || "Nenhuma avaliação geral foi registrada."}
+          </p>
+        </section>
       </div>
     </article>
   );

@@ -88,18 +88,9 @@ export const Navbar = () => {
           >
             <BrandLogo />
           </NavLink>
-
-          {backTarget && (
-            <Link
-              to={backTarget}
-              className="inline-flex h-8 w-11 items-center justify-center rounded-lg bg-surface text-xs font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
-            >
-              Voltar
-            </Link>
-          )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {hasCourseAccess && (
             <NavLink to="/dashboard" className={navClass}>
               Minha jornada
@@ -116,32 +107,43 @@ export const Navbar = () => {
           </NavLink>
         </div>
 
-        <div className="flex items-center gap-3 self-end md:self-auto">
-          <div className="hidden text-right sm:block">
-            <p className="mb-2 text-sm font-black uppercase tracking-[0.2em] text-white/45">
-              Área do Aluno
-            </p>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
-              Conectado como
-            </p>
-            <p className="text-sm font-bold text-white">{firstName}</p>
+        <div className="flex shrink-0 flex-col items-end gap-2 self-end md:self-auto">
+          <div className="flex items-center gap-2">
+            {backTarget && (
+              <Link
+                to={backTarget}
+                className="inline-flex items-center justify-center rounded-xl bg-surface px-3 py-2 text-sm font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
+              >
+                Voltar
+              </Link>
+            )}
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center justify-center rounded-xl bg-surface px-3 py-2 text-sm font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
+              type="button"
+            >
+              Sair
+            </button>
           </div>
+          <p className="text-sm font-black uppercase tracking-[0.2em] text-white/45">
+            Área do Aluno
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
+                Conectado como
+              </p>
+              <p className="text-sm font-bold text-white">{firstName}</p>
+            </div>
 
-          <ProfileAvatar
-            fullName={displayName}
-            avatarMode={avatarMode}
-            avatarUrl={avatarUrl}
-            avatarPreset={avatarPreset}
-            size="md"
-          />
-
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center justify-center rounded-xl bg-surface px-3 py-2 text-sm font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
-            type="button"
-          >
-            Sair
-          </button>
+            <ProfileAvatar
+              fullName={displayName}
+              avatarMode={avatarMode}
+              avatarUrl={avatarUrl}
+              avatarPreset={avatarPreset}
+              size="md"
+            />
+          </div>
         </div>
       </div>
     </nav>

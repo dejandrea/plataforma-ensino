@@ -3,9 +3,17 @@ import { supabase } from "../lib/supabaseClient";
 import { TabContent } from "../components/management/TabContent";
 import { TabLinks } from "../components/management/TabLinks";
 import { TabUsers } from "../components/management/TabUsers";
+import { TabGamification } from "../components/management/TabGamification";
+
+const managementTabs = [
+  { id: "users", label: "Usuários" },
+  { id: "content", label: "Conteúdo Curricular" },
+  { id: "links", label: "Vínculos" },
+  { id: "gamification", label: "Conquistas, XP e ranking" },
+] as const;
 
 export const SystemManagement = () => {
-  const [tab, setTab] = useState<"users" | "content" | "links">("users");
+  const [tab, setTab] = useState<typeof managementTabs[number]["id"]>("users");
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,16 +39,18 @@ export const SystemManagement = () => {
         </header>
 
         {/* NAVEGAÇÃO DE ABAS */}
-        <div className="mb-8 flex gap-8 border-b border-white/10">
-          {["users", "content", "links"].map((t) => (
+        <div className="mb-8 flex flex-wrap gap-x-8 gap-y-3 border-b border-white/10">
+          {managementTabs.map((t) => (
             <button
-              key={t}
-              onClick={() => setTab(t as any)}
+              key={t.id}
+              type="button"
+              aria-pressed={tab === t.id}
+              onClick={() => setTab(t.id)}
               className={`pb-4 text-sm font-bold transition-all ${
-                tab === t ? "border-b-2 border-brand-pink text-white" : "text-white/40 hover:text-white"
+                tab === t.id ? "border-b-2 border-brand-pink text-white" : "text-white/40 hover:text-white"
               }`}
             >
-              {t === "users" ? "Usuários" : t === "content" ? "Conteúdo Curricular" : "Vínculos"}
+              {t.label}
             </button>
           ))}
         </div>
@@ -50,6 +60,7 @@ export const SystemManagement = () => {
           {tab === "users" && <TabUsers />}
           {tab === "content" && <TabContent />}
           {tab === "links" && <TabLinks />}
+          {tab === "gamification" && userRole === "admin" && <TabGamification />}
         </div>
       </div>
     </div>

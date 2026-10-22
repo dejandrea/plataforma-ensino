@@ -2,6 +2,9 @@ import { type ReactNode, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ProfileAvatar } from "../components/ProfileAvatar";
 import { StudentBillingSummary } from "../components/StudentBillingSummary";
+import { MasteryShowcase } from "../components/MasteryShowcase";
+import { MissionCenter } from "../components/MissionCenter";
+import { PlayerRanking } from "../components/PlayerRanking";
 import { avatarPresets } from "../lib/avatarPresets";
 import { supabase } from "../lib/supabaseClient";
 
@@ -427,6 +430,7 @@ export const ProfilePage = () => {
         </header>
 
         {userRole === "student" && <StudentBillingSummary />}
+        {userRole === "student" && <><MasteryShowcase /><MissionCenter /><PlayerRanking /></>}
 
         <form onSubmit={saveProfile} className="mt-8 grid gap-8 lg:grid-cols-[320px,1fr]">
           <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur">

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { AgendaActivity } from "../components/AgendaActivity";
 import { StudentBillingSummary } from "../components/StudentBillingSummary";
+import { StudentAchievements } from "../components/StudentAchievements";
 
 const formatSessionDate = (value: string) =>
   new Date(value).toLocaleString("pt-BR", {
@@ -602,6 +603,7 @@ export const StudentLessons = () => {
   return (
     <div className="app-bg">
       <StudentBillingSummary />
+      <StudentAchievements />
       <AgendaActivity active={refreshCount > 0 || Boolean(bookingLessonId || cancellingLessonId || reschedulingLessonId)} />
       <div className="mx-auto max-w-6xl px-4 py-8">
         <header className="relative overflow-hidden rounded-3xl bg-surface p-5 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-6">
