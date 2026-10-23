@@ -4,6 +4,8 @@ import { supabase } from "../lib/supabaseClient";
 import { AgendaActivity } from "../components/AgendaActivity";
 import { StudentBillingSummary } from "../components/StudentBillingSummary";
 import { StudentAchievements } from "../components/StudentAchievements";
+import {canEnterLesson,isUpcomingLesson} from '../lib/lessonAccess';
+import {useLessonClock} from '../components/useLessonClock';
 
 const formatSessionDate = (value: string) =>
   new Date(value).toLocaleString("pt-BR", {
@@ -77,7 +79,7 @@ const getRoomReleaseTime = (startsAt: string) =>
   new Date(new Date(startsAt).getTime() - 5 * 60 * 1000);
 
 const canAccessRoom = (lesson: { meet_link?: string | null; starts_at: string }) =>
-  Boolean(lesson.meet_link) && Date.now() >= getRoomReleaseTime(lesson.starts_at).getTime();
+  canEnterLesson(lesson);
 
 const getStudentCancellationDeadline = (startsAt: string) =>
   new Date(new Date(startsAt).getTime() - 2 * 60 * 60 * 1000);
@@ -267,7 +269,7 @@ export const StudentLessons = () => {
     }
   }, [linkedTeacherIds, selectedTeacherId]);
 
-  const now = Date.now();
+  const now = useLessonClock();
 
   const teacherTabs = useMemo(
     () =>
@@ -287,7 +289,7 @@ export const StudentLessons = () => {
     () =>
       scheduledLessons.filter(
         (lesson) =>
-          lesson.status === "scheduled" && new Date(lesson.starts_at).getTime() >= now,
+          lesson.status === "scheduled" && isUpcomingLesson(lesson.starts_at,now),
       ),
     [now, scheduledLessons],
   );
@@ -304,7 +306,7 @@ export const StudentLessons = () => {
     () =>
       scheduledLessons.filter(
         (lesson) =>
-          lesson.status !== "scheduled" || new Date(lesson.starts_at).getTime() < now,
+          lesson.status !== "scheduled" || !isUpcomingLesson(lesson.starts_at,now),
       ),
     [now, scheduledLessons],
   );
@@ -324,6 +326,10 @@ export const StudentLessons = () => {
 
   const cancelledHistoryLessons = useMemo(
     () => filteredHistoryLessons.filter((lesson) => lesson.status === "cancelled"),
+    [filteredHistoryLessons],
+  );
+  const pendingHistoryLessons = useMemo(
+    () => filteredHistoryLessons.filter((lesson) => lesson.status === "scheduled"),
     [filteredHistoryLessons],
   );
 
@@ -952,7 +958,8 @@ export const StudentLessons = () => {
               title="Aulas ja registradas"
               description={`Acompanhe separadamente as aulas concluidas e canceladas com ${activeTeacherName}.`}
               customContent={
-                <div className="mt-6 grid gap-8 xl:grid-cols-2">
+                <div className="mt-6 grid gap-8 xl:grid-cols-3">
+                  <HistoryLessonColumn title="Aulas anteriores" emptyText="Nenhuma aula aguardando encerramento." lessons={pendingHistoryLessons} teacherNames={teacherNames}/>
                   <HistoryLessonColumn
                     title="Aulas concluidas"
                     emptyText={`Nenhuma aula concluida com ${activeTeacherName} ainda.`}

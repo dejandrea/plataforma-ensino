@@ -7,6 +7,7 @@ import {
 } from "../_shared/google-calendar.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
 import { assertStudentCanBook } from "../_shared/billing.ts";
+import {planRecurrence} from '../_shared/recurrence.ts';
 
 type LessonPayload = {
   mode: "available" | "scheduled";
@@ -19,6 +20,9 @@ type LessonPayload = {
   meetLink?: string;
   isRecurring?: boolean;
   recurrenceCount?: string | number;
+  recurrenceWeekdays?: number[];
+  recurrenceUntil?: string;
+  requestId?: string;
 };
 
 const getStudentInviteEmail = async (adminClient: any, studentId: string) => {
@@ -98,11 +102,10 @@ serve(async (req) => {
 
     const recurrenceCount = body.isRecurring
       // Consumption happens on completion, without reserving credits here.
-      ? Math.max(parseInt(String(body.recurrenceCount || "1"), 10) || 1, 1)
+      ? Number(body.recurrenceCount || 1)
       : 1;
     if (mode === "scheduled" && body.studentId) await assertStudentCanBook(adminClient, body.studentId);
     const recurrenceGroupId = recurrenceCount > 1 ? crypto.randomUUID() : null;
-    const startDate = new Date(startsAt);
     const durationMinutes = Math.max(parseInt(String(body.durationMinutes || "60"), 10) || 60, 15);
 
     const { data: settings, error: settingsError } = await adminClient
@@ -126,6 +129,12 @@ serve(async (req) => {
         : [];
     const calendarId = selectedCalendarIds[0] || settings?.calendar_id || null;
     const timezone = settings?.timezone || "America/Bahia";
+    const starts=planRecurrence(startsAt,recurrenceCount,body.isRecurring?body.recurrenceWeekdays:undefined,timezone,body.isRecurring?body.recurrenceUntil:undefined);
+    const requestId=body.requestId||crypto.randomUUID();
+    if(!/^[0-9a-f-]{36}$/i.test(requestId)) throw new Error('Identificador de agendamento inválido.');
+    const {data:prior,error:priorError}=await adminClient.from('scheduled_lessons').select('*').eq('teacher_id',user.id).eq('scheduling_request_id',requestId).order('recurrence_index');
+    if(priorError) throw new Error(priorError.message);
+    if(prior?.length) return new Response(JSON.stringify({lessons:prior}),{headers:{...corsHeaders,'Content-Type':'application/json'}});
     const autoCreateMeet = settings?.auto_create_meet ?? true;
 
     let tokenInfo:
@@ -160,9 +169,8 @@ serve(async (req) => {
 
     const records = [];
 
-    for (let index = 0; index < recurrenceCount; index += 1) {
-      const lessonStart = new Date(startDate);
-      lessonStart.setDate(startDate.getDate() + index * 7);
+    for (let index = 0; index < starts.length; index += 1) {
+      const lessonStart = new Date(starts[index]);
 
       const lessonEnd = new Date(lessonStart);
       lessonEnd.setMinutes(lessonEnd.getMinutes() + durationMinutes);
@@ -183,6 +191,7 @@ serve(async (req) => {
           timezone,
           attendeeEmails: studentEmail ? [studentEmail] : [],
           autoCreateMeet,
+          eventId: requestId.replaceAll('-','')+(index+1).toString(16),
         });
 
         googleEventId = typeof event?.id === "string" ? event.id : null;
@@ -193,6 +202,7 @@ serve(async (req) => {
         teacher_id: user.id,
         created_by: user.id,
         student_id: mode === "scheduled" ? body.studentId : null,
+        scheduling_request_id: requestId,
         title:
           body.title?.trim() ||
           (mode === "available" ? "Horario disponivel para aula" : "Aula confirmada"),

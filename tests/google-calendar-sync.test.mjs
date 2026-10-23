@@ -39,7 +39,7 @@ test('sync preserves cancelled lesson details and checks absent events before ca
   let handler;
   const updates = [];
   const checked = [];
-  const client = { from(table) {
+  const client = { rpc:async()=>({error:null}), from(table) {
     let update;
     const query = new Proxy({}, { get(_, key) {
       if (key === 'then') return (resolve) => resolve({ error: null, data:
@@ -73,7 +73,7 @@ test('sync preserves cancelled lesson details and checks absent events before ca
 test('sync skips past lessons without a student and preserves a previously confirmed student', async () => {
   let handler;
   let imported = [];
-  const client = { from(table) {
+  const client = { rpc:async(name,args)=>{assert.equal(name,'import_google_calendar_lessons');assert.equal(args.p_teacher_id,'teacher');imported=args.p_lessons;return {error:null};},from(table) {
     const query = new Proxy({}, { get(_, key) {
       if (key === 'then') return (resolve) => resolve({ error: null, data:
         table === 'teacher_calendar_settings' ? { is_active: true, event_calendar_ids: ['cal'] }

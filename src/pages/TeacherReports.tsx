@@ -882,7 +882,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
                           {discountStudentId === item.student.id ? "Fechar descontos" : "Aplicar desconto mensal"}
                         </button>
                         {discountStudentId === item.student.id && (
-                          <StudentDiscountPanel key={item.student.id} studentId={item.student.id} scope="monthly" initialMonth={periodStart ? periodStart.slice(0, 7) : undefined} onChanged={() => void fetchDiscounts()} />
+                          <StudentDiscountPanel key={item.student.id} studentId={item.student.id} scope="monthly" grossByMonth={Object.fromEntries(item.financial.months.map(row=>[row.month,row.gross]))} initialMonth={periodStart ? periodStart.slice(0, 7) : undefined} onChanged={() => void fetchDiscounts()} />
                         )}
                       </div>
                     )}

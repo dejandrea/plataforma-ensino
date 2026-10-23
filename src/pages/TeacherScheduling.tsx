@@ -8,6 +8,9 @@ const initialReservationForm = {
   studentId: "",
   isRecurring: false,
   recurrenceCount: "4",
+  recurrenceWeekdays: [] as number[],
+  recurrenceUntil: '',
+  requestId: '',
 };
 
 const initialCalendarSettings = {
@@ -952,6 +955,7 @@ export const TeacherScheduling = () => {
     setSelectedSlotForReservation(session);
     setReservationForm({
       ...initialReservationForm,
+      requestId: crypto.randomUUID(),
       studentId: searchParams.get("studentId") || "",
     });
   };
@@ -983,6 +987,9 @@ export const TeacherScheduling = () => {
         sessionTrack: reservationForm.sessionTrack,
         isRecurring: reservationForm.isRecurring,
         recurrenceCount: reservationForm.recurrenceCount,
+        recurrenceWeekdays: reservationForm.recurrenceWeekdays,
+        recurrenceUntil: reservationForm.recurrenceUntil||undefined,
+        requestId: reservationForm.requestId,
       },
     });
 
@@ -1810,6 +1817,8 @@ export const TeacherScheduling = () => {
 
                 {reservationForm.isRecurring && (
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <fieldset className="space-y-2"><legend className="text-sm font-bold text-white">Dias da semana</legend><p className="text-xs text-white/60">Sem seleção, mantém o dia do primeiro encontro. Inclua o dia do horário escolhido.</p><div className="flex flex-wrap gap-3">{['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map((day,index)=><label key={day} className="flex items-center gap-2 text-sm text-white"><input type="checkbox" checked={reservationForm.recurrenceWeekdays.includes(index)} onChange={e=>setReservationForm(current=>({...current,recurrenceWeekdays:e.target.checked?[...current.recurrenceWeekdays,index]:current.recurrenceWeekdays.filter(d=>d!==index)}))}/>{day}</label>)}</div></fieldset>
+                    <Field label="Repetir até (opcional)"><input type="date" className={fieldInputClass} value={reservationForm.recurrenceUntil} onChange={e=>setReservationForm({...reservationForm,recurrenceUntil:e.target.value})}/></Field>
                     <Field label="Quantidade de encontros">
                       <input
                         type="number"
@@ -1826,8 +1835,7 @@ export const TeacherScheduling = () => {
                     </Field>
 
                     <div className="rounded-2xl bg-brand-900/40 p-4 text-sm leading-6 text-white/60 ring-1 ring-white/10">
-                      A plataforma vai repetir esse horario a cada 7 dias, gerar os
-                      convites no Google e bloquear a agenda recorrente.
+                      O horário será repetido nos dias selecionados, no fuso da agenda. A quantidade é o total de encontros; a data final limita a recorrência e os ajustes de conflitos.
                     </div>
                   </div>
                 )}

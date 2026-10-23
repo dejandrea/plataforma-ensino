@@ -7,14 +7,14 @@ const source = ts.transpileModule(readFileSync('supabase/functions/update-lesson
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
 }).outputText.replace(/^import.*;\s*$/gm, '');
 
-async function run({ role = 'professor', owner = 'teacher', current = 'completed', status = 'cancelled' } = {}) {
+async function run({ role = 'professor', owner = 'teacher', current = 'completed', status = 'cancelled', student = 'student' } = {}) {
   let handler;
   let updates;
   const client = { from: () => {
     const query = {
       select: () => query, eq: () => query,
       update: value => { updates = value; return query; },
-      single: async () => ({ data: updates ? { id: 'lesson', ...updates } : { id: 'lesson', teacher_id: owner, status: current } }),
+      single: async () => ({ data: updates ? { id: 'lesson', ...updates } : { id: 'lesson', teacher_id: owner, student_id: student, status: current } }),
     };
     return query;
   } };
@@ -43,7 +43,7 @@ test('completing clears cancellation and records operator', async () => {
 });
 
 test('rejects students, other teachers, invalid statuses and non-history lessons', async () => {
-  for (const options of [{ role: 'student' }, { owner: 'other' }, { status: 'available' }, { current: 'scheduled' }]) {
+  for (const options of [{ role: 'student' }, { owner: 'other' }, { status: 'available' }, { current: 'scheduled' }, {student:null,status:'completed'}]) {
     const { response, updates } = await run(options);
     assert.equal(response.status, 400);
     assert.equal(updates, undefined);

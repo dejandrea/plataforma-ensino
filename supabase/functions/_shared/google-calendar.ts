@@ -315,6 +315,7 @@ export const createGoogleCalendarEvent = async ({
   timezone,
   attendeeEmails = [],
   autoCreateMeet,
+  eventId,
 }: {
   accessToken: string;
   calendarId: string;
@@ -325,6 +326,7 @@ export const createGoogleCalendarEvent = async ({
   timezone?: string | null;
   attendeeEmails?: string[];
   autoCreateMeet: boolean;
+  eventId?: string;
 }) => {
   const url = new URL(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
@@ -336,6 +338,7 @@ export const createGoogleCalendarEvent = async ({
   }
 
   const body: Record<string, unknown> = {
+    id: eventId,
     summary,
     description: description || undefined,
     start: {
@@ -376,6 +379,7 @@ export const createGoogleCalendarEvent = async ({
 
   const json = await response.json();
   if (!response.ok) {
+    if(response.status===409&&eventId) return await getGoogleCalendarEvent({accessToken,calendarId,eventId});
     throw new Error(json?.error?.message || "Falha ao criar evento no Google Calendar.");
   }
 

@@ -247,11 +247,10 @@ serve(async (req) => {
     }
 
     if (rowsToUpsert.length > 0) {
-      const { error: upsertError } = await adminClient
-        .from("scheduled_lessons")
-        .upsert(rowsToUpsert, {
-          onConflict: "teacher_id,calendar_provider,calendar_event_id",
-        });
+      const { error: upsertError } = await adminClient.rpc("import_google_calendar_lessons", {
+        p_teacher_id: teacherId,
+        p_lessons: rowsToUpsert,
+      });
 
       if (upsertError) {
         throw new Error(upsertError.message);

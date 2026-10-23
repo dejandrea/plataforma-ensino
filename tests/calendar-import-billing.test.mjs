@@ -1,0 +1,31 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {PGlite} from '@electric-sql/pglite';
+
+test('Google import works with zero credit, is idempotent, restores booking checks and cannot be invoked or forged by clients',async t=>{
+ const db=new PGlite();t.after(()=>db.close());
+ await db.exec(`create role anon;create role authenticated;create role service_role;
+ create schema private;create table profiles(id uuid primary key,role text,is_active boolean);
+ create function private.billing_check_booking(uuid) returns void language plpgsql as $$begin raise exception 'Saldo de aulas esgotado';end$$;`);
+ await db.exec(readFileSync('supabase/migrations/202605211530_add_scheduled_lessons.sql','utf8').split('create index')[0]);
+ await db.exec('create unique index imported_event_key on scheduled_lessons(teacher_id,calendar_provider,calendar_event_id);grant insert,select on scheduled_lessons to authenticated,service_role;');
+ await db.exec(readFileSync('supabase/migrations/20261022204126_separate_calendar_import_from_booking.sql','utf8'));
+ await db.exec('create trigger billing_guard before insert or update on scheduled_lessons for each row execute function private.billing_booking_guard();');
+ const teacher='00000000-0000-4000-8000-000000000001',student='00000000-0000-4000-8000-000000000002';
+ await db.query("insert into profiles values($1,'admin',true),($2,'student',true)",[teacher,student]);
+ const lesson={teacher_id:teacher,student_id:student,created_by:teacher,title:'Evento existente no Google',session_track:'mentoring',status:'scheduled',starts_at:'2099-01-01T19:00:00Z',ends_at:'2099-01-01T20:00:00Z',calendar_provider:'google_calendar',calendar_calendar_id:'calendar',calendar_event_id:'event'};
+ const importRows=rows=>db.query('select public.import_google_calendar_lessons($1,$2)',[teacher,JSON.stringify(rows)]);
+ const booking=()=>db.query("insert into scheduled_lessons(teacher_id,student_id,created_by,title,status,starts_at,ends_at) values($1,$2,$1,'Nova reserva','scheduled',now(),now()+interval '1 hour')",[teacher,student]);
+ await db.exec('set role service_role');
+ await assert.rejects(booking(),/Saldo/);
+ await importRows([lesson]);await importRows([lesson]);
+ assert.equal((await db.query('select count(*) n from scheduled_lessons')).rows[0].n,1);
+ await assert.rejects(booking(),/Saldo/);
+ await assert.rejects(importRows([{...lesson,calendar_provider:'manual'}]),/escopo/);
+ await assert.rejects(booking(),/Saldo/);
+ await db.exec('set role authenticated');
+ await assert.rejects(importRows([lesson]),/permission denied/);
+ await db.query("select set_config('bitaria.calendar_import','on',false)");
+ await assert.rejects(booking(),/Saldo/);
+});

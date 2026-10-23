@@ -7,6 +7,7 @@ import {
 } from "../_shared/google-calendar.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
 import { assertStudentCanBook } from "../_shared/billing.ts";
+import {planRecurrence,shiftZonedWeeks} from '../_shared/recurrence.ts';
 
 type ConfirmLessonPayload = {
   lessonId?: string;
@@ -14,6 +15,9 @@ type ConfirmLessonPayload = {
   sessionTrack?: "mentoring" | "course";
   isRecurring?: boolean;
   recurrenceCount?: string | number;
+  recurrenceWeekdays?: number[];
+  recurrenceUntil?: string;
+  requestId?: string;
 };
 
 type RecurrenceTarget = {
@@ -76,11 +80,7 @@ const buildLessonTitle = ({
     : `Mentoria - ${studentName}`;
 };
 
-const addWeeks = (value: string, weeks: number) => {
-  const date = new Date(value);
-  date.setDate(date.getDate() + weeks * 7);
-  return date.toISOString();
-};
+const addWeeks = shiftZonedWeeks;
 
 const overlapsWith = (
   item: { starts_at: string; ends_at: string },
@@ -113,8 +113,10 @@ serve(async (req) => {
     const studentId = typeof body.studentId === "string" ? body.studentId : "";
     const sessionTrack = body.sessionTrack === "course" ? "course" : "mentoring";
     const recurrenceCount = body.isRecurring
-      ? Math.max(parseInt(String(body.recurrenceCount || "1"), 10) || 1, 1)
+      ? Number(body.recurrenceCount || 1)
       : 1;
+    const requestId=body.requestId||crypto.randomUUID();
+    if(!/^[0-9a-f-]{36}$/i.test(requestId)) throw new Error('Identificador de agendamento inválido.');
 
     if (!lessonId) {
       throw new Error("lessonId e obrigatorio.");
@@ -135,7 +137,7 @@ serve(async (req) => {
       throw new Error(lessonError.message);
     }
 
-    if (!lesson || lesson.status !== "available" || lesson.student_id) {
+    if (!lesson || ((lesson.status !== "available" || lesson.student_id) && !(lesson.scheduling_request_id===requestId&&lesson.student_id===studentId&&lesson.status==='scheduled'))) {
       throw new Error("Este horario nao esta mais disponivel para agendamento.");
     }
 
@@ -195,7 +197,9 @@ serve(async (req) => {
       sessionTrack,
       studentName,
     });
-    const recurrenceGroupId = recurrenceCount > 1 ? crypto.randomUUID() : null;
+    const requestedStarts=planRecurrence(lesson.starts_at,recurrenceCount,body.isRecurring?body.recurrenceWeekdays:undefined,timezone,body.isRecurring?body.recurrenceUntil:undefined);
+    if(requestedStarts[0]!==new Date(lesson.starts_at).toISOString()) throw new Error('Inclua o dia do horário escolhido na recorrência.');
+    const recurrenceGroupId = requestedStarts.length > 1 ? requestId : null;
     const maxExtraWeeks = 104;
     const searchEnd = addWeeks(lesson.starts_at, recurrenceCount + maxExtraWeeks);
 
@@ -209,6 +213,9 @@ serve(async (req) => {
     if (existingLessonsError) {
       throw new Error(existingLessonsError.message);
     }
+    const prior=(existingLessons||[]).filter((row:any)=>row.scheduling_request_id===requestId);
+    if(prior.some((row:any)=>row.student_id!==studentId||row.session_track!==sessionTrack)) throw new Error('Identificador já usado em outro agendamento.');
+    if(prior.length===requestedStarts.length) return new Response(JSON.stringify({lesson:prior[0],lessons:prior,recurrenceReport:{hadConflicts:false,adjustedOccurrences:[]}}),{headers:{...corsHeaders,'Content-Type':'application/json'}});
 
     const futureTargets: RecurrenceTarget[] = [
       {
@@ -221,15 +228,16 @@ serve(async (req) => {
       },
     ];
 
-    for (let recurrenceIndex = 2; recurrenceIndex <= recurrenceCount; recurrenceIndex += 1) {
+    for (let recurrenceIndex = 2; recurrenceIndex <= requestedStarts.length; recurrenceIndex += 1) {
       const baseWeekOffset = recurrenceIndex - 1;
-      let candidateWeekOffset = baseWeekOffset;
+      let candidateWeekOffset = 0;
       const skippedConflictDates: string[] = [];
       let acceptedTarget: RecurrenceTarget | null = null;
 
-      while (candidateWeekOffset <= baseWeekOffset + maxExtraWeeks) {
-        const candidateStartsAt = addWeeks(lesson.starts_at, candidateWeekOffset);
-        const candidateEndsAt = addWeeks(lesson.ends_at, candidateWeekOffset);
+      while (candidateWeekOffset <= maxExtraWeeks) {
+        const candidateStartsAt = addWeeks(requestedStarts[recurrenceIndex-1], candidateWeekOffset,timezone);
+        if(body.recurrenceUntil&&new Intl.DateTimeFormat('en-CA',{timeZone:timezone}).format(new Date(candidateStartsAt))>body.recurrenceUntil) break;
+        const candidateEndsAt = new Date(new Date(candidateStartsAt).getTime()+new Date(lesson.ends_at).getTime()-new Date(lesson.starts_at).getTime()).toISOString();
         const matchingAvailable = (existingLessons || []).find(
           (item: any) =>
             item.status === "available" &&
@@ -244,6 +252,7 @@ serve(async (req) => {
         const conflictingLesson = (existingLessons || []).find(
           (item: any) =>
             item.id !== matchingAvailable?.id &&
+            item.scheduling_request_id !== requestId &&
             item.status !== "available" &&
             item.status !== "cancelled" &&
             overlapsWith(item, candidateStartsAt, candidateEndsAt),
@@ -259,8 +268,8 @@ serve(async (req) => {
           recurrenceIndex,
           startsAt: candidateStartsAt,
           endsAt: candidateEndsAt,
-          requestedStartsAt: addWeeks(lesson.starts_at, baseWeekOffset),
-          requestedEndsAt: addWeeks(lesson.ends_at, baseWeekOffset),
+          requestedStartsAt: requestedStarts[recurrenceIndex-1],
+          requestedEndsAt: new Date(new Date(requestedStarts[recurrenceIndex-1]).getTime()+new Date(lesson.ends_at).getTime()-new Date(lesson.starts_at).getTime()).toISOString(),
           skippedConflictDates,
         };
         break;
@@ -310,6 +319,8 @@ serve(async (req) => {
     const confirmedLessons: any[] = [];
 
     for (const target of futureTargets) {
+      const saved=prior.find((row:any)=>row.recurrence_index===target.recurrenceIndex);
+      if(saved) {confirmedLessons.push(saved);continue;}
       let googleEventId: string | null = null;
       let googleMeetLink: string | null = null;
 
@@ -324,6 +335,7 @@ serve(async (req) => {
           timezone,
           attendeeEmails: studentEmail ? [studentEmail] : [],
           autoCreateMeet,
+          eventId: requestId.replaceAll('-','')+target.recurrenceIndex.toString(16),
         });
 
         googleEventId = typeof event?.id === "string" ? event.id : null;
@@ -347,6 +359,7 @@ serve(async (req) => {
             status: "scheduled",
             recurrence_group_id: recurrenceGroupId,
             recurrence_index: target.recurrenceIndex,
+            scheduling_request_id: requestId,
             booked_at: new Date().toISOString(),
             meet_link: googleMeetLink || matchingAvailable.meet_link || null,
             calendar_provider: googleEventId ? "google_calendar" : matchingAvailable.calendar_provider,
@@ -390,6 +403,7 @@ serve(async (req) => {
           calendar_event_id: googleEventId,
           recurrence_group_id: recurrenceGroupId,
           recurrence_index: target.recurrenceIndex,
+          scheduling_request_id: requestId,
           booked_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
