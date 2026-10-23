@@ -1,3 +1,4 @@
+import { CompletedLessonTitleEditor } from '../components/CompletedLessonTitleEditor';
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { ProfileAvatar } from "../components/ProfileAvatar";
@@ -72,6 +73,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
       : "history";
   });
   const [sessions, setSessions] = useState<any[]>([]);
+  const [savingTitle, setSavingTitle] = useState(false);
   const [updatingSessionId, setUpdatingSessionId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [students, setStudents] = useState<any[]>([]);
@@ -89,6 +91,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
   const [historyStatusFilter, setHistoryStatusFilter] = useState<
     "all" | "completed" | "cancelled"
   >("all");
+  const [attendanceStatusFilter, setAttendanceStatusFilter] = useState<'completed' | 'cancelled'>('completed');
 
   useEffect(() => {
     void fetchReportData();
@@ -114,8 +117,8 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
     setActiveTab(normalizedTab);
   }, [searchParams, financialOnly]);
 
-  const updateHistoryStatus = async (session: any, status: "completed" | "cancelled") => {
-    if (updatingSessionId) return;
+  const updateAttendanceStatus = async (session: any, status: "completed" | "cancelled") => {
+    if (updatingSessionId || savingTitle) return;
     setUpdatingSessionId(session.id);
     setStatusMessage("");
     try {
@@ -366,7 +369,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
 
   const attendanceSummary = useMemo(
     () =>
-      completedSessions.map((session) => ({
+      filteredSessions.filter(session => session.status === attendanceStatusFilter).map((session) => ({
         session,
         studentName: session.student_id
           ? studentNameMap[session.student_id] || "Aluno"
@@ -375,7 +378,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
         teacherEntered: Boolean(session.teacher_joined_at),
         started: Boolean(session.started_at),
       })),
-    [completedSessions, studentNameMap],
+    [filteredSessions, studentNameMap, attendanceStatusFilter],
   );
 
   const currentStatCards = useMemo(() => {
@@ -410,7 +413,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
       ).length;
 
       return [
-        { label: "Aulas concluidas", value: attendanceSummary.length },
+        { label: attendanceStatusFilter === 'completed' ? 'Aulas concluidas' : 'Aulas canceladas', value: attendanceSummary.length },
         { label: "Inicios registrados", value: startedCount },
         { label: "Entradas completas", value: fullPresenceCount },
       ];
@@ -431,6 +434,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
   }, [
     activeTab,
     attendanceSummary,
+    attendanceStatusFilter,
     cancelledSessions.length,
     completedSessions.length,
     filteredSessions.length,
@@ -446,6 +450,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
     setPeriodStart("");
     setPeriodEnd("");
     setHistoryStatusFilter("all");
+    setAttendanceStatusFilter('completed');
   };
 
   const handleTabChange = (nextTab: "history" | "student_lessons" | "financial" | "attendance") => {
@@ -607,6 +612,14 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
                   />
                 </label>
 
+                {activeTab === 'attendance' && <label className="grid min-w-[12rem] flex-1 gap-2 text-sm text-white/70">
+                  <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/35">Status da aula</span>
+                  <select value={attendanceStatusFilter} onChange={event => setAttendanceStatusFilter(event.target.value as 'completed' | 'cancelled')}
+                    className={reportSelectClassName} style={reportSelectStyle}>
+                    <option value="completed" style={reportSelectStyle}>Concluída</option>
+                    <option value="cancelled" style={reportSelectStyle}>Cancelada</option>
+                  </select>
+                </label>}
                 {activeTab === "history" && (
                   <label className="grid min-w-[16rem] flex-[1.2] gap-2 text-sm text-white/70">
                     <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/35">
@@ -657,8 +670,6 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
                 eyebrow="Historico"
                 title="Aulas concluidas"
                 sessions={completedSessions}
-                onUpdateStatus={updateHistoryStatus}
-                updatingSessionId={updatingSessionId}
                 studentNameMap={studentNameMap}
                 accessCounts={accessCounts}
                 teacherNames={teacherNames}
@@ -670,8 +681,6 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
                 eyebrow="Historico"
                 title="Aulas canceladas"
                 sessions={cancelledSessions}
-                onUpdateStatus={updateHistoryStatus}
-                updatingSessionId={updatingSessionId}
                 studentNameMap={studentNameMap}
                 accessCounts={accessCounts}
                 teacherNames={teacherNames}
@@ -909,13 +918,13 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
               Presenca
             </p>
             <h2 className="mt-2 text-2xl font-bold text-white">
-              Confirmacao de entrada nas aulas concluidas
+              Presença e acompanhamento das aulas
             </h2>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {attendanceSummary.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
-                  Ainda nao ha aulas concluidas para acompanhar a presenca.
+                  Nenhuma aula com o status selecionado e os filtros atuais.
                 </div>
               ) : (
                 attendanceSummary.map((item) => (
@@ -924,6 +933,7 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
                     className="rounded-[2rem] bg-surface p-4 ring-1 ring-white/10"
                   >
                     <div className="space-y-3">
+                      <p className="text-xs font-bold text-white/65">{item.session.status === 'completed' ? 'Concluída' : 'Cancelada'}</p>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                           {item.session.session_track === "course"
@@ -933,9 +943,10 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
                       </div>
 
                       <div>
-                        <h3 className="text-base font-bold text-white">
-                          {item.session.title}
-                        </h3>
+                        {item.session.status === 'completed' ? <CompletedLessonTitleEditor key={`${item.session.id}:${item.session.title}`} lessonId={item.session.id} title={item.session.title ?? ''} compact
+                          disabled={updatingSessionId !== null || savingTitle} onBusyChange={setSavingTitle}
+                          onSaved={title => setSessions(previous => previous.map(row => row.id === item.session.id ? { ...row, title } : row))} />
+                          : <h3 className="text-base font-bold text-white">{item.session.title}</h3>}
                         <p className="mt-2 text-xs text-white/60">
                           {formatSessionRange(
                             item.session.starts_at,
@@ -951,6 +962,16 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
                         </p>
                       )}
 
+              <div className="border-t border-white/10 pt-3">
+                <button
+                  type="button"
+                  disabled={updatingSessionId !== null || savingTitle}
+                  onClick={() => void updateAttendanceStatus(item.session, item.session.status === "completed" ? "cancelled" : "completed")}
+                  className={`inline-flex min-h-10 w-full items-center justify-center rounded-xl border px-3 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender disabled:cursor-wait disabled:opacity-50 ${item.session.status === "completed" ? "border-rose-300/25 bg-rose-400/10 text-rose-200 hover:bg-rose-400/20" : "border-emerald-300/25 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20"}`}
+                >
+                  {updatingSessionId === item.session.id ? "Salvando..." : item.session.status === "completed" ? "Marcar como cancelada" : "Marcar como concluída"}
+                </button>
+              </div>
                       <div className="grid gap-2 text-sm">
                         <PresenceRow
                           label="Inicio registrado"
@@ -981,8 +1002,6 @@ export const TeacherReports = ({ financialOnly = false }: { financialOnly?: bool
 };
 
 const HistoryColumn = ({
-  onUpdateStatus,
-  updatingSessionId,
   eyebrow,
   title,
   sessions,
@@ -991,8 +1010,6 @@ const HistoryColumn = ({
   teacherNames,
   showTeacher,
 }: {
-  onUpdateStatus: (session: any, status: "completed" | "cancelled") => Promise<void>;
-  updatingSessionId: string | null;
   eyebrow: string;
   title: string;
   sessions: any[];
@@ -1007,7 +1024,7 @@ const HistoryColumn = ({
     </p>
     <h2 className="mt-2 text-2xl font-bold text-white">{title}</h2>
 
-    <div className="mt-6 grid gap-4 md:grid-cols-2">
+    <div className="mt-6 space-y-3">
       {sessions.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
           Nenhum registro nesta secao ainda.
@@ -1018,21 +1035,21 @@ const HistoryColumn = ({
             key={session.id}
             className="rounded-[2rem] bg-surface p-4 ring-1 ring-white/10"
           >
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <div className="col-start-1 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
                   {session.session_track === "course" ? "Curso completo" : "Mentoria"}
                 </span>
               </div>
 
-              <div>
-                <h3 className="text-base font-bold text-white">{session.title}</h3>
+              <div className="col-start-1 min-w-0">
+                <h3 className="break-words text-base font-bold text-white">{session.title}</h3>
                 <p className="mt-2 text-xs text-white/60">
                   {formatSessionRange(session.starts_at, session.ends_at)}
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3 text-xs text-white/55">
+              <div className="col-start-1 flex flex-wrap gap-3 text-xs text-white/55">
                 {session.student_id && (
                   <span>Aluno: {studentNameMap[session.student_id] || "Aluno"}</span>
                 )}
@@ -1046,7 +1063,7 @@ const HistoryColumn = ({
               </div>
 
               {session.student_id && (
-                <div className="pt-1">
+                <div className="pt-1 sm:col-start-2 sm:row-span-3 sm:row-start-1 sm:self-center">
                   <Link
                     to={`/historico/${session.student_id}`}
                     className="inline-flex items-center justify-center rounded-2xl bg-surface px-4 py-3 text-sm font-bold text-white ring-1 ring-white/15 transition hover:bg-surface-elevated"
@@ -1055,16 +1072,7 @@ const HistoryColumn = ({
                   </Link>
                 </div>
               )}
-              <div className="border-t border-white/10 pt-3">
-                <button
-                  type="button"
-                  disabled={updatingSessionId !== null}
-                  onClick={() => void onUpdateStatus(session, session.status === "completed" ? "cancelled" : "completed")}
-                  className={`inline-flex min-h-10 w-full items-center justify-center rounded-xl border px-3 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-lavender disabled:cursor-wait disabled:opacity-50 ${session.status === "completed" ? "border-rose-300/25 bg-rose-400/10 text-rose-200 hover:bg-rose-400/20" : "border-emerald-300/25 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20"}`}
-                >
-                  {updatingSessionId === session.id ? "Salvando..." : session.status === "completed" ? "Marcar como cancelada" : "Marcar como concluída"}
-                </button>
-              </div>
+
             </div>
           </article>
         ))

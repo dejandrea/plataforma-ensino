@@ -1586,8 +1586,8 @@ export const TeacherScheduling = () => {
             </section>
 
             <HistoryPreviewSection
-              completedSessions={completedPastEvents.slice(0, 3)}
-              cancelledSessions={cancelledPastEvents.slice(0, 3)}
+              completedSessions={completedPastEvents}
+              cancelledSessions={cancelledPastEvents}
               studentNameMap={studentNameMap}
               accessCounts={accessCounts}
               onUpdateStatus={updateSessionStatus}
@@ -2701,6 +2701,7 @@ const SessionCard = ({
   onOpenRoom,
   past = false,
   compactGrid = false,
+  horizontal = false,
 }: {
   session: any;
   studentNameMap: Record<string, string>;
@@ -2710,6 +2711,7 @@ const SessionCard = ({
   onOpenRoom: (session: any) => void;
   past?: boolean;
   compactGrid?: boolean;
+  horizontal?: boolean;
 }) => (
   <article
     key={session.id}
@@ -2718,11 +2720,11 @@ const SessionCard = ({
     }`}
   >
     <div
-      className={`flex flex-col ${
-        compactGrid ? "gap-4" : "gap-5 lg:flex-row lg:items-start lg:justify-between"
+      className={`flex ${horizontal ? "flex-row items-start justify-between gap-3" : "flex-col"} ${
+        horizontal ? "" : compactGrid ? "gap-4" : "gap-5 lg:flex-row lg:items-start lg:justify-between"
       }`}
     >
-      <div className="space-y-3">
+      <div className="min-w-0 flex-1 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-surface px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-brand-lavender ring-1 ring-white/10">
             {session.session_track === "course" ? "Curso completo" : "Mentoria"}
@@ -2741,7 +2743,7 @@ const SessionCard = ({
         </div>
 
         <div>
-          <h3 className={`${compactGrid ? "text-base" : "text-lg"} font-bold text-white`}>
+          <h3 className={`${compactGrid ? "text-base" : "text-lg"} break-words font-bold text-white`}>
             {session.title}
           </h3>
           <p className={`mt-2 ${compactGrid ? "text-xs" : "text-sm"} text-white/60`}>
@@ -2959,7 +2961,12 @@ const HistoryPreviewSection = ({
   onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
   onReschedule: (session: any) => void;
   onOpenRoom: (session: any) => void;
-}) => (
+}) => {
+  const groups = [
+    { title: 'Aulas conclu\u00eddas', sessions: completedSessions },
+    { title: 'Aulas canceladas', sessions: cancelledSessions },
+  ];
+  return (
   <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
@@ -2968,8 +2975,8 @@ const HistoryPreviewSection = ({
         </p>
         <h2 className="mt-2 text-2xl font-bold text-white">Aulas finalizadas</h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-white/60">
-          Consulte um resumo rapido das aulas concluidas e canceladas. Para
-          aprofundar a analise, abra o historico completo dos relatorios.
+          As três aulas mais recentes de cada grupo, entre concluídas e canceladas.
+          Para consultar os demais registros, abra o histórico completo.
         </p>
       </div>
 
@@ -2981,72 +2988,21 @@ const HistoryPreviewSection = ({
       </Link>
     </div>
 
-    <div className="mt-6 grid gap-8 xl:grid-cols-2">
-      <HistoryPreviewColumn
-        title="Aulas concluidas"
-        sessions={completedSessions}
-        studentNameMap={studentNameMap}
-        accessCounts={accessCounts}
-        onUpdateStatus={onUpdateStatus}
-        onReschedule={onReschedule}
-        onOpenRoom={onOpenRoom}
-      />
-      <HistoryPreviewColumn
-        title="Aulas canceladas"
-        sessions={cancelledSessions}
-        studentNameMap={studentNameMap}
-        accessCounts={accessCounts}
-        onUpdateStatus={onUpdateStatus}
-        onReschedule={onReschedule}
-        onOpenRoom={onOpenRoom}
-      />
+    <div className="mt-6 grid gap-5 lg:grid-cols-2">
+      {groups.map(group => <section key={group.title} className="min-w-0 rounded-3xl bg-brand-900/35 p-4 ring-1 ring-white/10">
+        <h3 className="mb-4 text-xl font-bold text-white">{group.title}</h3>
+        <ol aria-label={group.title} className="space-y-3">
+          {[...group.sessions].sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()).slice(0, 3).map(session => <li key={session.id}>
+            <SessionCard session={session} studentNameMap={studentNameMap} accessCounts={accessCounts}
+              onUpdateStatus={onUpdateStatus} onReschedule={onReschedule} onOpenRoom={onOpenRoom} past compactGrid horizontal />
+          </li>)}
+          {!group.sessions.length && <li className="text-sm text-white/60">Nenhum registro nesta categoria.</li>}
+        </ol>
+      </section>)}
     </div>
   </section>
 );
-
-const HistoryPreviewColumn = ({
-  title,
-  sessions,
-  studentNameMap,
-  accessCounts,
-  onUpdateStatus,
-  onReschedule,
-  onOpenRoom,
-}: {
-  title: string;
-  sessions: any[];
-  studentNameMap: Record<string, string>;
-  accessCounts: Record<string, number>;
-  onUpdateStatus: (session: any, status: "completed" | "cancelled") => void;
-  onReschedule: (session: any) => void;
-  onOpenRoom: (session: any) => void;
-}) => (
-  <div className="rounded-[2rem] bg-brand-900/35 p-5 ring-1 ring-white/10">
-    <h3 className="text-2xl font-bold text-white">{title}</h3>
-
-    <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {sessions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/45">
-          Nenhum registro nesta secao ainda.
-        </div>
-      ) : (
-        sessions.map((session) => (
-          <SessionCard
-            key={session.id}
-            session={session}
-            studentNameMap={studentNameMap}
-            accessCounts={accessCounts}
-            onUpdateStatus={onUpdateStatus}
-            onReschedule={onReschedule}
-            onOpenRoom={onOpenRoom}
-            past
-            compactGrid
-          />
-        ))
-      )}
-    </div>
-  </div>
-);
+};
 
 const SessionList = ({
   eyebrow,
