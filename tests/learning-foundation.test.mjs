@@ -30,7 +30,7 @@ test('foundation migration, real progression, RLS and integrity in isolated Post
   await query('insert into submodules values($1,$2,true),($3,$4,true)', [id(13),id(11),id(14),id(12)]);
   await query('insert into lessons values($1,$2),($3,$4)', [id(15),id(13),id(16),id(14)]);
   await query('insert into scheduled_lessons values($1,$2,$3,\'course\',\'scheduled\'),($4,$5,$3,\'course\',\'scheduled\')', [id(17),teacher,student,id(18),stranger]);
-  const payload = JSON.parse(sql('docs/examples/html-primeira-pagina.v1.json'));
+  const payload = JSON.parse(sql('tests/fixtures/legacy-content/html-primeira-pagina.v1.json'));
   const activityIds = payload.activities.map((_,i) => id(30+i));
   await asUser('authenticated', admin);
   await query("insert into lesson_learning_metadata(lesson_id,objectives) values($1,array['Entender HTML'])",[id(15)]);

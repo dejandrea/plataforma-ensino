@@ -27,7 +27,9 @@ test('real lesson UI → local HTTP adapter → PostgreSQL RPC → saved feedbac
   await page.reload(); await page.getByRole('heading',{name:'Minha primeira página HTML',exact:true}).waitFor();
   steps.push('study restored after reload');
   assert.equal(await page.getByRole('progressbar',{name:'Atividades obrigatórias concluídas'}).getAttribute('aria-valuenow'),'1');
-  await navigation.getByRole('button',{name:/^3\. Questionário/}).click();
+  const quizToggle = navigation.locator('button[aria-controls="activity-panel-'+id(32)+'"]');
+  await quizToggle.waitFor();
+  if (await quizToggle.getAttribute('aria-expanded') !== 'true') await quizToggle.click();
   await page.getByRole('radio',{name:'head',exact:true}).check();
   await page.getByRole('button',{name:'Enviar respostas',exact:true}).click();
   await page.getByText('Continue praticando · 0/100',{exact:true}).waitFor();

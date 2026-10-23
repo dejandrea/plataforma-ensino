@@ -1,5 +1,7 @@
 # Conquistas e XP
 
+**Atualização:** as [regras oficiais de XP v1](regras-xp-v1.md) passam a conceder 50 XP para novas conclusões de aula. A tabela abaixo registra a configuração histórica inicial; créditos anteriores são preservados.
+
 Em **Gestão → Conquistas, XP e ranking**, a tabela **Pontuação das conquistas** fica disponível apenas para administradores. O aluno acompanha seu saldo e os últimos 20 registros em **Minhas conquistas**, na jornada e em Minhas aulas.
 
 | Evento | XP inicial |

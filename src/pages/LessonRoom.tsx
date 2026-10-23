@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import TeacherLearningPanel from "../components/learning/TeacherLearningPanel";
+import ProjectReviewPanel from "../components/learning/ProjectReviewPanel";
+import {canEnterLesson} from '../lib/lessonAccess';
+import {useLessonClock} from '../components/useLessonClock';
 
 type RoomLesson = {
   id: string; title: string; teacher_id: string; student_id: string | null;
@@ -27,6 +30,7 @@ const canAccessRoom = (lesson: { meet_link?: string | null; starts_at: string })
 export const LessonRoom = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
+  const now=useLessonClock();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [joiningMeet, setJoiningMeet] = useState(false);
@@ -128,6 +132,7 @@ export const LessonRoom = () => {
       ? "Voltar para minhas aulas"
       : "Voltar para agendamentos";
   const canOpenMeet = lesson ? canAccessRoom(lesson) : false;
+  const canParticipantJoin=Boolean(lesson&&(currentUser?.role==='student'?canEnterLesson(lesson,now):canOpenMeet));
   const roomReleaseTime = lesson ? getRoomReleaseTime(lesson.starts_at) : null;
   const isTeacherView = currentUser?.role === "admin" || currentUser?.role === "professor";
 
@@ -144,7 +149,7 @@ export const LessonRoom = () => {
   }, [currentUser?.role, lesson, profileNames]);
 
   const handleJoinMeet = async () => {
-    if (!lesson || !lesson.meet_link || !canOpenMeet) return;
+    if (!lesson || !lesson.meet_link || !canParticipantJoin) return;
 
     setJoiningMeet(true);
 
@@ -283,6 +288,10 @@ export const LessonRoom = () => {
           <TeacherLearningPanel scheduledLessonId={lesson.id} meetingStatus={lesson.status} />
         )}
 
+        {isTeacherView && lesson.session_track === "course" && lesson.student_id && (
+          <ProjectReviewPanel scheduledLessonId={lesson.id} />
+        )}
+
         <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.9fr)]">
           <section className="space-y-6">
             <div className="rounded-[2rem] bg-surface p-6 ring-1 ring-white/10">
@@ -364,7 +373,7 @@ export const LessonRoom = () => {
               <button
                 type="button"
                 onClick={handleJoinMeet}
-                disabled={!canOpenMeet || joiningMeet || lesson.status !== "scheduled"}
+                disabled={!canParticipantJoin || joiningMeet || lesson.status !== "scheduled"}
                 className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-4 text-sm font-black uppercase tracking-[0.2em] text-white shadow-soft transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {joiningMeet
@@ -373,18 +382,18 @@ export const LessonRoom = () => {
                     ? "Link em breve"
                     : lesson.status === "completed"
                       ? "Aula ja concluida"
-                      : canOpenMeet
+                      : canParticipantJoin
                         ? "Registrar inicio e abrir Meet"
-                        : "Sala em breve"}
+                        : currentUser?.role === "student" && now > new Date(lesson.starts_at).getTime() + 15 * 60000 ? "Prazo de acesso encerrado" : "Sala em breve"}
               </button>
 
               {!lesson.meet_link ? (
                 <p className="mt-3 text-center text-xs text-white/45">
                   O Meet ainda nao foi vinculado a este encontro.
                 </p>
-              ) : !canOpenMeet ? (
+              ) : !canParticipantJoin ? (
                 <p className="mt-3 text-center text-xs text-white/45">
-                  Sala liberada as: {formatDateTime(roomReleaseTime?.toISOString())}
+                  {currentUser?.role==='student'&&now>new Date(lesson.starts_at).getTime()+15*60000?'O prazo para entrar terminou. A aula continua no seu histórico.':`Sala liberada as: ${formatDateTime(roomReleaseTime?.toISOString())}`}
                 </p>
               ) : (
                 <p className="mt-3 text-center text-xs text-white/45">

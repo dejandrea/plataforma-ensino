@@ -6,7 +6,17 @@ import ts from 'typescript';
 const compiled = ts.transpileModule(readFileSync('src/lib/learningProgress.ts','utf8'),{
   compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},
 }).outputText;
-const { requiredActivityProgress,resumeActivityId,safeHttpsUrl,safeVideoEmbed,activityStatusLabels } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+const { requiredActivityProgress,resumeActivityId,safeHttpsUrl,safeVideoEmbed,activityStatusLabels,resourcePreview } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+
+test('student PDF preview uses Drive embed URLs, preserves resource keys and only trusts the exact viewer origin',()=>{
+ assert.deepEqual(resourcePreview('https://drive.google.com/file/d/file_123/view?usp=sharing&authuser=1&resourcekey=share-key'),{url:'https://drive.google.com/file/d/file_123/preview?resourcekey=share-key',googleDrive:true});
+ assert.equal(resourcePreview('https://drive.google.com/open?id=file_123').url,'https://drive.google.com/file/d/file_123/preview');
+ assert.equal(resourcePreview('https://drive.google.com/file/d/file_123/preview').googleDrive,true);
+ assert.equal(resourcePreview('https://drive.google.com.evil.example/file/d/file_123/view').googleDrive,false);
+ assert.equal(resourcePreview('https://drive.google.com/accounts/login').googleDrive,false);
+ assert.equal(resourcePreview('https://example.org/slides.pdf').googleDrive,false);
+ assert.equal(resourcePreview('javascript:alert(1)'),null);
+});
 
 test('reloading resumes saved work before untouched optional activities',() => {
   const activities=[{id:'optional',is_required:false,revision:1,is_unlocked:true},{id:'required',is_required:true,revision:1,is_unlocked:true},{id:'quiz',revision:1,is_unlocked:true}];

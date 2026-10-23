@@ -60,6 +60,7 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
 
   function selectActivity(activity: LearningActivity) {
     if (saving || quizBusy || !activity.is_unlocked) return;
+    if (selectedId === activity.id) { setSelectedId(null); return; }
     setSelectedId(activity.id);
     const progress = data?.progress.find(p => p.activity_id === activity.id && p.activity_revision === activity.revision);
     if (!progress || progress.status === 'not_started') void save(() => startStudentActivity(activity.id));
@@ -75,18 +76,19 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
       <p role="alert" className="mt-4 leading-7 text-white/70">{loadError}</p>
       <div className="mt-6 flex flex-wrap gap-3"><button type="button" onClick={retry} className="btn-primary">Tentar novamente</button><Link to="/dashboard" className="btn-secondary">Voltar para minha jornada</Link></div>
     </div>
+
   </main>;
   if (!data) return <main className="app-bg px-4 py-10"><p role="status" className="mx-auto max-w-6xl rounded-3xl bg-surface p-10 text-center text-white/70">Carregando sua aula…</p></main>;
 
   const { lesson } = data;
-  const selected = data.activities.find(a => a.id === selectedId) ?? data.activities[0];
+  const selected = data.activities.find(a => a.id === selectedId);
   const selectedProgress = data.progress.find(p => p.activity_id === selected?.id && p.activity_revision === selected.revision);
   const status = selectedProgress?.status ?? 'not_started';
   const busy = saving || quizBusy;
   const summary = requiredActivityProgress(data);
 
   return <main className="app-bg" aria-busy={busy}>
-    <div className="mx-auto max-w-6xl space-y-7 px-4 py-8">
+    <div className="mx-auto max-w-6xl space-y-7 px-4 py-8 pb-40">
       <Link to="/dashboard" className="inline-block text-sm font-semibold text-brand-lavender hover:underline">← Voltar para minha jornada</Link>
       <header className="space-y-6 rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 md:p-8">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
@@ -95,7 +97,7 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
         </div>
         {lesson.description && <p className="whitespace-pre-wrap text-sm leading-7 text-white/70">{lesson.description}</p>}
         {data.objectives.length > 0 && <section><h2 className="text-base font-bold text-white">O que você vai aprender</h2><ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-white/70">{data.objectives.map((objective, index) => <li key={index}>{objective}</li>)}</ul></section>}
-        {data.has_activity_model && <ActivityProgress {...summary} />}
+
         {data.gamification && <PlayerLevelCard xp={data.gamification.xp} levels={data.gamification.levels} />}
       </header>
 
@@ -104,13 +106,13 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
       {rewardNotice && <p role="status" className="rounded-2xl bg-emerald-400/10 p-4 text-sm text-emerald-200">{rewardNotice}</p>}
       {saving && <p role="status" className="text-sm text-white/65">Salvando seu progresso…</p>}
 
-      {data.has_activity_model ? data.activities.length ? <div className="grid items-start gap-6 lg:grid-cols-[minmax(240px,0.7fr)_minmax(0,1.6fr)]">
-        <LessonActivityList activities={data.activities} progress={data.progress} selectedId={selected?.id} busy={busy} onSelect={selectActivity} />
-        {selected && <section aria-label="Atividade selecionada" className="min-w-0 space-y-6 rounded-3xl bg-surface p-5 ring-1 ring-white/10 md:p-7">
+      {data.has_activity_model ? data.activities.length ? <LessonActivityList activities={data.activities} progress={data.progress} selectedId={selected?.id ?? null} busy={busy} onSelect={selectActivity}
+        renderContent={() => selected ? (<section aria-label="Atividade selecionada" className="min-w-0 space-y-6 rounded-3xl bg-surface p-5 ring-1 ring-white/10 md:p-7">
           <header className="space-y-3"><div className="flex flex-wrap items-center justify-between gap-3"><ActivityStatusBadge status={status} />{selected.duration_minutes && <span className="text-xs text-white/60">{selected.duration_minutes} min estimados</span>}</div>
             <h2 className="text-2xl font-bold text-white">{selected.title}</h2>{selected.description && <p className="text-sm leading-7 text-white/65">{selected.description}</p>}
           </header>
           <ActivityRenderer key={selected.id} activity={selected} status={status} disabled={saving}
+            onProjectSaved={refreshAfterSave}
             attempts={data.attempts.filter(a => a.activity_id === selected.id)} meetings={data.meetings.filter(m => m.activity_id === selected.id)}
             submissions={data.submissions.filter(s => s.activity_id === selected.id)} reviews={data.reviews}
             onCompleteStudy={() => void save(() => completeStudentStudy(selected.id))}
@@ -119,8 +121,7 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
               await refreshAfterSave();
               return attempt;
             }} onQuizBusy={setQuizBusy} />
-        </section>}
-      </div> : <section className="rounded-3xl bg-surface p-8 ring-1 ring-white/10"><p className="text-sm text-white/70">O conteúdo desta aula está sendo atualizado. Consulte sua professora para continuar.</p></section>
+        </section>) : null} /> : <section className="rounded-3xl bg-surface p-8 ring-1 ring-white/10"><p className="text-sm text-white/70">O conteúdo desta aula está sendo atualizado. Consulte sua professora para continuar.</p></section>
         : <LegacyLessonContent lesson={lesson} />}
 
       <footer className="flex flex-col justify-between gap-5 rounded-3xl bg-surface p-6 ring-1 ring-white/10 md:flex-row md:items-center">
@@ -133,6 +134,7 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
         </div>
       </footer>
     </div>
+    {data.has_activity_model && <aside aria-label="Progresso da aula" className="fixed inset-x-0 bottom-0 z-30 border-t border-white/15 bg-surface p-4 shadow-soft"><div className="mx-auto max-w-6xl"><ActivityProgress {...summary} /></div></aside>}
   </main>;
 }
 

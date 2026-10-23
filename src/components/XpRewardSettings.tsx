@@ -9,7 +9,7 @@ export const XpRewardSettings = () => {
   const [message, setMessage] = useState("");
   useEffect(() => {
     let cancelled = false;
-    void supabase.from("xp_reward_rules").select("event_type,points").then(({ data, error }) => {
+    void supabase.from("xp_reward_rules").select("event_type,points,calculation,is_official").then(({ data, error }) => {
       if (cancelled) return;
       if (error) setMessage("Não foi possível carregar as regras de pontuação.");
       else setRules(data || []);
@@ -19,6 +19,7 @@ export const XpRewardSettings = () => {
   }, []);
 
   const save = async (rule: XpRule) => {
+    if (rule.is_official) return;
     if (saving) return;
     if (!Number.isInteger(rule.points) || rule.points < 0 || rule.points > 10000) {
       setMessage("Informe pontos inteiros entre 0 e 10.000.");
@@ -37,7 +38,8 @@ export const XpRewardSettings = () => {
   return (
     <section className="mt-8 rounded-3xl bg-surface p-6 ring-1 ring-white/10" aria-labelledby="xp-settings-title">
       <h2 id="xp-settings-title" className="text-2xl font-bold text-white">Pontuação das conquistas</h2>
-      <p className="mt-3 text-sm leading-6 text-white/65">Configure o XP de cada atividade. Os valores já recebidos ficam preservados; repetir a mesma conclusão não gera pontos extras.</p>
+      <p className="mt-3 text-sm leading-6 text-white/65">As regras oficiais v1 são protegidas. Questionários premiam a primeira tentativa pela porcentagem de acerto; projetos recebem créditos separados pelo envio e pela nota. A alteração posterior da nota ajusta o crédito da avaliação.</p>
+      <p className="mt-2 text-sm text-white/65">Os demais bônus continuam configuráveis para novas conquistas. Créditos históricos são preservados.</p>
       {message && <p role="status" className="mt-4 text-sm text-brand-ice">{message}</p>}
       {loading ? <p className="mt-4 text-white/60">Carregando pontuação...</p> : rules.length > 0 && <>
         <div className="mt-5 overflow-x-auto">
@@ -49,11 +51,11 @@ export const XpRewardSettings = () => {
               if (!rule) return null;
               return <tr key={key} className="border-t border-white/10">
                 <th scope="row" className="p-3 font-medium text-white">{xpLabels[key]}</th>
-                <td className="p-3"><input type="number" min={0} max={10000} step={1} required aria-label={`Pontos: ${xpLabels[key]}`}
+                <td className="p-3">{rule.is_official ? <span className="text-brand-ice">{rule.calculation === 'first_quiz_score' ? '0–100 XP, primeira tentativa' : rule.calculation === 'project_grade' ? '0–100 XP, nota definitiva' : `${rule.points} XP`}</span> : <input type="number" min={0} max={10000} step={1} required aria-label={`Pontos: ${xpLabels[key]}`}
                   value={Number.isNaN(rule.points) ? "" : rule.points} disabled={saving !== null}
                   onChange={e => setRules(current => current.map(r => r.event_type === key ? { ...r, points: e.target.valueAsNumber } : r))}
-                  className="w-24 rounded-xl bg-background px-3 py-2 text-white ring-1 ring-white/20" /></td>
-                <td className="p-3"><button type="button" className="btn-secondary" disabled={saving !== null} onClick={() => void save(rule)}>{saving === key ? "Salvando..." : "Salvar"}</button></td>
+                  className="w-24 rounded-xl bg-background px-3 py-2 text-white ring-1 ring-white/20" />}</td>
+                <td className="p-3">{rule.is_official ? <span className="text-white/60">Regra oficial v1</span> : <button type="button" className="btn-secondary" disabled={saving !== null} onClick={() => void save(rule)}>{saving === key ? "Salvando..." : "Salvar"}</button>}</td>
               </tr>;
             })}</tbody>
           </table>

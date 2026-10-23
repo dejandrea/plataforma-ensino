@@ -6,12 +6,13 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false} = {}) {
-  const database = await createLearningTestDb({b1:true});
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false} = {}) {
+  const database = improvements ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
   await login('admin','postgres');
-  if(teacher) await db.exec(readSql(learningMigration('_teacher_learning_workspace.sql')));
+  if(!improvements&&(teacher||officialXp)) await db.exec(readSql(learningMigration('_teacher_learning_workspace.sql')));
+  if(!improvements&&officialXp) await db.exec(readSql(learningMigration('_official_xp_rules_v1.sql')));
   const requests = [];
   let loseQuizResponse = false;
   let identity = 'student';
@@ -23,6 +24,8 @@ export async function createLearningBrowser(t, {teacher = false} = {}) {
     teacher_learning_workspace:['p_scheduled_lesson_id'],link_teacher_learning_activity:['p_scheduled_lesson_id','p_activity_id'],
     save_teacher_learning_session:['p_session_id','p_version','p_completed_step_keys','p_notes','p_evaluation'],
     confirm_teacher_learning_activity:['p_session_id','p_version'],
+    submit_student_project:['p_activity_id','p_submission_url','p_student_notes','p_request_id',...(improvements?['p_project_description','p_additional_links']:[])],
+    review_student_project:['p_submission_id','p_status','p_grade','p_feedback','p_request_id'],teacher_project_inbox:['p_scheduled_lesson_id'],teacher_student_projects:['p_student_id'],
   };
   // Only PostgREST's HTTP shape/auth identity is replaced. Every operation below
   // runs the actual migration's function as authenticated inside a transaction.
@@ -38,7 +41,7 @@ export async function createLearningBrowser(t, {teacher = false} = {}) {
       let body = ''; for await (const chunk of req) body+=chunk;
       const params = JSON.parse(body);
       requests.push({ name,params });
-      const args = rpcArguments[name].map(key => ['p_answers','p_document','p_evaluation'].includes(key) ? JSON.stringify(params[key]) : params[key]);
+      const args = rpcArguments[name].map(key => ['p_answers','p_document','p_evaluation','p_additional_links'].includes(key) ? JSON.stringify(params[key]) : params[key]);
       const value = await db.transaction(async tx => {
         await tx.exec('set local role authenticated');
         await tx.query("select set_config('request.jwt.claim.sub',$1,true)",[fixtureUsers[identity]]);

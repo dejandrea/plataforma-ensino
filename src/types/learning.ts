@@ -63,9 +63,9 @@ export type TeacherLessonPlanRow = { id: string; activity_id: string; activity_t
 export type StudentActivityProgressRow = { id: string; student_id: string; activity_id: string; activity_revision: number; status: ActivityStatus; started_at: string | null; completed_at: string | null; updated_at: string };
 export type QuizFeedback = { questionKey: string; isCorrect: boolean; feedback: string };
 export type QuizAttemptRow = { id: string; student_id: string; activity_id: string; activity_type: 'quiz' | 'interactive'; activity_revision: number; attempt_number: number; answers_json: AssessmentAnswers; score: number; passed: boolean; submitted_at: string; request_id: string; feedback_json: QuizFeedback[]; presentation_json?: AssessmentPresentation };
-export type ProjectSubmissionRow = { id: string; student_id: string; activity_id: string; activity_type: 'project'; activity_revision: number; version: number; submission_url: string; student_notes: string; submitted_at: string };
+export type ProjectSubmissionRow = { id: string; student_id: string; activity_id: string; activity_type: 'project'; activity_revision: number; version: number; submission_url: string; student_notes: string; submitted_at: string; request_id?: string;project_description?:string;additional_links?:{url:string;description:string}[] };
 /** Append-only reviews preserve every correction separately from the submitted version. */
-export type ProjectReviewRow = { id: string; submission_id: string; reviewed_by: string; status: Exclude<SubmissionStatus, 'submitted'>; teacher_feedback: string; evaluation_json: Record<string, unknown>; created_at: string };
+export type ProjectReviewRow = { id: string; submission_id: string; reviewed_by: string; status: Exclude<SubmissionStatus, 'submitted'>; teacher_feedback: string; evaluation_json: Record<string, unknown>; created_at: string; grade?: number | null; request_id?: string };
 export type PedagogicalLevel = 'needs_support' | 'developing' | 'autonomous';
 export type PlanSessionRow = {
   id: string; scheduled_lesson_id: string; plan_id: string; activity_id: string; activity_type: 'online_lesson'; plan_revision: number;

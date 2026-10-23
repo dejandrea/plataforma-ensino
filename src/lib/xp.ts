@@ -1,10 +1,14 @@
 export const xpLabels: Record<string, string> = {
-  activity_quiz: 'Questionário aprovado',
+  profile_exemplar:'Perfil Exemplar',networking:'Mestre do Networking',instagram:'Instagrameiro',dedication_month:'Dedicação Total (mês)',engagement_week:'Super Engajado (semana)',dedication_bonus:'Bônus por 12 Dedicação Total',engagement_bonus:'Bônus por 12 Super Engajado',
+  official_profile:'Conquista de perfil',official_engagement:'Conquista de frequência',official_engagement_bonus:'Bônus de frequência',
+  activity_quiz: 'Primeira tentativa do questionário',
   activity_interactive: 'Prática interativa aprovada',
   activity_study: 'Estudo autônomo confirmado',
   activity_online: 'Atividade online confirmada pela professora',
-  activity_project: 'Miniprojeto aprovado',
-  activity_final_project: 'Projeto final aprovado',
+  activity_project: 'Envio válido de miniprojeto',
+  activity_final_project: 'Envio válido de projeto',
+  project_submission: 'Envio de projeto ou miniprojeto',
+  project_evaluation: 'Nota do projeto ou miniprojeto',
   submodule_completion: 'Submódulo concluído',
   learning_activity: 'Recompensa da atividade curricular',
   learning_submodule: 'Recompensa do submódulo',
@@ -19,7 +23,7 @@ export const xpLabels: Record<string, string> = {
   mission: "Missão concluída",
 };
 
-export type XpRule = { event_type: string; points: number };
+export type XpRule = { event_type: string; points: number; calculation?: 'fixed' | 'first_quiz_score' | 'project_grade'; is_official?: boolean };
 export type XpEvent = { event_type: string; source_id: string; title: string; points: number; earned_at: string };
 
 export const combineEvaluationXp = (events: XpEvent[]): XpEvent[] => {

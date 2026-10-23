@@ -35,6 +35,7 @@ test('student projection removes teacher plans, keys and expected answers', () =
 });
 
 const invalidCases = {
+  'fewer than four questions': d => { d.activities[2].content.questions=d.activities[2].content.questions.slice(0,3); },
   'unsupported version': d => { d.schemaVersion = 2; },
   'missing field': d => { delete d.lesson.objectives; },
   'unknown field': d => { d.activities[0].content.correctAnswer = 'secret'; },

@@ -7,8 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test:learning": "node --test tests/learning-content.test.mjs tests/learning-foundation.test.mjs tests/student-learning.test.mjs tests/learning-progress.test.mjs tests/interactive-learning.test.mjs tests/interactive-contract.test.mjs tests/teacher-learning.test.mjs",
-    "test:learning:browser": "node --test --test-concurrency=1 tests/learning-browser.test.mjs tests/interactive-browser.test.mjs tests/teacher-learning-browser.test.mjs",
+    "test:learning": "node --test tests/learning-content.test.mjs tests/learning-foundation.test.mjs tests/student-learning.test.mjs tests/learning-progress.test.mjs tests/interactive-learning.test.mjs tests/interactive-contract.test.mjs tests/teacher-learning.test.mjs tests/official-xp.test.mjs",
+    "test:learning:browser": "node --test --test-concurrency=1 tests/learning-browser.test.mjs tests/interactive-browser.test.mjs tests/teacher-learning-browser.test.mjs tests/official-xp-browser.test.mjs tests/student-resource-browser.test.mjs tests/admin-lesson-preview.test.mjs",
+    "test:improvements": "node --test tests/improvements.test.mjs tests/lesson-history-status.test.mjs",
+    "test:improvements:browser": "node --test --test-concurrency=1 tests/improvements-browser.test.mjs tests/official-xp-browser.test.mjs tests/html-lesson-homologation.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

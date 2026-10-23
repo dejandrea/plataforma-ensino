@@ -5,6 +5,7 @@ import { downloadLessonReportPdf } from "../lib/lessonReportPdf";
 import { evaluationTitle } from "../lib/evaluationPeriods";
 import { StudentDiscountPanel } from "../components/StudentDiscountPanel";
 import { StudentBillingPanel } from "../components/StudentBillingPanel";
+import ProjectReviewPanel from '../components/learning/ProjectReviewPanel';
 import { calculateStudentTotal, lessonMonth, normalizeHourlyRate, type StudentDiscount } from "../lib/discounts";
 
 const formatDateTime = (value?: string | null) =>
@@ -219,6 +220,7 @@ export const StudentHistory = () => {
           <div className="mb-8 space-y-5"><StudentDiscountPanel key={studentId} studentId={studentId} scope="recurring" onChanged={() => void fetchDiscounts()} /><StudentBillingPanel key={`billing-${studentId}`} studentId={studentId} /></div>
         )}
         {discountError && <p role="alert" className="mb-6 text-sm text-rose-300">{discountError} <button type="button" className="underline" onClick={() => void fetchDiscounts()}>Tentar novamente</button></p>}
+        {studentId&&<div className="mb-8"><ProjectReviewPanel key={`projects-${studentId}`} studentId={studentId}/></div>}
 
         <div className="space-y-6">
           <section className="rounded-3xl bg-surface p-6 ring-1 ring-white/10">

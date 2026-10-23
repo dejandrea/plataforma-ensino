@@ -57,7 +57,7 @@ export async function createLearningTestDb({ b1 = false } = {}) {
   await course(25,26,27,28,'Aula antiga');
   await query('insert into lessons(id,submodule_id,title) values($1,$2,\'Somente rascunhos\')',[id(29),id(27)]);
   await course(43,44,45,42,'Conteúdo em revisão');
-  const example = JSON.parse(readSql('docs/examples/html-primeira-pagina.v1.json'));
+  const example = JSON.parse(readSql('tests/fixtures/legacy-content/html-primeira-pagina.v1.json'));
   const addActivity = async (number, lessonNumber, activity, required = activity.required) => {
     await query(`insert into lesson_activities(id,lesson_id,key,title,description,activity_type,order_index,is_required,content_json)
       values($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[id(number),id(lessonNumber),`${activity.key}-${number}`,activity.title,activity.description ?? null,activity.type,activity.orderIndex,required,JSON.stringify(activity.content)]);

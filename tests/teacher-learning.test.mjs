@@ -78,7 +78,7 @@ test('C: restricted plans, persisted execution, evaluation and explicit curricul
   });
   await t.test('confirmation enforces prerequisites and awards configured online XP only once',async()=>{
     await login('admin','postgres');
-    const doc=JSON.parse(readSql('docs/examples/html-primeira-pagina.v1.json'));
+    const doc=JSON.parse(readSql('tests/fixtures/legacy-content/html-primeira-pagina.v1.json'));
     await query("insert into lesson_activities(id,lesson_id,key,title,activity_type,order_index,is_required,content_json,gamification_json) values($1,$2,'live-c','Encontro C','online_lesson',50,false,$3,$4)",
       [id(1001),id(24),JSON.stringify(doc.activities[3].content),JSON.stringify({rewardRuleKey:'activity_online',awardOn:'teacher_confirmed',achievementKeys:[]})]);
     await query('insert into teacher_lesson_plans(activity_id,revision,content_json) values($1,1,$2)',[id(1001),JSON.stringify(doc.teacherOnly.lessonPlans[0].content)]);

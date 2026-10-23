@@ -371,7 +371,7 @@
                       ],
                       "additionalProperties": false
                     },
-                    "minItems": 1,
+                    "minItems": 4,
                     "maxItems": 100
                   }
                 },

@@ -1,0 +1,38 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createImprovementsDb} from './fixtures/improvements-db.mjs';
+import {id,fixtureUsers} from './fixtures/learning-test-db.mjs';
+
+test('stage D: submission, in-review, revision, version history, criteria, approval and isolation',async t=>{
+ const d=await createImprovementsDb();t.after(()=>d.db.close());const {login,rpc,query,count}=d;
+ await login();
+ const send=(n,url)=>rpc('submit_student_project',[id(80),url,'Minha reflexão',id(n),'Página pessoal em HTML',JSON.stringify([{url:'https://github.com/student/source',description:'Código-fonte'}])]);
+ const first=await send(9600,'https://example.org/project-v1');assert.equal(first.version,1);
+ await assert.rejects(send(9601,'https://example.org/early'),/Aguarde/);
+ await assert.rejects(rpc('review_student_project',[first.id,'approved',100,'Autoaprovação',id(9602)]),/indisponivel/);
+ await login('stranger');await assert.rejects(rpc('teacher_project_inbox',[id(17)]));
+ await assert.rejects(rpc('teacher_student_projects',[fixtureUsers.student]),/indisponivel/);
+ await login('teacher');
+ const initial=(await rpc('teacher_project_inbox',[id(17)]))[0];
+ assert.equal((await rpc('teacher_student_projects',[fixtureUsers.student]))[0].id,first.id);
+ assert.equal(initial.id,first.id);assert.equal(initial.reviews.length,0);assert.ok(initial.assessment_criteria.includes('Estrutura válida'));assert.ok(initial.requirements.includes('Usar doctype, html, head e body'));assert.deepEqual(initial.previous_versions,[]);
+ await rpc('review_student_project',[first.id,'in_review',null,'Análise iniciada',id(9603)]);
+ await rpc('review_student_project',[first.id,'needs_revision',40,'Revise a estrutura HTML.',id(9604)]);
+ await login();
+ const second=await send(9605,'https://example.org/project-v2');assert.equal(second.version,2);
+ assert.equal(await count('project_submissions',`where activity_id='${id(80)}'`),2);
+ await login('teacher');const updated=(await rpc('teacher_project_inbox',[id(17)]))[0];
+ assert.equal(updated.id,second.id);assert.equal(updated.previous_versions.length,1);
+ assert.equal(updated.previous_versions[0].submission_url,'https://example.org/project-v1');assert.equal(updated.previous_versions[0].additional_links[0].description,'Código-fonte');
+ assert.deepEqual(updated.previous_versions[0].reviews.map(r=>r.status),['in_review','needs_revision']);
+ assert.equal(updated.previous_versions[0].reviews[1].teacher_feedback,'Revise a estrutura HTML.');
+ await assert.rejects(rpc('review_student_project',[first.id,'approved',80,'Versão antiga',id(9606)]),/recente/);
+ const approval=[second.id,'approved',80,'Aprovado após revisão.',id(9607)];
+ const result=await rpc('review_student_project',approval);assert.equal((await rpc('review_student_project',approval)).id,result.id);
+ await login();
+ assert.equal((await query('select status from student_activity_progress where student_id=$1 and activity_id=$2',[fixtureUsers.student,id(80)])).rows[0].status,'completed');
+ await assert.rejects(send(9608,'https://example.org/after-approval'),/Aguarde/);
+ assert.equal((await query("select sum(points)::integer n from student_xp_events where student_id=$1 and source_id=$2 and event_type in ('project_submission','project_evaluation')",[fixtureUsers.student,id(80)])).rows[0].n,130);
+ await login('other');assert.equal(await count('project_submissions',`where activity_id='${id(80)}'`),0);
+ await login('admin');assert.equal((await rpc('teacher_project_inbox',[id(17)]))[0].reviews[0].status,'approved');
+});

@@ -138,6 +138,48 @@
                 "text": "O peso do teclado"
               }
             ]
+          },
+          {
+            "key": "estrutura",
+            "prompt": "Qual tecnologia descreve a estrutura de uma página?",
+            "options": [
+              {
+                "key": "correct",
+                "text": "HTML"
+              },
+              {
+                "key": "wrong",
+                "text": "CSS"
+              }
+            ]
+          },
+          {
+            "key": "arquivo",
+            "prompt": "Qual extensão identifica um documento HTML?",
+            "options": [
+              {
+                "key": "correct",
+                "text": ".html"
+              },
+              {
+                "key": "wrong",
+                "text": ".jpg"
+              }
+            ]
+          },
+          {
+            "key": "navegador",
+            "prompt": "Onde podemos visualizar uma página HTML?",
+            "options": [
+              {
+                "key": "correct",
+                "text": "Em um navegador"
+              },
+              {
+                "key": "wrong",
+                "text": "Somente numa calculadora"
+              }
+            ]
           }
         ]
       },
@@ -159,6 +201,21 @@
               "questionKey": "instrucoes",
               "optionKey": "programa",
               "feedback": "Um programa organiza instruções para executar tarefas."
+            },
+            {
+              "questionKey": "estrutura",
+              "optionKey": "correct",
+              "feedback": "HTML descreve a estrutura; CSS cuida da apresentação."
+            },
+            {
+              "questionKey": "arquivo",
+              "optionKey": "correct",
+              "feedback": "Arquivos HTML usam a extensão .html."
+            },
+            {
+              "questionKey": "navegador",
+              "optionKey": "correct",
+              "feedback": "O navegador interpreta o documento HTML e apresenta a página."
             }
           ]
         }

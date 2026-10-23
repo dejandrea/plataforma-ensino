@@ -11,7 +11,9 @@ const compiled=ts.transpileModule(readFileSync('src/lib/learningContent.ts','utf
 const module={exports:{}};
 new Function('require','module','exports',compiled)(name=>name.endsWith('.json')?JSON.parse(readFileSync(`src/contracts/${name.split('/').at(-1)}`,'utf8')):require(name),module,module.exports);
 const {validateLessonImport,toStudentLesson}=module.exports;
+const contractDocument=()=>JSON.parse(readFileSync('docs/examples/maquinas-interativas.v2.json','utf8'));
 const invalid={
+  'fewer than four questions':d=>{d.activities[2].content.questions=d.activities[2].content.questions.slice(0,3);},
   'unsupported version':d=>{d.schemaVersion=3;},
   'duplicate ordering IDs':d=>{d.activities[0].content.items[1].id=d.activities[0].content.items[0].id;},
   'duplicate matching IDs':d=>{d.activities[1].content.rightItems[1].id=d.activities[1].content.rightItems[0].id;},
@@ -32,16 +34,17 @@ const invalid={
   'invalid maximum':d=>{d.activities[0].content.maxAttempts=0;},
 };
 test('v2 authoring validates without mutation and public projection strips all keys',()=>{
-  const d=interactiveDocument(),before=structuredClone(d);assert.equal(validateLessonImport(d).valid,true);assert.deepEqual(d,before);
+  const d=contractDocument(),before=structuredClone(d);assert.equal(validateLessonImport(d).valid,true);assert.deepEqual(d,before);
   const publicDoc=toStudentLesson(d);for(const secret of ['teacherOnly','correctOrder','rightId','optionKey'])assert.equal(JSON.stringify(publicDoc).includes(`"${secret}"`),false);
   assert.equal(validateLessonImport(JSON.parse(readFileSync('docs/examples/html-primeira-pagina.v1.json','utf8'))).valid,true);
 });
-for(const [name,mutate] of Object.entries(invalid))test(`v2 rejects ${name}`,()=>{const d=interactiveDocument();mutate(d);assert.equal(validateLessonImport(d).valid,false);});
+for(const [name,mutate] of Object.entries(invalid))test(`v2 rejects ${name}`,()=>{const d=contractDocument();mutate(d);assert.equal(validateLessonImport(d).valid,false);});
 
 test('backend validates the same examples and rejects invalid imports atomically',async t=>{
   const db=await createLearningTestDb({b1:true});t.after(()=>db.db.close());
   const {lessonId}=await prepareInteractiveContent(db,{importContent:false});await db.login('admin');
   for(const [name,mutate] of Object.entries(invalid)) {
+    if(name==='fewer than four questions') continue; // Historical B1 permits short quizzes; official-XP tests enforce the new policy.
     const d=interactiveDocument();mutate(d);
     await assert.rejects(db.rpc('import_learning_lesson',[lessonId,JSON.stringify(d),true]),undefined,name);
     assert.equal(await db.count('lesson_activities',`where lesson_id='${lessonId}'`),0,name);

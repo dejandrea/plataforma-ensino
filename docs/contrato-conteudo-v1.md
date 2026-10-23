@@ -40,7 +40,7 @@ Todo `content` exige `schemaVersion: 1` e `type` idêntico ao tipo da atividade.
 | Tipo | Campos públicos obrigatórios de `content` |
 | --- | --- |
 | `slides`, `mindmap` | `resourceUrl`, `format` (`pdf`, `image`, `link`), `altText` |
-| `quiz` | `passingScore` inteiro 0–100, `maxAttempts` inteiro 1–100, `questions` (1–100) |
+| `quiz` | `passingScore` inteiro 0–100, `maxAttempts` inteiro 1–100, `questions` (4–100) |
 | `online_lesson` | `objective`, `preparation` (lista de textos) |
 | `project` | `instructions`, `objectives`, `requirements`, `assessmentCriteria` (listas não vazias), `resources` (lista de `{title,url}`) |
 

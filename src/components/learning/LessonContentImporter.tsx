@@ -1,8 +1,16 @@
+import AdminLessonPreview from './AdminLessonPreview';
 import { useMemo, useState } from 'react';
 import { toStudentLesson, validateLessonImport } from '../../lib/learningContent';
 import { importLearningLesson, publishLearningActivities } from '../../lib/studentLearning';
 import { safeHttpsUrl } from '../../lib/learningProgress';
-import type { ActivityDefinition } from '../../types/learning';
+import type { ActivityDefinition, LearningActivity } from '../../types/learning';
+
+function definitionActivity(a: ActivityDefinition, lessonId: string): LearningActivity {
+  return { id: a.key, lesson_id: lessonId, key: a.key, title: a.title, description: a.description ?? null,
+    activity_type: a.type, content_json: a.content, order_index: a.orderIndex, duration_minutes: a.durationMinutes ?? null,
+    is_required: a.required, is_active: true, publication_status: 'draft', revision: 1, created_at: '', updated_at: '',
+    published_at: null, is_unlocked: true, prerequisite_ids: [] } as LearningActivity;
+}
 
 function Preview({ activity }: { activity: ActivityDefinition }) {
   const c = activity.content;
@@ -18,6 +26,7 @@ function Preview({ activity }: { activity: ActivityDefinition }) {
 }
 
 export default function LessonContentImporter({ lessonId, lessonTitle, onClose }: { lessonId: string; lessonTitle: string; onClose: () => void }) {
+  const [showPreview, setShowPreview] = useState(false);
   const [source, setSource] = useState('');
   const [publish, setPublish] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -57,6 +66,8 @@ export default function LessonContentImporter({ lessonId, lessonTitle, onClose }
     {validation && !validation.valid && <ul role="alert" className="max-h-44 overflow-auto text-sm text-red-200">{validation.errors.slice(0,15).map((error,index) => <li key={index}>{error}</li>)}</ul>}
     {preview && <><p className="text-sm text-brand-ice">Contrato v{preview.schemaVersion} válido · {preview.context.courseTitle} / {preview.context.moduleTitle} / {preview.context.submoduleTitle}</p>
       {!correctLesson && <p role="alert" className="text-sm text-red-200">O título do arquivo deve corresponder à aula de destino.</p>}
+      <button type="button" className="btn-secondary" onClick={() => setShowPreview(value => !value)}>{showPreview ? 'Recolher resultado' : 'Visualizar resultado como aluno'}</button>
+      {showPreview && <AdminLessonPreview lessonId={lessonId} activities={preview.activities.map(a => ({ ...definitionActivity(a, lessonId), publication_status: imported?.published ? 'published' : 'draft' }))} />}
       <section aria-label="Prévia pública das atividades" className="space-y-3">{preview.activities.map(activity => <Preview key={activity.key} activity={activity} />)}</section>
     </>}
     <label className="flex items-center gap-3 text-sm text-white"><input type="checkbox" checked={publish} disabled={saving || Boolean(imported)} onChange={event => setPublish(event.target.checked)} />Publicar após validar a importação</label>

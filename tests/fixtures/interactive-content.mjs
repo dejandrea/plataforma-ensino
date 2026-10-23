@@ -1,11 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { id } from './learning-test-db.mjs';
 
-export const interactiveDocument = () => JSON.parse(readFileSync('docs/examples/maquinas-interativas.v2.json','utf8'));
+export const interactiveDocument = () => JSON.parse(readFileSync('tests/fixtures/legacy-content/maquinas-interativas.v2.json','utf8'));
 export const interactiveLessonId = id(904);
-export async function prepareInteractiveContent(database, { publish = true, importContent = true } = {}) {
+export async function prepareInteractiveContent(database, { publish = true, importContent = true, document = interactiveDocument() } = {}) {
   const { query,login,rpc } = database;
-  const document = interactiveDocument();
   await login('admin','postgres');
   await query('insert into courses values($1,$2,true)',[id(900),document.context.courseTitle]);
   await query('insert into modules values($1,$2,$3,0,true)',[id(901),id(900),document.context.moduleTitle]);

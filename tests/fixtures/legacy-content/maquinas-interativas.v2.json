@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 2,
+  "context": {
+    "courseTitle": "Fundamentos de Computação",
+    "moduleTitle": "História da computação",
+    "submoduleTitle": "Máquinas e instruções"
+  },
+  "lesson": {
+    "key": "maquinas-mudaram-mundo",
+    "title": "Máquinas que mudaram o mundo",
+    "description": "Uma jornada autônoma sobre máquinas, instruções e tecnologias da Web.",
+    "objectives": [
+      "Organizar uma sequência histórica",
+      "Associar tecnologias as suas funções"
+    ],
+    "durationMinutes": 35
+  },
+  "activities": [
+    {
+      "key": "linha-do-tempo",
+      "type": "interactive",
+      "title": "A linha do tempo",
+      "orderIndex": 0,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "interactive",
+        "interactionType": "ordering",
+        "instructions": "Organize as máquinas da mais antiga para a mais recente.",
+        "passingScore": 100,
+        "maxAttempts": 5,
+        "items": [
+          {
+            "id": "tear",
+            "label": "Tear com cartões perfurados"
+          },
+          {
+            "id": "abaco",
+            "label": "Ábaco"
+          },
+          {
+            "id": "computador",
+            "label": "Computador eletrônico"
+          },
+          {
+            "id": "calculadora",
+            "label": "Calculadora mecânica"
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_interactive",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "tecnologias-web",
+      "type": "interactive",
+      "title": "Cada tecnologia tem sua função",
+      "orderIndex": 1,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "interactive",
+        "interactionType": "matching",
+        "instructions": "Associe cada tecnologia a sua função na página.",
+        "passingScore": 100,
+        "maxAttempts": 5,
+        "leftItems": [
+          {
+            "id": "html",
+            "label": "HTML"
+          },
+          {
+            "id": "css",
+            "label": "CSS"
+          },
+          {
+            "id": "javascript",
+            "label": "JavaScript"
+          }
+        ],
+        "rightItems": [
+          {
+            "id": "interacao",
+            "label": "Interatividade da página"
+          },
+          {
+            "id": "estrutura",
+            "label": "Estrutura da página"
+          },
+          {
+            "id": "aparencia",
+            "label": "Aparencia visual"
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_interactive",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "instrucoes-quiz",
+      "type": "quiz",
+      "title": "O que orienta uma maquina?",
+      "orderIndex": 2,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "quiz",
+        "passingScore": 100,
+        "maxAttempts": 8,
+        "questions": [
+          {
+            "key": "instrucoes",
+            "prompt": "O que orienta a execução de tarefas por um computador?",
+            "options": [
+              {
+                "key": "tamanho",
+                "text": "O tamanho da tela"
+              },
+              {
+                "key": "cor",
+                "text": "A cor do gabinete"
+              },
+              {
+                "key": "programa",
+                "text": "Um programa com instruções"
+              },
+              {
+                "key": "peso",
+                "text": "O peso do teclado"
+              }
+            ]
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_quiz",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [
+      {
+        "activityKey": "instrucoes-quiz",
+        "content": {
+          "schemaVersion": 1,
+          "answers": [
+            {
+              "questionKey": "instrucoes",
+              "optionKey": "programa",
+              "feedback": "Um programa organiza instruções para executar tarefas."
+            }
+          ]
+        }
+      }
+    ],
+    "lessonPlans": [],
+    "interactiveKeys": [
+      {
+        "activityKey": "linha-do-tempo",
+        "content": {
+          "schemaVersion": 2,
+          "interactionType": "ordering",
+          "correctOrder": [
+            "abaco",
+            "calculadora",
+            "tear",
+            "computador"
+          ],
+          "feedback": "O ábaco antecedeu a calculadora mecânica; depois vieram o tear com cartões e os computadores eletrônicos."
+        }
+      },
+      {
+        "activityKey": "tecnologias-web",
+        "content": {
+          "schemaVersion": 2,
+          "interactionType": "matching",
+          "pairs": [
+            {
+              "leftId": "html",
+              "rightId": "estrutura"
+            },
+            {
+              "leftId": "css",
+              "rightId": "aparencia"
+            },
+            {
+              "leftId": "javascript",
+              "rightId": "interacao"
+            }
+          ],
+          "feedback": "HTML organiza o conteúdo, CSS cuida da aparência e JavaScript permite interações."
+        }
+      }
+    ]
+  }
+}

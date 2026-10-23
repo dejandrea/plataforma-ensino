@@ -104,7 +104,7 @@ test('B1: private grading, durable randomization, rewards and import',async t =>
   });
   await t.test('project and final-project rewards require an authorized approval',async()=>{
     await login('admin','postgres');
-    const project=JSON.parse(readSql('docs/examples/html-primeira-pagina.v1.json')).activities.find(a=>a.type==='project');
+    const project=JSON.parse(readSql('tests/fixtures/legacy-content/html-primeira-pagina.v1.json')).activities.find(a=>a.type==='project');
     for(const [number,rule] of [[970,'activity_project'],[971,'activity_final_project']]) {
       await query("insert into lesson_activities(id,lesson_id,key,title,activity_type,order_index,is_required,content_json,gamification_json,publication_status) values($1,$2,$3,'Projeto','project',30,false,$4,$5,'published')",[id(number),id(24),`project-${number}`,JSON.stringify(project.content),JSON.stringify({rewardRuleKey:rule,awardOn:'approved',achievementKeys:[]})]);
       await query("insert into project_submissions(id,student_id,activity_id,activity_revision,version,submission_url) values($1,$2,$3,1,1,'https://example.org/project')",[id(number+10),fixtureUsers.student,id(number)]);
@@ -117,7 +117,7 @@ test('B1: private grading, durable randomization, rewards and import',async t =>
   });
   await t.test('study rewards are autonomous while online rewards wait for backend confirmation',async()=>{
     const before=await xp();
-    const content=JSON.parse(readSql('docs/examples/html-primeira-pagina.v1.json'));
+    const content=JSON.parse(readSql('tests/fixtures/legacy-content/html-primeira-pagina.v1.json'));
     await login('admin','postgres');
     for(const [number,index,type,rule,award] of [[972,0,'slides','activity_study','completed'],[973,3,'online_lesson','activity_online','teacher_confirmed']]) {
       await query("insert into lesson_activities(id,lesson_id,key,title,activity_type,order_index,is_required,content_json,gamification_json) values($1,$2,$3,'Atividade', $4,40,false,$5,$6)",[id(number),id(24),`reward-${number}`,type,JSON.stringify(content.activities[index].content),JSON.stringify({rewardRuleKey:rule,awardOn:award,achievementKeys:[]})]);

@@ -36,6 +36,22 @@ export function safeHttpsUrl(value: string | null | undefined): string | null {
   } catch { return null; }
 }
 
+/** Drive's page URL is not its embedded viewer. Keep link-sharing resource keys. */
+export function resourcePreview(value:string) {
+  const safe=safeHttpsUrl(value);if(!safe)return null;
+  const url=new URL(safe);
+  if(url.hostname==='drive.google.com'&&!url.username&&!url.password&&(!url.port||url.port==='443')) {
+    const match=url.pathname.match(/^\/file\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)(?:\/(?:view|preview|edit))?\/?$/);
+    const id=match?.[1]||(['/open','/uc'].includes(url.pathname)?url.searchParams.get('id'):null);
+    if(id&&/^[a-zA-Z0-9_-]+$/.test(id)) {
+      const preview=new URL(`https://drive.google.com/file/d/${id}/preview`);
+      const key=url.searchParams.get('resourcekey');if(key)preview.searchParams.set('resourcekey',key);
+      return {url:preview.href,googleDrive:true};
+    }
+  }
+  return {url:safe,googleDrive:false};
+}
+
 export function safeVideoEmbed(value: string | null): string | null {
   const safe = safeHttpsUrl(value);
   if (!safe) return null;

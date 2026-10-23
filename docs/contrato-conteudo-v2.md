@@ -1,10 +1,12 @@
 # Contrato de conteúdo v2 — B1
 
+Novas autorias/importações exigem no mínimo quatro perguntas por questionário, conforme as [regras oficiais de XP v1](regras-xp-v1.md). A política mantém as chaves do contrato e premia a primeira tentativa do quiz pela nota, separando os créditos de envio e avaliação de projetos. As regras de recompensa descritas originalmente para B1 abaixo são anteriores a essa política.
+
 O contrato de autoria está em [learning-content.v2.schema.json](../src/contracts/learning-content.v2.schema.json), com tipos em [learning.ts](../src/types/learning.ts), validação semântica em [learningContent.ts](../src/lib/learningContent.ts) e validação equivalente no banco pela migration [B1](../supabase/migrations/20261021180915_interactive_learning_and_rewards.sql). Consulte o [guia de produção](guia-producao-atividades-interativas.md) e o [exemplo completo](examples/maquinas-interativas.v2.json).
 
 ## Versionamento e compatibilidade
 
-A raiz v2 mantém `context`, `lesson`, `activities` e `teacherOnly` da v1. Acrescenta `interactive`, `teacherOnly.interactiveKeys` e a configuração opcional `gamification`. A v1 permanece aceita com o schema original, sem aceitar retroativamente os campos v2. Conteúdos legados, gabarito de quiz e plano docente mantêm `schemaVersion: 1`; apenas conteúdos e gabaritos interativos usam 2. Versão de schema é distinta da revisão editorial da atividade.
+A raiz v2 mantém `context`, `lesson`, `activities` e `teacherOnly` da v1. Acrescenta `interactive`, `teacherOnly.interactiveKeys` e a configuração opcional `gamification`. A v1 permanece aceita com seus campos originais, sem aceitar retroativamente os campos v2; novas importações também seguem o mínimo de quatro perguntas. Conteúdos legados, gabarito de quiz e plano docente mantêm `schemaVersion: 1`; apenas conteúdos e gabaritos interativos usam 2. Versão de schema é distinta da revisão editorial da atividade.
 
 As validações rejeitam propriedades desconhecidas, referências inconsistentes, IDs duplicados, gabaritos ausentes ou órfãos, associações incompletas e ciclos nos pré-requisitos. Os limites exatos de campos e arrays estão no schema. Recursos externos usam HTTPS. O limite total de importação é 2 MB.
 
