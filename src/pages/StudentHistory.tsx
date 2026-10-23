@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import { downloadLessonReportPdf } from "../lib/lessonReportPdf";
 import { evaluationTitle } from "../lib/evaluationPeriods";
 import { StudentDiscountPanel } from "../components/StudentDiscountPanel";
 import { StudentBillingPanel } from "../components/StudentBillingPanel";
@@ -37,6 +36,8 @@ export const StudentHistory = () => {
   const [evaluations, setEvaluations] = useState<any[]>([]);
   const [completedLessons, setCompletedLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState('');
   const [canManageDiscounts, setCanManageDiscounts] = useState(false);
   const [discounts, setDiscounts] = useState<StudentDiscount[]>([]);
   const [discountError, setDiscountError] = useState("Carregando descontos...");
@@ -261,6 +262,7 @@ export const StudentHistory = () => {
                       </div>
 
                       <div className="flex flex-col gap-3">
+                        {pdfError && <p role="alert" className="text-sm text-red-200">{pdfError}</p>}
                         <button
                           type="button"
                           disabled={Boolean(discountError)}
@@ -271,23 +273,30 @@ export const StudentHistory = () => {
                         </button>
                         <button
                           type="button"
-                          disabled={Boolean(discountError)}
-                          onClick={() =>
-                            downloadLessonReportPdf({
-                              studentName: student?.full_name || "aluno",
-                              periodLabel: report.label,
-                              hourlyRate: normalizeHourlyRate(student?.hourly_rate),
-                              totalLessons: report.lessons.length,
-                              totalHours: report.totalHours,
-                              totalAmount: report.financial.net,
-                              grossAmount: report.financial.gross,
-                              discountAmount: report.financial.discount,
-                              lessons: report.lessons,
-                            })
-                          }
+                          disabled={Boolean(discountError) || exportingPdf}
+                          onClick={async () => {
+                            if (exportingPdf) return;
+                            setExportingPdf(true); setPdfError('');
+                            try {
+                              const { downloadLessonReportPdf } = await import('../lib/lessonReportPdf');
+                              await downloadLessonReportPdf({
+                                studentName: student?.full_name || "aluno",
+                                periodLabel: report.label,
+                                hourlyRate: normalizeHourlyRate(student?.hourly_rate),
+                                totalLessons: report.lessons.length,
+                                totalHours: report.totalHours,
+                                totalAmount: report.financial.net,
+                                grossAmount: report.financial.gross,
+                                discountAmount: report.financial.discount,
+                                lessons: report.lessons,
+                              });
+                            } catch {
+                              setPdfError('N\u00e3o foi poss\u00edvel gerar o PDF. Tente novamente.');
+                            } finally { setExportingPdf(false); }
+                          }}
                           className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand-magenta to-brand-pink px-4 py-3 text-sm font-bold text-white shadow-soft transition hover:brightness-110"
                         >
-                          Baixar PDF
+                          {exportingPdf ? 'Gerando PDF...' : 'Baixar PDF'}
                         </button>
                       </div>
                     </div>

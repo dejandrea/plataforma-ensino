@@ -58,7 +58,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   t.after(() => new Promise(resolve => api.close(resolve)));
   const apiUrl = `http://127.0.0.1:${api.address().port}`;
   const vite = await createViteServer({ configFile:false,envFile:false,plugins:[react()],server:{host:'127.0.0.1',port:0},
-    optimizeDeps:{include:['react','react-dom/client','react-router-dom','@supabase/supabase-js','ajv']},
+    optimizeDeps:{include:['react','react-dom/client','react-router-dom','@supabase/supabase-js','ajv','pdf-lib','@pdf-lib/fontkit']},
     define:{'import.meta.env.VITE_SUPABASE_URL':JSON.stringify(apiUrl),'import.meta.env.VITE_SUPABASE_ANON_KEY':JSON.stringify('test-local-public-key')} });
   await vite.listen(); t.after(() => vite.close());
   const appUrl = vite.resolvedUrls.local[0];
