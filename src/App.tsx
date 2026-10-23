@@ -22,6 +22,8 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { LessonRoom } from "./pages/LessonRoom";
 import { TeacherReports } from "./pages/TeacherReports";
 import { CommercialManagement } from "./pages/CommercialManagement";
+import {MyMasteries} from './pages/MyMasteries';
+import {AchievementsManagement} from './pages/AchievementsManagement';
 
 const RoleRoute = ({
   children,
@@ -89,6 +91,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/redefinir-senha" element={<ResetPassword />} />
+            <Route path="/minhas-maestrias" element={<RoleRoute allowedRole="student"><Navbar/><MyMasteries/></RoleRoute>}/>
+            <Route path="/conquistas" element={<RoleRoute allowedRole="admin"><StaffNavbar/><AchievementsManagement/></RoleRoute>}/>
 
             <Route
               path="/dashboard"

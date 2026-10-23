@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import { LessonCard } from "../components/LessonCard";
 import { StudentBillingSummary } from "../components/StudentBillingSummary";
 import { StudentAchievements } from "../components/StudentAchievements";
+import {PlayerRanking} from '../components/PlayerRanking';
 import { fetchStudentCurriculum } from "../lib/studentCourses";
 
 export const Dashboard = () => {
@@ -200,8 +201,6 @@ export const Dashboard = () => {
 
   return (
     <div className="app-bg">
-      <StudentBillingSummary />
-      <StudentAchievements />
       <div className="mx-auto max-w-6xl px-4 py-8">
         <header className="relative overflow-hidden rounded-3xl bg-surface p-6 shadow-soft ring-1 ring-white/10 backdrop-blur md:p-8">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-pink/15 blur-3xl" />
@@ -229,6 +228,9 @@ export const Dashboard = () => {
             </Link>
           </div>
         </header>
+
+        <StudentAchievements />
+        <StudentBillingSummary />
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           <SummaryCard label="Modulos ativos" value={modules.length} />
@@ -400,6 +402,7 @@ export const Dashboard = () => {
             submodulos.
           </div>
         )}
+        <PlayerRanking />
       </div>
     </div>
   );

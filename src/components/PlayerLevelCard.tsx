@@ -6,7 +6,7 @@ export const PlayerLevelCard = ({ xp, levels }: { xp: number; levels: PlayerLeve
   return (
     <section className="mt-5 rounded-2xl bg-background p-5 ring-1 ring-white/10" aria-label="Nível e próxima meta">
       <div className="flex items-start justify-between gap-4">
-        <div><p className="text-xs uppercase tracking-widest text-white/50">Perfil do jogador</p><h3 className="mt-2 text-xl font-bold text-white">{current.icon} {current.title}</h3><p className="mt-2 text-sm text-white/60">{current.description}</p></div>
+        <div><p className="text-xs uppercase tracking-widest text-white/50">NÍVEL DO DEV</p><h3 className="mt-2 text-xl font-bold text-white">{current.icon} {current.title}</h3><p className="mt-2 text-sm text-white/60">{current.description}</p></div>
         <span className="shrink-0 rounded-xl bg-brand-lavender/20 px-4 py-3 text-center font-bold text-brand-pink">{current.level}<span className="block text-xs uppercase text-white/60">Nível</span></span>
       </div>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-2 text-sm"><span className="font-bold text-brand-ice">{xp.toLocaleString("pt-BR")} XP</span><span className="text-white/65">{next ? `${remaining.toLocaleString("pt-BR")} XP para ${next.title}` : "Nível máximo alcançado!"}</span></div>

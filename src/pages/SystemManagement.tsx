@@ -3,13 +3,13 @@ import { supabase } from "../lib/supabaseClient";
 import { TabContent } from "../components/management/TabContent";
 import { TabLinks } from "../components/management/TabLinks";
 import { TabUsers } from "../components/management/TabUsers";
-import { TabGamification } from "../components/management/TabGamification";
+
 
 const managementTabs = [
   { id: "users", label: "Usuários" },
   { id: "content", label: "Conteúdo Curricular" },
   { id: "links", label: "Vínculos" },
-  { id: "gamification", label: "Conquistas, XP e ranking" },
+
 ] as const;
 
 export const SystemManagement = () => {
@@ -60,7 +60,7 @@ export const SystemManagement = () => {
           {tab === "users" && <TabUsers />}
           {tab === "content" && <TabContent />}
           {tab === "links" && <TabLinks />}
-          {tab === "gamification" && userRole === "admin" && <TabGamification />}
+
         </div>
       </div>
     </div>

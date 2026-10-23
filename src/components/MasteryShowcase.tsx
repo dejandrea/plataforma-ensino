@@ -1,3 +1,4 @@
+import {CatalogIcon} from './CatalogIcon';
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -73,7 +74,7 @@ export const MasteryShowcase = () => {
       <h3 className="mt-7 text-xl font-bold text-white">Vitrine de conquistas</h3>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{badges.map(badge => {
         const unlocked = earned.find(item => item.code === badge.code);
-        return <article key={badge.code} className={`rounded-2xl p-5 text-center ring-1 ${unlocked ? "bg-brand-lavender/15 ring-brand-lavender/40" : "bg-background ring-white/10"}`}><span className="text-2xl" aria-hidden="true">{unlocked ? badge.icon : "🔒"}</span><h4 className="mt-3 font-bold text-white">{badge.title}</h4><p className="mt-2 text-xs leading-5 text-white/60">{badge.description}</p><p className="mt-3 text-xs text-brand-lavender">{unlocked ? `Conquistada em ${new Date(unlocked.unlocked_at).toLocaleDateString("pt-BR")}` : "Bloqueada"}</p></article>;
+        return <article key={badge.code} className={`rounded-2xl p-5 text-center ring-1 ${unlocked ? "bg-brand-lavender/15 ring-brand-lavender/40" : "bg-background ring-white/10"}`}><span className="text-2xl" aria-hidden="true"><CatalogIcon value={unlocked ? badge.icon : "🔒"}/></span><h4 className="mt-3 font-bold text-white">{badge.title}</h4><p className="mt-2 text-xs leading-5 text-white/60">{badge.description}</p><p className="mt-3 text-xs text-brand-lavender">{unlocked ? `Conquistada em ${new Date(unlocked.unlocked_at).toLocaleDateString("pt-BR")}` : "Bloqueada"}</p></article>;
       })}</div>
     </>}
   </section>;

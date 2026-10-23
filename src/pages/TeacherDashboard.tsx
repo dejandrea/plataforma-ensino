@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { StudentCard } from "../components/StudentCard";
 import { supabase } from "../lib/supabaseClient";
+import {PlayerRanking} from '../components/PlayerRanking';
 
 export const TeacherDashboard = () => {
   const [students, setStudents] = useState<any[]>([]);
@@ -148,6 +149,7 @@ export const TeacherDashboard = () => {
           </div>
         </header>
 
+        {userRole==='admin'&&<PlayerRanking/>}
         <section className="mt-8">
           {students.length === 0 ? (
             <EmptyState

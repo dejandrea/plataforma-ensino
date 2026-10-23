@@ -58,7 +58,7 @@ export const StudentAchievements = () => {
           <p className="mt-3 text-3xl font-extrabold text-brand-ice">{total.toLocaleString("pt-BR")} XP</p>
           <PlayerLevelCard xp={total} levels={levels} />
           <p className="mt-2 text-sm text-white/60">Cada aula, etapa concluída e avaliação recebida faz parte da sua evolução.</p>
-          <Link to="/perfil" className="mt-4 inline-flex text-sm font-semibold text-brand-lavender underline">Ver minhas maestrias, missões e medalhas</Link>
+          <Link to="/minhas-maestrias" className="mt-4 inline-flex text-sm font-semibold text-brand-lavender underline">Ver minhas maestrias, missões e medalhas</Link>
           {events.length > 0 && <details className="mt-5">
             <summary className="cursor-pointer rounded-xl py-2 font-semibold text-brand-lavender">Últimas conquistas</summary>
             <ul className="mt-3 divide-y divide-white/10">{events.map(event => <li key={`${event.event_type}-${event.source_id}`} className="flex items-start justify-between gap-4 py-3 text-sm">
