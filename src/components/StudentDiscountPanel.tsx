@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { currentMonth, discountLabel, type CommercialDiscount, type StudentDiscount } from "../lib/discounts";
+import { calculateDiscount,money,currentMonth, discountLabel, type CommercialDiscount, type StudentDiscount } from "../lib/discounts";
 
-export const StudentDiscountPanel = ({ studentId, scope, onChanged, initialMonth }: {
+export const StudentDiscountPanel = ({ studentId, scope, onChanged, initialMonth,grossByMonth }: {
   studentId: string;
   scope: "recurring" | "monthly";
   onChanged?: () => void;
   initialMonth?: string;
+  grossByMonth?:Record<string,number>;
 }) => {
   const [month, setMonth] = useState(() => initialMonth || currentMonth());
   const [discountId, setDiscountId] = useState("");
@@ -16,6 +17,9 @@ export const StudentDiscountPanel = ({ studentId, scope, onChanged, initialMonth
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [loadError, setLoadError] = useState(false);
+  const selectedDiscount=catalog.find(row=>row.id===discountId);
+  const gross=grossByMonth?.[month];
+  const preview=gross===undefined?null:calculateDiscount(gross,selectedDiscount);
 
   useEffect(() => {
     let cancelled = false;
@@ -89,6 +93,8 @@ export const StudentDiscountPanel = ({ studentId, scope, onChanged, initialMonth
               </select>
             </label>
           </div>
+          {preview&&<section aria-label="Prévia do desconto" aria-live="polite" className="mt-4 space-y-2 rounded-xl bg-surface p-4 text-sm"><p>Valor original: {money(preview.gross)}</p><p>Desconto selecionado: {selectedDiscount?`${selectedDiscount.name} — ${discountLabel(selectedDiscount)}`:'Sem desconto'}</p><p>Valor descontado: {money(preview.discount)}</p><p className="font-bold">Valor final previsto: {money(preview.net)}</p><p>A prévia não altera a cobrança. A confirmação será validada no servidor.</p></section>}
+          {grossByMonth&&!preview&&<p className="mt-3 text-sm">Não há base de cálculo neste período para o mês selecionado.</p>}
           <button type="button" className="btn-primary mt-4" onClick={() => void save()} disabled={saving || loadError}>
             {saving ? "Salvando..." : "Aplicar desconto"}
           </button>

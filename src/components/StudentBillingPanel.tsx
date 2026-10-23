@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { currentMonth, money } from "../lib/discounts";
+import type {CommercialDiscount} from '../lib/discounts';
+import {InvoiceDiscountForm} from './InvoiceDiscountForm';
 import { billingModeLabel, dateLabel, invoiceStatus, nextBillingMonth, todayInBahia, type BillingInvoice, type StudentBilling } from "../lib/billing";
 
-type Package = { id: string; name: string; lesson_quantity: number; package_price: number };
+type Package = { id: string; name: string; session_track: 'course'|'mentoring'; lesson_quantity: number; package_price: number };
 type Mutation = (name: string, args: Record<string, unknown>) => Promise<boolean>;
 
 export const StudentBillingPanel = ({ studentId, onChanged }: { studentId: string; onChanged?: () => void }) => {
   const [data, setData] = useState<StudentBilling | null>(null);
   const [packages, setPackages] = useState<Package[]>([]);
+  const [discountCatalog,setDiscountCatalog]=useState<CommercialDiscount[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [form, setForm] = useState({ mode: "postpaid", month: currentMonth(), dueDay: "5", lessons: "4", price: "", packageId: "" });
@@ -17,9 +20,10 @@ export const StudentBillingPanel = ({ studentId, onChanged }: { studentId: strin
 
   const load = async () => {
     setBusy(true);
-    const [billing, catalog] = await Promise.all([
+    const [billing, catalog,discounts] = await Promise.all([
       supabase.rpc("get_student_billing", { p_student_id: studentId }),
-      supabase.from("commercial_packages").select("id,name,lesson_quantity,package_price").eq("is_active", true).order("name"),
+      supabase.from("commercial_packages").select("id,name,session_track,lesson_quantity,package_price").eq("is_active", true).order("name"),
+      supabase.from('commercial_discounts').select('*').eq('is_active',true).order('name'),
     ]);
     if (billing.error) setMessage(`Erro ao carregar cobranças: ${billing.error.message}`);
     else {
@@ -33,6 +37,8 @@ export const StudentBillingPanel = ({ studentId, onChanged }: { studentId: strin
     }
     if (catalog.error) setMessage(`Não foi possível carregar os pacotes: ${catalog.error.message}`);
     setPackages(catalog.data || []);
+    setDiscountCatalog(discounts.data||[]);
+    if(discounts.error)setMessage('Não foi possível carregar os descontos cadastrados. Atualize a tela para tentar novamente.');
     setBusy(false);
   };
   useEffect(() => { void load(); }, [studentId]);
@@ -76,7 +82,7 @@ export const StudentBillingPanel = ({ studentId, onChanged }: { studentId: strin
               <label className="grid gap-2 text-sm">Pacote (opcional)<select className="input" value={form.packageId} onChange={(event) => {
                 const selected = packages.find((row) => row.id === event.target.value);
                 setForm({ ...form, packageId: event.target.value, ...(selected ? { lessons: String(selected.lesson_quantity), price: String(selected.package_price) } : {}) });
-              }}><option value="">Personalizado</option>{packages.map((row) => <option value={row.id} key={row.id}>{row.name}</option>)}</select></label>
+              }}><option value="">Personalizado</option>{packages.map((row) => <option value={row.id} key={row.id}>{row.session_track==='course'?'Curso':'Mentoria'} — {row.name}</option>)}</select></label>
               <label className="grid gap-2 text-sm">Aulas a renovar por mês<input className="input" type="number" min="1" max="1000" value={form.lessons} onChange={(event) => setForm({ ...form, lessons: event.target.value })} /></label>
               <label className="grid gap-2 text-sm">Valor mensal (R$)<input className="input" type="number" min="0" step="0.01" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label>
             </>}
@@ -107,6 +113,7 @@ export const StudentBillingPanel = ({ studentId, onChanged }: { studentId: strin
             <div className="flex flex-wrap items-start justify-between gap-2"><p className="font-bold">{invoice.kind === "topup" ? `Recarga de ${invoice.lesson_quantity} aulas` : `Competência ${invoice.reference_month.slice(0, 7).split("-").reverse().join("/")}`} · {billingModeLabel(invoice.billing_mode)}</p><span className="text-sm text-brand-ice">{invoiceStatus(invoice)}</span></div>
             <div className="grid gap-2 text-sm sm:grid-cols-2"><p>Vencimento: {dateLabel(invoice.due_date)}</p><p>Valor bruto: {money(Number(invoice.gross_amount))}</p><p>Descontos: {money(Number(invoice.discount_amount))}</p><p>Pago: {money(Number(invoice.paid_total))}</p><p className="font-bold">Em aberto: {money(Number(invoice.outstanding))}</p><p>Último pagamento: {dateLabel(invoice.last_paid_on)}</p></div>
             <InvoiceActions key={`${invoice.id}:${invoice.outstanding}:${invoice.due_date}`} invoice={invoice} busy={busy} mutate={mutate} />
+            <InvoiceDiscountForm invoice={invoice} catalog={discountCatalog} busy={busy} onApply={args=>mutate('apply_invoice_discount',args)}/>
             {data.payments.filter((payment) => payment.invoice_id === invoice.id).map((payment) => <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3 text-xs text-brand-200" key={payment.id}>
               <span>{dateLabel(payment.paid_on)} · {money(Number(payment.amount))}{payment.voided_at ? " · Estornado" : " · Pagamento registrado"}</span>
               {!payment.voided_at && <button type="button" className="btn-secondary" disabled={busy} onClick={() => void mutate("void_student_payment", { p_payment_id: payment.id })}>Estornar registro</button>}
