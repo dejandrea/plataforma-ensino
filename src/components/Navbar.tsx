@@ -69,7 +69,7 @@ export const Navbar = () => {
   const firstName = displayName.split(" ")[0] || "Aluno";
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
-    `inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
+    `inline-flex shrink-0 items-center whitespace-nowrap rounded-xl px-2 py-2 text-xs font-semibold transition sm:px-3 sm:text-sm ${
       isActive
         ? "bg-surface-elevated text-white ring-1 ring-white/15"
         : "text-white/55 hover:bg-surface hover:text-white"
@@ -80,17 +80,21 @@ export const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-20 border-b border-white/10 bg-brand-900/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 md:flex-row md:items-center md:justify-between">
-        <div className="flex min-h-[108px] shrink-0 flex-col items-start gap-2">
+      <div className="mx-auto grid max-w-6xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-3 py-2 md:px-4">
+        <div className="col-start-1 row-start-1 shrink-0 lg:row-span-2">
           <NavLink
             to={studentHome}
             className="inline-flex items-center gap-3 rounded-2xl text-white transition hover:opacity-90"
           >
-            <BrandLogo />
+            <BrandLogo compact />
           </NavLink>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <p className="col-start-2 row-start-1 pl-2 text-left text-xs font-black uppercase tracking-[0.12em] text-white/45 sm:pl-3 sm:text-sm">
+            Área do Aluno
+          </p>
+
+        <div className="col-span-3 row-start-2 flex min-w-0 items-center gap-1 overflow-x-auto pb-1 lg:col-span-1 lg:col-start-2">
           {hasCourseAccess && (
             <NavLink to="/dashboard" className={navClass}>
               Minha jornada
@@ -105,34 +109,31 @@ export const Navbar = () => {
           <NavLink to="/perfil" className={navClass}>
             Meu perfil
           </NavLink>
+          <NavLink to="/minhas-maestrias" className={navClass}>Minhas Maestrias</NavLink>
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-2 self-end md:self-auto">
+        <div className="col-start-3 row-start-1 flex shrink-0 flex-col items-end gap-2 lg:row-span-2">
           <div className="flex items-center gap-2">
             {backTarget && (
               <Link
                 to={backTarget}
-                className="inline-flex items-center justify-center rounded-xl bg-surface px-3 py-2 text-sm font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
+                className="inline-flex items-center justify-center rounded-xl bg-surface px-2 py-2 text-xs font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
               >
                 Voltar
               </Link>
             )}
             <button
               onClick={handleLogout}
-              className="inline-flex items-center justify-center rounded-xl bg-surface px-3 py-2 text-sm font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
+              className="inline-flex items-center justify-center rounded-xl bg-surface px-2 py-2 text-xs font-semibold text-white/75 ring-1 ring-white/15 transition hover:bg-surface-elevated hover:text-white"
               type="button"
             >
               Sair
             </button>
           </div>
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-white/45">
-            Área do Aluno
-          </p>
+
           <div className="flex items-center gap-3">
-            <div className="hidden text-right sm:block">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
-                Conectado como
-              </p>
+            <div className="hidden text-right xl:block">
+
               <p className="text-sm font-bold text-white">{firstName}</p>
             </div>
 
@@ -141,7 +142,7 @@ export const Navbar = () => {
               avatarMode={avatarMode}
               avatarUrl={avatarUrl}
               avatarPreset={avatarPreset}
-              size="md"
+              size="sm"
             />
           </div>
         </div>

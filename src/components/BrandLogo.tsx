@@ -1,7 +1,9 @@
 import symbol from "../assets/logo/logo-inicial.png";
 import wordmark from "../assets/logo/logo-para-fundo-escuro.png";
 
-export const BrandLogo = () => (
+export const BrandLogo = ({ compact = false }: { compact?: boolean }) => compact ? (
+  <img src={symbol} alt="Bitaria" className="h-14 w-14 shrink-0 rounded-xl" width={56} height={56} />
+) : (
   <div className="flex flex-col items-center gap-2">
     <img src={symbol} alt="" className="h-[72px] w-[72px] shrink-0 rounded-xl" width={72} height={72} />
     <div className="relative h-[72px] w-[216px] shrink-0 overflow-hidden">
