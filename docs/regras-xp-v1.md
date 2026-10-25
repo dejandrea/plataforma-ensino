@@ -7,6 +7,7 @@ Implementação de `docs/prompts/regras XP.md`, executada primeiro em PostgreSQL
 | Ação | XP |
 |---|---:|
 | Confirmar estudo de slides | 10 por atividade |
+| Concluir vídeo do Drive | 10 por atividade |
 | Confirmar estudo de mapa mental | 10 por atividade |
 | Primeira tentativa enviada do questionário | Percentual de acerto arredondado para inteiro (0–100) |
 | Envio válido de miniprojeto | 50, uma vez por aluno/atividade |
@@ -33,6 +34,8 @@ Foi necessário substituir o prêmio fixo do quiz aprovado pelo crédito da prim
 `student_xp_events` continua sendo a única fonte do saldo. Estudos, práticas e quizzes reutilizam `learning_activity`; envio e nota usam os tipos internos `project_submission` e `project_evaluation`, com origem na atividade e unicidade por aluno/tipo/origem. São tipos internos, não novas chaves do JSON. O crédito da nota é atualizado, enquanto cada correção fica em uma nova linha de `project_submission_reviews`. `xp_event_audit` preserva pontos anteriores/atuais, origem, autora, horário e referência da avaliação. Seu histórico é imutável, com RLS para o próprio aluno ou administrador ativo.
 
 ## Contrato e classificação
+
+Atividades `video` do contrato v2 usam a regra oficial `activity_study`: **10 XP** pela conclusão manual, uma única vez por aluno e atividade. Reabrir, assistir novamente, recarregar ou repetir a confirmação não gera outro recibo. `complete_student_study` recebe somente o ID da atividade; o backend verifica acesso, publicação e pré-requisitos e determina os pontos. A inclusão de vídeo não recalcula créditos existentes. Veja [atividade de vídeo](atividade-video.md).
 
 Não há mudança de versão ou campos numéricos de XP no JSON v2. O Work continua enviando `rewardRuleKey`, `awardOn` e `achievementKeys`.
 

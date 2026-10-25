@@ -10,6 +10,8 @@ Defina objetivos claros, instruções suficientes para estudo autônomo, textos 
 
 ## Organização e identificadores
 
+Para incluir um vídeo opcionalmente na aula, use `type: "video"` e `content: {"schemaVersion":2,"type":"video","resourceUrl":"https://drive.google.com/file/d/ARQUIVO/view?resourcekey=CHAVE"}`. Informe título, descrição e duração para orientar o aluno. `required` pode ser `true` ou `false`; não acrescente vídeo a todas as aulas por padrão. Use `activity_study`, `awardOn: "completed"` e `achievementKeys: []`. A conclusão manual concede 10 XP, controlados no servidor. Não inclua pontos no JSON. Preserve a URL de compartilhamento e a chave de acesso fornecidas pela autora; não invente um arquivo real. Veja [video-html.v2.json](examples/video-html.v2.json), que contém identificadores fictícios.
+
 - `lesson` contém `key`, `title`, `description`, `objectives` e `durationMinutes`.
 - Cada atividade contém `key`, `type`, `title`, `orderIndex`, `required`, `prerequisites` e `content`. `description` e `durationMinutes` são opcionais.
 - Use chaves e IDs ASCII estáveis, como `linha-do-tempo`, `abaco` e `estrutura`. Os textos exibidos podem ter acentos. Nunca use posição ou texto como gabarito.
@@ -49,7 +51,7 @@ Use os limites de quantidade, tamanho e tentativas do schema; `passingScore` fic
 |---|---|---|
 | Quiz | `activity_quiz` | `completed` |
 | Ordenação ou associação | `activity_interactive` | `completed` |
-| Slides ou mapa | `activity_study` | `completed` |
+| Slides, mapa ou vídeo | `activity_study` | `completed` |
 | Aula ao vivo | `activity_online` | `teacher_confirmed` |
 | Projeto | `activity_project` ou `activity_final_project` | `approved` |
 
