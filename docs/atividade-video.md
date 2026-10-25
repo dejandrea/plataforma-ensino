@@ -31,7 +31,11 @@ A prévia administrativa usa o mesmo renderizador com confirmação desabilitada
 
 A migration foi criada pela CLI e testada em PostgreSQL isolado via PGlite, incluindo reaplicação e integração com as migrations atuais de catálogos, conquistas, avaliações de projetos e permissões de perfil. Acrescenta apenas a variante de vídeo ao schema v2 armazenado e ao CHECK dos tipos; estende as funções existentes de validação de recompensa, estudo e crédito de XP. Não cria RPCs, tabelas, políticas, grants ou outra regra de pontos. `CREATE OR REPLACE` preserva ACLs, modos de segurança e `search_path`, verificados por consulta no teste. Não altera dados de aulas existentes nem recalcula recibos.
 
-Não foi aplicada em produção. O documento de requisitos `docs/prompts/Implementar atividade video.md` exige autorização explícita para essa etapa. Aplicar o backend autorizado antes de disponibilizar importações de vídeo no frontend. Uma reversão após uso precisa preservar o conteúdo e o histórico de vídeo; não remover o tipo enquanto houver atividades que o utilizem.
+Aplicada em produção em 25/10/2026 no projeto `gnyiyhnbpjhdgrhsevbh`, após autorização explícita do usuário. A execução direcionada usou a transação do arquivo e registrou somente a versão `20261023224551` no histórico. O push geral foi interrompido na simulação por divergências históricas de outras migrations, que foram preservadas.
+
+Após a aplicação, consultas de leitura no banco confirmaram que `HTML-M01-A00-aula.v2.admin.revisao.json` passa no contrato v2, seus conteúdos e recompensas são válidos, o CHECK aceita `video` e `activity_study` continua em 10 XP. ACLs, modos de segurança e `search_path` das três funções permaneceram iguais; a comparação dos advisors não encontrou novos avisos de segurança. Nenhuma aula foi importada e nenhum progresso ou recibo de aluno foi alterado pela aplicação.
+
+Uma reversão após uso precisa preservar o conteúdo e o histórico de vídeo; não remover o tipo enquanto houver atividades que o utilizem.
 
 ## Verificação reproduzível
 
