@@ -21,6 +21,12 @@ export function validateLessonImport(input: unknown): ContentValidation {
   unique(data.activities.map(a => String(a.orderIndex)), '/activities/orderIndex');
   const activities = new Map(data.activities.map(a => [a.key, a]));
   for (const activity of data.activities) {
+    if (activity.type === 'video') {
+      const url = new URL(activity.content.resourceUrl);
+      if (url.hostname !== 'drive.google.com' || url.username || url.password || url.port) {
+        errors.push(`/activities/${activity.key}/content/resourceUrl: use um arquivo do Google Drive`);
+      }
+    }
     for (const prerequisite of activity.prerequisites) {
       if (!activities.has(prerequisite) || prerequisite === activity.key) errors.push(`/activities/${activity.key}: pré-requisito inválido ${prerequisite}`);
     }

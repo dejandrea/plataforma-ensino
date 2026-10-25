@@ -33,6 +33,7 @@ export default function AdminLessonPreview({ lessonId, activities, onClose }: {
     <LessonActivityList activities={rows} progress={[]} selectedId={selected} busy={false}
       onSelect={a => setSelected(current => current === a.id ? null : a.id)} renderContent={a => <>
         <p className="mb-4 text-xs text-brand-ice">{a.publication_status === 'published' ? 'Publicado' : 'Rascunho'}</p>
+        {a.duration_minutes && <p className="mb-4 text-xs text-white/60">{a.duration_minutes} min estimados</p>}
         {a.description && <p className="mb-5 whitespace-pre-wrap text-sm leading-7 text-white/75">{a.description}</p>}
         <ActivityRenderer activity={a} status="not_started" disabled={true} preview attempts={[]} meetings={[]} submissions={[]} reviews={[]}
           onCompleteStudy={() => {}} onSubmitQuiz={async () => { throw new Error('Prévia sem envio'); }} onQuizBusy={() => {}} onProjectSaved={async () => {}} />

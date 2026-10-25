@@ -12,6 +12,7 @@
     "test:improvements": "node --test tests/improvements.test.mjs tests/lesson-history-status.test.mjs",
     "test:improvements:browser": "node --test --test-concurrency=1 tests/improvements-browser.test.mjs tests/official-xp-browser.test.mjs tests/html-lesson-homologation.test.mjs",
     "test:pdf": "node --experimental-strip-types --test --test-concurrency=1 tests/lesson-report-pdf.test.mjs tests/lesson-report-pdf-browser.test.mjs",
+    "test:video": "node --test --test-concurrency=1 tests/video-learning.test.mjs tests/video-learning-browser.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

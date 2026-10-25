@@ -52,6 +52,16 @@ export function resourcePreview(value:string) {
   return {url:safe,googleDrive:false};
 }
 
+/** Only the trusted Drive file viewer may receive video iframe permissions. */
+export function driveVideoPreview(value: string): string | null {
+  const preview = resourcePreview(value);
+  if (!preview?.googleDrive) return null;
+  const url = new URL(preview.url);
+  const authuser = new URL(value).searchParams.get('authuser');
+  if (authuser) url.searchParams.set('authuser', authuser);
+  return url.href;
+}
+
 export function safeVideoEmbed(value: string | null): string | null {
   const safe = safeHttpsUrl(value);
   if (!safe) return null;

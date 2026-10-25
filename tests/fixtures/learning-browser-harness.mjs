@@ -6,13 +6,14 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false} = {}) {
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false} = {}) {
   const database = improvements ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
   await login('admin','postgres');
-  if(!improvements&&(teacher||officialXp)) await db.exec(readSql(learningMigration('_teacher_learning_workspace.sql')));
-  if(!improvements&&officialXp) await db.exec(readSql(learningMigration('_official_xp_rules_v1.sql')));
+  if(!improvements&&(teacher||officialXp||video)) await db.exec(readSql(learningMigration('_teacher_learning_workspace.sql')));
+  if(!improvements&&(officialXp||video)) await db.exec(readSql(learningMigration('_official_xp_rules_v1.sql')));
+  if(video) await db.exec(readSql(learningMigration('_video_learning_activity.sql')));
   const requests = [];
   let loseQuizResponse = false;
   let identity = 'student';

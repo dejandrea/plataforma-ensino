@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "context": {
+    "courseTitle": "Fundamentos de Computação",
+    "moduleTitle": "História da computação",
+    "submoduleTitle": "Máquinas e instruções"
+  },
+  "lesson": {
+    "key": "video-html",
+    "title": "Estrutura de uma página HTML",
+    "description": "Assista à demonstração e consulte o resumo.",
+    "objectives": [
+      "Reconhecer a estrutura básica de uma página HTML"
+    ],
+    "durationMinutes": 15
+  },
+  "activities": [
+    {
+      "key": "video-estrutura",
+      "type": "video",
+      "title": "Uma página HTML por dentro",
+      "description": "Assista à demonstração da estrutura HTML. Pause para praticar no seu editor.",
+      "orderIndex": 0,
+      "durationMinutes": 8,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "video",
+        "resourceUrl": "https://drive.google.com/file/d/EXEMPLO_VIDEO_ID/view?usp=sharing&resourcekey=EXEMPLO_CHAVE"
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "resumo-html",
+      "type": "slides",
+      "title": "Resumo da estrutura HTML",
+      "description": "Material opcional para revisar os conceitos.",
+      "orderIndex": 1,
+      "durationMinutes": 5,
+      "required": false,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "resourceUrl": "https://example.org/resumo-html.pdf",
+        "format": "pdf",
+        "altText": "Resumo da estrutura HTML"
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [],
+    "lessonPlans": [],
+    "interactiveKeys": []
+  }
+}

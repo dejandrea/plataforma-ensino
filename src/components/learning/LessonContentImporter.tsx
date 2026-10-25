@@ -20,6 +20,7 @@ function Preview({ activity }: { activity: ActivityDefinition }) {
     {c.type === 'interactive' && <><p>{c.instructions}</p>{c.interactionType === 'ordering' ? <ul>{c.items.map(i => <li key={i.id}>{i.label}</li>)}</ul> : <div className="grid gap-3 sm:grid-cols-2"><ul>{c.leftItems.map(i => <li key={i.id}>{i.label}</li>)}</ul><ul>{c.rightItems.map(i => <li key={i.id}>{i.label}</li>)}</ul></div>}<p className="text-xs text-brand-ice">Os itens serão apresentados em ordem aleatória em cada tentativa.</p></>}
     {c.type === 'project' && <p>{c.instructions}</p>}
     {c.type === 'online_lesson' && <p>{c.objective}</p>}
+    {c.type === 'video' && <p>Vídeo do Google Drive · {activity.durationMinutes ? `${activity.durationMinutes} min estimados` : 'Duração livre'}. Use “Visualizar resultado como aluno” para assistir à prévia.</p>}
     {(c.type === 'slides' || c.type === 'mindmap') && safeHttpsUrl(c.resourceUrl) && <a href={safeHttpsUrl(c.resourceUrl)!} target="_blank" rel="noopener noreferrer" className="text-brand-ice underline">{c.altText} ↗</a>}
     {activity.gamification && <p className="text-xs text-white/60">Regra de recompensa: {activity.gamification.rewardRuleKey}. O valor é controlado pela configuração central de XP.</p>}
   </article>;
