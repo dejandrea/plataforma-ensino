@@ -4,7 +4,7 @@ import {safeHttpsUrl} from '../../lib/learningProgress';
 import type {ProjectReviewRow,ProjectSubmissionRow} from '../../types/learning';
 
 type ReviewedSubmission=ProjectSubmissionRow&{reviews:ProjectReviewRow[]};
-type InboxItem=ReviewedSubmission&{title:string;project_kind:'mini_project'|'project';assessment_criteria?:string[];requirements?:string[];previous_versions?:ReviewedSubmission[]};
+export type ProjectReviewItem=ReviewedSubmission&{title:string;project_kind:'mini_project'|'project';assessment_criteria?:string[];requirements?:string[];previous_versions?:ReviewedSubmission[]};
 const statusLabels={submitted:'Enviado',in_review:'Em avaliação',needs_revision:'Ajustes necessários',approved:'Aprovado'};
 function ReviewHistory({reviews}:{reviews:ProjectReviewRow[]}) {
  return <ol className="mt-3 space-y-3">{reviews.map(r=><li key={r.id}><p>{new Date(r.created_at).toLocaleString('pt-BR')} · {statusLabels[r.status]} · {r.grade==null?'Sem nota':`Nota: ${r.grade}/100`}</p><p className="whitespace-pre-wrap break-words">{r.teacher_feedback}</p></li>)}</ol>;
@@ -13,7 +13,7 @@ function SubmissionLinks({item}:{item:ProjectSubmissionRow}) {
  const url=safeHttpsUrl(item.submission_url);
  return <>{url&&<a href={url} target="_blank" rel="noopener noreferrer" className="text-brand-ice underline">Abrir entrega ↗</a>}{item.project_description&&<p className="whitespace-pre-wrap break-words">{item.project_description}</p>}{item.additional_links?.map((link,index)=>{const href=safeHttpsUrl(link.url);return href?<p key={index}><a href={href} target="_blank" rel="noopener noreferrer" className="text-brand-ice underline">{link.description} ↗</a></p>:null;})}{item.student_notes&&<p className="whitespace-pre-wrap break-words">{item.student_notes}</p>}</>;
 }
-function ReviewForm({item,onSaved}: {item:InboxItem;onSaved:()=>Promise<void>}) {
+export function ProjectReviewForm({item,onSaved}: {item:ProjectReviewItem;onSaved:()=>Promise<void>}) {
  const last=item.reviews.at(-1);
  const [grade,setGrade]=useState(last?.grade?.toString()??'');
  const [status,setStatus]=useState<ProjectReviewRow['status']>(last?.status??'in_review');
@@ -53,13 +53,13 @@ function ReviewForm({item,onSaved}: {item:InboxItem;onSaved:()=>Promise<void>}) 
  </article>;
 }
 export default function ProjectReviewPanel({scheduledLessonId,studentId}: {scheduledLessonId:string;studentId?:never}|{studentId:string;scheduledLessonId?:never}) {
- const [items,setItems]=useState<InboxItem[]>([]);
+ const [items,setItems]=useState<ProjectReviewItem[]>([]);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
  const [notice,setNotice]=useState('');
  const [filter,setFilter]=useState('all');
  const load=useCallback(async()=>{
-  try {setError('');setItems(studentId?await teacherLearningRpc<InboxItem[]>('teacher_student_projects',{p_student_id:studentId}):await teacherLearningRpc<InboxItem[]>('teacher_project_inbox',{p_scheduled_lesson_id:scheduledLessonId}));}
+  try {setError('');setItems(studentId?await teacherLearningRpc<ProjectReviewItem[]>('teacher_student_projects',{p_student_id:studentId}):await teacherLearningRpc<ProjectReviewItem[]>('teacher_project_inbox',{p_scheduled_lesson_id:scheduledLessonId}));}
   catch(e){setError(e instanceof Error?e.message:'Não foi possível carregar as entregas.');}
   finally {setLoading(false);}
  },[scheduledLessonId,studentId]);
@@ -72,6 +72,6 @@ export default function ProjectReviewPanel({scheduledLessonId,studentId}: {sched
   {notice&&<p role="status">{notice}</p>}
   {!loading&&!error&&!items.length&&<p>Nenhuma entrega de projeto encontrada para este aluno.</p>}
   {!loading&&!error&&items.length>0&&!items.some(item=>filter==='all'||(filter==='pending'?!item.reviews.at(-1)||item.reviews.at(-1)?.status==='in_review':item.reviews.at(-1)?.status===filter))&&<p>Nenhuma entrega neste filtro.</p>}
-  {items.filter(item=>filter==='all'||(filter==='pending'?!item.reviews.at(-1)||item.reviews.at(-1)?.status==='in_review':item.reviews.at(-1)?.status===filter)).map(item=><ReviewForm key={`${item.id}-${item.reviews.at(-1)?.id??'new'}`} item={item} onSaved={async()=>{await load();setNotice('Avaliação registrada. O saldo de XP foi atualizado pelo servidor.');}}/>)}
+  {items.filter(item=>filter==='all'||(filter==='pending'?!item.reviews.at(-1)||item.reviews.at(-1)?.status==='in_review':item.reviews.at(-1)?.status===filter)).map(item=><ProjectReviewForm key={`${item.id}-${item.reviews.at(-1)?.id??'new'}`} item={item} onSaved={async()=>{await load();setNotice('Avaliação registrada. O saldo de XP foi atualizado pelo servidor.');}}/>)}
  </section>;
 }

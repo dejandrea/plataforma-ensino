@@ -60,7 +60,7 @@ export const StaffNavbar = () => {
   const firstName = displayName.split(" ")[0] || "Equipe";
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
-    `inline-flex shrink-0 items-center whitespace-nowrap rounded-xl px-2 py-2 text-xs font-semibold transition sm:px-3 sm:text-sm ${
+    `inline-flex max-w-full items-center rounded-xl px-2 py-2 text-xs font-semibold transition sm:px-3 sm:text-sm ${
       isActive
         ? "bg-surface-elevated text-white ring-1 ring-white/15"
         : "text-white/55 hover:bg-surface hover:text-white"
@@ -88,7 +88,7 @@ export const StaffNavbar = () => {
             {userRole === "admin" ? "Área da Gestão" : "Área da Professora"}
           </p>
 
-        <div className="col-span-3 row-start-2 flex min-w-0 items-center gap-1 overflow-x-auto pb-1 lg:col-span-1 lg:col-start-2">
+        <div className="col-span-3 row-start-2 flex min-w-0 flex-wrap items-center gap-1 pb-1 lg:col-span-1 lg:col-start-2">
           <NavLink to="/dashboard-professor" className={navClass}>
             Meus alunos
           </NavLink>
@@ -97,6 +97,9 @@ export const StaffNavbar = () => {
           </NavLink>
           <NavLink to="/relatorios" className={navClass}>
             Relatorios
+          </NavLink>
+          <NavLink to="/acompanhamento-pedagogico" className={navClass}>
+            Acompanhamento Pedagógico
           </NavLink>
           <NavLink to="/financeiro" className={navClass}>
             Financeiro

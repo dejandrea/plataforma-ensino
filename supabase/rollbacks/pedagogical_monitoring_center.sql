@@ -1,0 +1,20 @@
+-- Removes only the read-only central APIs. Student history and Etapa D remain.
+begin;
+drop function public.pedagogy_dashboard(text,uuid,uuid,text,integer,integer,timestamptz,timestamptz);
+drop function public.pedagogy_student_journey(uuid,uuid);
+drop function public.pedagogy_lesson_detail(uuid,uuid,integer,integer);
+drop function public.pedagogy_activity_attempts(uuid,uuid,integer,integer);
+drop function public.pedagogy_projects(text,uuid,uuid,text,integer,integer,uuid);
+drop function public.pedagogy_project_detail(uuid);
+drop function private.pedagogy_dashboard(text,uuid,uuid,text,integer,integer,timestamptz,timestamptz);
+drop function private.pedagogy_student_journey(uuid,uuid);
+drop function private.pedagogy_lesson_detail(uuid,uuid,integer,integer);
+drop function private.pedagogy_activity_attempts(uuid,uuid,integer,integer);
+drop function private.pedagogy_projects(text,uuid,uuid,text,integer,integer,uuid);
+drop function private.pedagogy_project_detail(uuid);
+drop function private.pedagogy_require_lesson(uuid,uuid);
+drop function private.pedagogy_project_rows();
+drop function private.pedagogy_course_summary(uuid);
+drop function private.pedagogy_require_staff();
+notify pgrst,'reload schema';
+commit;

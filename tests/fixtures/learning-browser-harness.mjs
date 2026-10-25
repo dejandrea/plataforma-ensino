@@ -6,14 +6,15 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false} = {}) {
-  const database = improvements ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false} = {}) {
+  const database = improvements||pedagogy ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
   await login('admin','postgres');
-  if(!improvements&&(teacher||officialXp||video)) await db.exec(readSql(learningMigration('_teacher_learning_workspace.sql')));
-  if(!improvements&&(officialXp||video)) await db.exec(readSql(learningMigration('_official_xp_rules_v1.sql')));
+  if(!improvements&&!pedagogy&&(teacher||officialXp||video)) await db.exec(readSql(learningMigration('_teacher_learning_workspace.sql')));
+  if(!improvements&&!pedagogy&&(officialXp||video)) await db.exec(readSql(learningMigration('_official_xp_rules_v1.sql')));
   if(video) await db.exec(readSql(learningMigration('_video_learning_activity.sql')));
+  if(pedagogy) await (await import('./pedagogy-db.mjs')).preparePedagogy(database);
   const requests = [];
   let loseQuizResponse = false;
   let identity = 'student';
@@ -25,8 +26,12 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
     teacher_learning_workspace:['p_scheduled_lesson_id'],link_teacher_learning_activity:['p_scheduled_lesson_id','p_activity_id'],
     save_teacher_learning_session:['p_session_id','p_version','p_completed_step_keys','p_notes','p_evaluation'],
     confirm_teacher_learning_activity:['p_session_id','p_version'],
-    submit_student_project:['p_activity_id','p_submission_url','p_student_notes','p_request_id',...(improvements?['p_project_description','p_additional_links']:[])],
+    submit_student_project:['p_activity_id','p_submission_url','p_student_notes','p_request_id',...(improvements||pedagogy?['p_project_description','p_additional_links']:[])],
     review_student_project:['p_submission_id','p_status','p_grade','p_feedback','p_request_id'],teacher_project_inbox:['p_scheduled_lesson_id'],teacher_student_projects:['p_student_id'],
+    pedagogy_dashboard:['p_search','p_course_id','p_teacher_id','p_status','p_page','p_page_size','p_since','p_until'],
+    pedagogy_student_journey:['p_student_id','p_course_id'],pedagogy_lesson_detail:['p_student_id','p_lesson_id','p_page','p_page_size'],
+    pedagogy_activity_attempts:['p_student_id','p_activity_id','p_page','p_page_size'],
+    pedagogy_projects:['p_search','p_course_id','p_teacher_id','p_status','p_page','p_page_size','p_student_id'],pedagogy_project_detail:['p_submission_id'],
   };
   // Only PostgREST's HTTP shape/auth identity is replaced. Every operation below
   // runs the actual migration's function as authenticated inside a transaction.
