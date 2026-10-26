@@ -1,4 +1,7 @@
 import {TeacherReports} from '../../src/pages/TeacherReports';
+import {CurriculumLessonPublication} from '../../src/components/management/CurriculumLessonPublication';
+import {LessonCard} from '../../src/components/LessonCard';
+import {useEffect,useState} from 'react';
 import {PedagogicalMonitoring} from '../../src/pages/PedagogicalMonitoring';
 import {CompletedLessonTitleEditor} from '../../src/components/CompletedLessonTitleEditor';
 import {Navbar} from '../../src/components/Navbar';
@@ -20,8 +23,17 @@ import {StudentDiscountPanel} from '../../src/components/StudentDiscountPanel';
 
 const lessonId = new URLSearchParams(window.location.search).get('lesson') ?? '00000000-0000-4000-8000-000000000015';
 const params = new URLSearchParams(window.location.search);
+function CurriculumCards() {
+ const [lessons,setLessons]=useState<{id:string;title:string;publication_status:string;curriculum_number:number}[]>([]);
+ useEffect(()=>{void supabase.rpc('pedagogy_student_journey',{p_student_id:'00000000-0000-4000-8000-000000000002',p_course_id:'6fada12b-4073-40ce-9bfb-e5ecfc2c453d'}).then(({data})=>setLessons(data?.lessons??[]));},[]);
+ return <div className="app-bg mx-auto max-w-5xl space-y-4 p-5"><h1 className="text-2xl text-white">HTML Básico</h1>{lessons.filter(l=>l.curriculum_number!=null).sort((a,b)=>a.curriculum_number-b.curriculum_number).map(l=><LessonCard key={l.id} id={l.id} title={l.title} type="pdf" isCompleted={false} isPlanned={l.publication_status==='planned'} curriculumNumber={l.curriculum_number}/>)}</div>;
+}
 const pedagogyParams=new URLSearchParams(params);pedagogyParams.delete('mode');pedagogyParams.delete('jornada');
-if(params.get('mode')==='pedagogy') {
+if(params.get('mode')==='curriculum-publication') {
+ createRoot(document.getElementById('root')!).render(<div className="app-bg min-h-screen p-5"><CurriculumLessonPublication lessonId={lessonId} onPublished={()=>{document.getElementById('published-result')!.textContent='Aula liberada';}}/><p id="published-result" role="status" className="text-white"/></div>);
+} else if(params.get('mode')==='curriculum-cards') {
+ createRoot(document.getElementById('root')!).render(<MemoryRouter><CurriculumCards/></MemoryRouter>);
+} else if(params.get('mode')==='pedagogy') {
  createRoot(document.getElementById('root')!).render(<MemoryRouter initialEntries={[`/acompanhamento-pedagogico${params.get('jornada')?`/alunos/${params.get('jornada')}`:''}?${pedagogyParams}`]}><Routes><Route path="/acompanhamento-pedagogico/*" element={<PedagogicalMonitoring/>}/></Routes></MemoryRouter>);
 } else {
 if(['catalog','navigation','reports'].includes(params.get('mode') ?? '')) supabase.auth.getUser=async()=>({data:{user:{id:'00000000-0000-4000-8000-000000000001'}},error:null}) as Awaited<ReturnType<typeof supabase.auth.getUser>>;

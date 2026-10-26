@@ -380,6 +380,8 @@ export const Dashboard = () => {
                                             : "pdf"
                                       }
                                       isCompleted={isCompleted}
+                                      isPlanned={lesson.publication_status === 'planned'}
+                                      curriculumNumber={lesson.curriculum_number}
                                     />
                                   );
                                 })

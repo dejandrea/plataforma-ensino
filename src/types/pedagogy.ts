@@ -9,7 +9,7 @@ export type PedagogyDashboard=PedagogyPage<PedagogyStudentCourse>&{
  summary:{active_students:number;students_in_progress:number;completed_courses:number;pending_projects:number;completed_activities:number};
  courses:{id:string;title:string}[];teachers:{id:string;name:string}[];
 };
-export type PedagogyLesson={id:string;title:string;submodule_id:string;order_index:number;completed_at:string|null;status:Exclude<CourseStatus,'no_course'>;required_total:number;required_completed:number;last_activity_at:string|null};
+export type PedagogyLesson={id:string;title:string;submodule_id:string;order_index:number;completed_at:string|null;status:Exclude<CourseStatus,'no_course'>;required_total:number;required_completed:number;last_activity_at:string|null;publication_status?:'planned'|'published';curriculum_number?:number|null;curriculum_version?:number};
 export type PedagogyJourney={student:{id:string;name:string;nickname:string|null};courses:PedagogyCourse[];selected_course_id:string|null;modules:CurriculumModule[];submodules:{id:string;title:string;module_id:string;order_index:number;total_lessons:number;completed_lessons:number}[];lessons:PedagogyLesson[]};
 export type PedagogyActivity={id:string;title:string;activity_type:ActivityType;interaction_type:'ordering'|'matching'|null;is_required:boolean;revision:number;order_index:number;status:ActivityStatus;completed_at:string|null;updated_at:string|null;is_unlocked:boolean;xp:number;question_count:number|null;max_attempts:number|null;attempts_total:number;latest_attempt:{score:number;passed:boolean;submitted_at:string}|null};
 export type PedagogyAttempt={id:string;attempt_number:number;score:number;passed:boolean;submitted_at:string;activity_revision:number};

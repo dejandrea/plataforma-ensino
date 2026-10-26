@@ -1,0 +1,411 @@
+{
+  "audit_date": "2026-10-26",
+  "timezone": "America/Bahia",
+  "project": "gnyiyhnbpjhdgrhsevbh",
+  "mode": "read-only",
+  "inventory": [
+    {
+      "course_id": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+      "course_title": "HTML",
+      "course_active": true,
+      "module_id": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+      "module_title": "HTML Básico",
+      "module_order": 1,
+      "module_active": true,
+      "submodule_id": "7ba3b0f4-7078-47df-aaa4-a7ee460b3f3e",
+      "submodule_title": "História dos computadores",
+      "submodule_order": 1,
+      "submodule_active": true,
+      "lesson_id": "4d16131a-e2a7-40d2-9228-ee014bff701e",
+      "lesson_title": "Aula 00 — Bem-vindo ao HTML",
+      "lesson_order": 1,
+      "direct_module_id": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+      "duration_minutes": 5,
+      "has_legacy_slides": true,
+      "has_legacy_video": true,
+      "has_legacy_text": false
+    },
+    {
+      "course_id": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+      "course_title": "HTML",
+      "course_active": true,
+      "module_id": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+      "module_title": "HTML Básico",
+      "module_order": 1,
+      "module_active": true,
+      "submodule_id": "7ba3b0f4-7078-47df-aaa4-a7ee460b3f3e",
+      "submodule_title": "História dos computadores",
+      "submodule_order": 1,
+      "submodule_active": true,
+      "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+      "lesson_title": "Máquinas que Mudaram o Mundo",
+      "lesson_order": 2,
+      "direct_module_id": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+      "duration_minutes": 24,
+      "has_legacy_slides": true,
+      "has_legacy_video": true,
+      "has_legacy_text": false
+    },
+    {
+      "course_id": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+      "course_title": "HTML",
+      "course_active": true,
+      "module_id": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+      "module_title": "HTML Básico",
+      "module_order": 1,
+      "module_active": true,
+      "submodule_id": "627f2b9e-dd2d-4b9d-8897-1ebb7079ed1f",
+      "submodule_title": "Clients e Servers",
+      "submodule_order": 2,
+      "submodule_active": true,
+      "lesson_id": null,
+      "lesson_title": null,
+      "lesson_order": null,
+      "direct_module_id": null,
+      "duration_minutes": null,
+      "has_legacy_slides": false,
+      "has_legacy_video": false,
+      "has_legacy_text": false
+    },
+    {
+      "course_id": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+      "course_title": "HTML",
+      "course_active": true,
+      "module_id": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+      "module_title": "HTML Básico",
+      "module_order": 1,
+      "module_active": true,
+      "submodule_id": "046e5535-6fe8-4507-9e86-557feeb92c8b",
+      "submodule_title": "Linguagens",
+      "submodule_order": 3,
+      "submodule_active": true,
+      "lesson_id": null,
+      "lesson_title": null,
+      "lesson_order": null,
+      "direct_module_id": null,
+      "duration_minutes": null,
+      "has_legacy_slides": false,
+      "has_legacy_video": false,
+      "has_legacy_text": false
+    },
+    {
+      "course_id": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+      "course_title": "HTML",
+      "course_active": true,
+      "module_id": "76c52064-81dc-48e9-9c79-7dedae6477cd",
+      "module_title": "HTML I",
+      "module_order": 2,
+      "module_active": true,
+      "submodule_id": null,
+      "submodule_title": null,
+      "submodule_order": null,
+      "submodule_active": null,
+      "lesson_id": null,
+      "lesson_title": null,
+      "lesson_order": null,
+      "direct_module_id": null,
+      "duration_minutes": null,
+      "has_legacy_slides": false,
+      "has_legacy_video": false,
+      "has_legacy_text": false
+    },
+    {
+      "course_id": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+      "course_title": "HTML",
+      "course_active": true,
+      "module_id": "23e40d35-dba1-4903-88ba-4867c9995efe",
+      "module_title": "Excluído",
+      "module_order": 3,
+      "module_active": false,
+      "submodule_id": null,
+      "submodule_title": null,
+      "submodule_order": null,
+      "submodule_active": null,
+      "lesson_id": null,
+      "lesson_title": null,
+      "lesson_order": null,
+      "direct_module_id": null,
+      "duration_minutes": null,
+      "has_legacy_slides": false,
+      "has_legacy_video": false,
+      "has_legacy_text": false
+    },
+    {
+      "course_id": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+      "course_title": "HTML",
+      "course_active": true,
+      "module_id": "97322dd7-fbf8-419c-a84b-88d4515e0a95",
+      "module_title": "HTML II",
+      "module_order": 3,
+      "module_active": true,
+      "submodule_id": null,
+      "submodule_title": null,
+      "submodule_order": null,
+      "submodule_active": null,
+      "lesson_id": null,
+      "lesson_title": null,
+      "lesson_order": null,
+      "direct_module_id": null,
+      "duration_minutes": null,
+      "has_legacy_slides": false,
+      "has_legacy_video": false,
+      "has_legacy_text": false
+    }
+  ],
+  "dependencies": {
+    "xp": [
+      {
+        "points": 15,
+        "receipts": 1,
+        "source_id": "2b0e7617-4fa8-4df7-ba77-0a7740761ed2",
+        "event_type": "learning_activity"
+      },
+      {
+        "points": 50,
+        "receipts": 1,
+        "source_id": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+        "event_type": "module"
+      },
+      {
+        "points": 10,
+        "receipts": 1,
+        "source_id": "53c5fdec-da42-4843-b8b7-f0856dad9f1e",
+        "event_type": "learning_activity"
+      },
+      {
+        "points": 10,
+        "receipts": 1,
+        "source_id": "a3c98437-d1d6-4f6e-abaa-d10c7399e1c0",
+        "event_type": "learning_activity"
+      },
+      {
+        "points": 10,
+        "receipts": 1,
+        "source_id": "b47f62f4-fbf8-48be-aad8-8e7cf4093080",
+        "event_type": "learning_activity"
+      },
+      {
+        "points": 50,
+        "receipts": 1,
+        "source_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "event_type": "lesson"
+      },
+      {
+        "points": 15,
+        "receipts": 1,
+        "source_id": "0e266fd8-94f7-407a-8a37-6277b7eb6e56",
+        "event_type": "learning_activity"
+      },
+      {
+        "points": 50,
+        "receipts": 1,
+        "source_id": "4d16131a-e2a7-40d2-9228-ee014bff701e",
+        "event_type": "lesson"
+      },
+      {
+        "points": 10,
+        "receipts": 1,
+        "source_id": "111d3ae2-0ec0-4b58-9e4e-1b47d0798528",
+        "event_type": "learning_activity"
+      },
+      {
+        "points": 100,
+        "receipts": 1,
+        "source_id": "c4d1676c-4396-4cf5-a1fd-b678f19dd56c",
+        "event_type": "learning_activity"
+      }
+    ],
+    "counts": {
+      "quiz_attempts": 4,
+      "teacher_plans": 0,
+      "lesson_progress": 2,
+      "project_reviews": 0,
+      "teacher_sessions": 0,
+      "activity_progress": 8,
+      "completed_lessons": 2,
+      "legacy_enrollments": 0,
+      "module_evaluations": 1,
+      "project_submissions": 0,
+      "eligible_active_students": 1
+    },
+    "metadata": [
+      {
+        "lesson_id": "4d16131a-e2a7-40d2-9228-ee014bff701e",
+        "objectives": [
+          "Reconhecer a Bitara como guia da jornada.",
+          "Conhecer o percurso: explorar a tecnologia, aprender HTML e criar o primeiro site.",
+          "Identificar a criação do primeiro site como missão principal do curso."
+        ],
+        "updated_at": "2026-10-25T05:36:50.920936+00:00",
+        "schema_version": 1
+      },
+      {
+        "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "objectives": [
+          "Explicar com suas palavras para que servem computadores.",
+          "Reconhecer etapas da evolução dos instrumentos de cálculo e da computação.",
+          "Comparar máquinas antigas e dispositivos modernos.",
+          "Relacionar invenções à resolução de problemas.",
+          "Organizar exemplos em uma sequência histórica aproximada."
+        ],
+        "updated_at": "2026-10-23T01:49:57.789713+00:00",
+        "schema_version": 1
+      }
+    ],
+    "activities": [
+      {
+        "id": "111d3ae2-0ec0-4b58-9e4e-1b47d0798528",
+        "key": "a01-v2-estudo-origens",
+        "type": "slides",
+        "order": 0,
+        "title": "LEVEL 01 — Descobrir e compreender",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_study",
+          "achievementKeys": []
+        },
+        "required": true,
+        "revision": 1,
+        "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": null
+      },
+      {
+        "id": "2b0e7617-4fa8-4df7-ba77-0a7740761ed2",
+        "key": "a01-v2-linha-do-tempo",
+        "type": "interactive",
+        "order": 1,
+        "title": "MISSÃO — Organize a linha do tempo",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_interactive",
+          "achievementKeys": []
+        },
+        "required": true,
+        "revision": 1,
+        "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": null
+      },
+      {
+        "id": "b47f62f4-fbf8-48be-aad8-8e7cf4093080",
+        "key": "a01-v2-estudo-evolucao",
+        "type": "slides",
+        "order": 2,
+        "title": "DESCOBRIR — Da sala ao bolso",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_study",
+          "achievementKeys": []
+        },
+        "required": true,
+        "revision": 1,
+        "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": null
+      },
+      {
+        "id": "0e266fd8-94f7-407a-8a37-6277b7eb6e56",
+        "key": "a01-v2-maquinas-e-pistas",
+        "type": "interactive",
+        "order": 3,
+        "title": "DESAFIO EXTRA — Cada máquina, uma pista",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_interactive",
+          "achievementKeys": []
+        },
+        "required": false,
+        "revision": 1,
+        "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": null
+      },
+      {
+        "id": "a3c98437-d1d6-4f6e-abaa-d10c7399e1c0",
+        "key": "a01-v2-mapa-sintese",
+        "type": "mindmap",
+        "order": 4,
+        "title": "CONSOLIDAR — A evolução dos computadores",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_study",
+          "achievementKeys": []
+        },
+        "required": true,
+        "revision": 1,
+        "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": null
+      },
+      {
+        "id": "c4d1676c-4396-4cf5-a1fd-b678f19dd56c",
+        "key": "a01-v2-desafio-final",
+        "type": "quiz",
+        "order": 5,
+        "title": "DESAFIO FINAL — Máquinas que mudaram o mundo",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_quiz",
+          "achievementKeys": []
+        },
+        "required": true,
+        "revision": 1,
+        "lesson_id": "10972956-955b-4199-a062-4317ee2ee70c",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": 5
+      },
+      {
+        "id": "edf52b7d-3b97-4aa6-a220-30c1002ab123",
+        "key": "a00-v2-video-boas-vindas",
+        "type": "video",
+        "order": 0,
+        "title": "Boas-vindas da Bitara!",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_study",
+          "achievementKeys": []
+        },
+        "required": true,
+        "revision": 1,
+        "lesson_id": "4d16131a-e2a7-40d2-9228-ee014bff701e",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": null
+      },
+      {
+        "id": "53c5fdec-da42-4843-b8b7-f0856dad9f1e",
+        "key": "a00-v2-boas-vindas",
+        "type": "slides",
+        "order": 1,
+        "title": "LEVEL 00 — Sua jornada na web começa aqui!",
+        "active": true,
+        "reward": {
+          "awardOn": "completed",
+          "rewardRuleKey": "activity_study",
+          "achievementKeys": []
+        },
+        "required": true,
+        "revision": 1,
+        "lesson_id": "4d16131a-e2a7-40d2-9228-ee014bff701e",
+        "publication": "published",
+        "project_kind": null,
+        "question_count": null
+      }
+    ],
+    "prerequisites": []
+  }
+}

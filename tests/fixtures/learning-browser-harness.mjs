@@ -6,8 +6,8 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false} = {}) {
-  const database = improvements||pedagogy ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false} = {}) {
+  const database = improvements||pedagogy||curriculum ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
   await login('admin','postgres');
@@ -15,6 +15,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   if(!improvements&&!pedagogy&&(officialXp||video)) await db.exec(readSql(learningMigration('_official_xp_rules_v1.sql')));
   if(video) await db.exec(readSql(learningMigration('_video_learning_activity.sql')));
   if(pedagogy) await (await import('./pedagogy-db.mjs')).preparePedagogy(database);
+  if(curriculum) {const prepared=await (await import('./curriculum-db.mjs')).prepareCurriculumFixture(database);await db.exec(prepared.releaseSql);}
   const requests = [];
   let loseQuizResponse = false;
   let identity = 'student';
@@ -32,6 +33,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
     pedagogy_student_journey:['p_student_id','p_course_id'],pedagogy_lesson_detail:['p_student_id','p_lesson_id','p_page','p_page_size'],
     pedagogy_activity_attempts:['p_student_id','p_activity_id','p_page','p_page_size'],
     pedagogy_projects:['p_search','p_course_id','p_teacher_id','p_status','p_page','p_page_size','p_student_id'],pedagogy_project_detail:['p_submission_id'],
+    publish_curriculum_lesson:['p_lesson_id'],
   };
   // Only PostgREST's HTTP shape/auth identity is replaced. Every operation below
   // runs the actual migration's function as authenticated inside a transaction.

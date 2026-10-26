@@ -1,0 +1,238 @@
+{
+  "key": "html-basic-v2",
+  "version": 2,
+  "courseId": "6fada12b-4073-40ce-9bfb-e5ecfc2c453d",
+  "moduleId": "253477d3-e90d-42b8-88d8-a4a512418cf5",
+  "existingLessons": [
+    {
+      "id": "4d16131a-e2a7-40d2-9228-ee014bff701e",
+      "number": 0,
+      "order": 1,
+      "title": "Aula 00 — Bem-vindo ao HTML"
+    },
+    {
+      "id": "10972956-955b-4199-a062-4317ee2ee70c",
+      "number": 1,
+      "order": 2,
+      "title": "Máquinas que Mudaram o Mundo"
+    }
+  ],
+  "activityHashes": [
+    {
+      "id": "0e266fd8-94f7-407a-8a37-6277b7eb6e56",
+      "row_hash": "12f4c4ac926dab1f643e76454fe26f8b"
+    },
+    {
+      "id": "111d3ae2-0ec0-4b58-9e4e-1b47d0798528",
+      "row_hash": "67fdf369b73743544c89895445f0ddc0"
+    },
+    {
+      "id": "2b0e7617-4fa8-4df7-ba77-0a7740761ed2",
+      "row_hash": "ddb723676487246b1d96d945d32011ea"
+    },
+    {
+      "id": "53c5fdec-da42-4843-b8b7-f0856dad9f1e",
+      "row_hash": "896de0cf3b2b51a46b05de07e711c901"
+    },
+    {
+      "id": "a3c98437-d1d6-4f6e-abaa-d10c7399e1c0",
+      "row_hash": "98c623707d34995bd246f1c44e7bd669"
+    },
+    {
+      "id": "b47f62f4-fbf8-48be-aad8-8e7cf4093080",
+      "row_hash": "10ad796892b37f23fd6e46b2bf77e6b0"
+    },
+    {
+      "id": "c4d1676c-4396-4cf5-a1fd-b678f19dd56c",
+      "row_hash": "06ad62ae7ac1f4b8b7c62760134084bf"
+    },
+    {
+      "id": "edf52b7d-3b97-4aa6-a220-30c1002ab123",
+      "row_hash": "b5586a953951c93d526caf0777dc9033"
+    }
+  ],
+  "submodules": [
+    {
+      "id": "7ba3b0f4-7078-47df-aaa4-a7ee460b3f3e",
+      "order": 1,
+      "previousTitle": "História dos computadores",
+      "title": "As Origens da Tecnologia",
+      "description": "Compreender a evolução da computação e reconhecer pessoas que transformaram a tecnologia."
+    },
+    {
+      "id": "627f2b9e-dd2d-4b9d-8897-1ebb7079ed1f",
+      "order": 2,
+      "previousTitle": "Clients e Servers",
+      "title": "Desvendando a Internet e a Web",
+      "description": "Compreender como a internet conecta dispositivos e como páginas chegam ao navegador."
+    },
+    {
+      "id": "046e5535-6fe8-4507-9e86-557feeb92c8b",
+      "order": 3,
+      "previousTitle": "Linguagens",
+      "title": "A Linguagem da Web",
+      "description": "Conhecer as tecnologias da web e preparar o ambiente de desenvolvimento."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000000004",
+      "order": 4,
+      "title": "Construindo com HTML",
+      "description": "Criar páginas com estrutura, textos, listas, imagens e links."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000000005",
+      "order": 5,
+      "title": "Minha Primeira Criação",
+      "description": "Planejar, construir, revisar e apresentar um site autoral."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "b17a2000-0000-4000-8000-000000001002",
+      "number": 2,
+      "submoduleId": "7ba3b0f4-7078-47df-aaa4-a7ee460b3f3e",
+      "order": 3,
+      "title": "Grandes Nomes da Tecnologia",
+      "duration": 25,
+      "objective": "Reconhecer contribuições de Babbage, Lovelace, Turing, Hopper, Johnson e Berners-Lee."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001003",
+      "number": 3,
+      "submoduleId": "627f2b9e-dd2d-4b9d-8897-1ebb7079ed1f",
+      "order": 1,
+      "title": "Como Surgiram a Internet e a Web",
+      "duration": 25,
+      "objective": "Diferenciar internet e web e reconhecer a importância dos hiperlinks."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001004",
+      "number": 4,
+      "submoduleId": "627f2b9e-dd2d-4b9d-8897-1ebb7079ed1f",
+      "order": 2,
+      "title": "Clientes e Servidores: Quem Conversa com Quem?",
+      "duration": 25,
+      "objective": "Distinguir hardware e software e identificar os papéis de cliente e servidor."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001005",
+      "number": 5,
+      "submoduleId": "627f2b9e-dd2d-4b9d-8897-1ebb7079ed1f",
+      "order": 3,
+      "title": "A Viagem de um Site",
+      "duration": 25,
+      "objective": "Explicar o caminho de acesso a um site e as funções de domínio, DNS e hospedagem."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001006",
+      "number": 6,
+      "submoduleId": "046e5535-6fe8-4507-9e86-557feeb92c8b",
+      "order": 1,
+      "title": "Como Conversamos com os Computadores?",
+      "duration": 20,
+      "objective": "Distinguir linguagens de programação e marcação e reconhecer execução no cliente e servidor."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001007",
+      "number": 7,
+      "submoduleId": "046e5535-6fe8-4507-9e86-557feeb92c8b",
+      "order": 2,
+      "title": "HTML: O Esqueleto de uma Página",
+      "duration": 20,
+      "objective": "Diferenciar estrutura, apresentação e comportamento: HTML, CSS e JavaScript."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001008",
+      "number": 8,
+      "submoduleId": "046e5535-6fe8-4507-9e86-557feeb92c8b",
+      "order": 3,
+      "title": "Preparando Nossa Oficina",
+      "duration": 30,
+      "objective": "Organizar pastas, preparar o VS Code e abrir index.html no navegador."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001009",
+      "number": 9,
+      "submoduleId": "b17a2000-0000-4000-8000-000000000004",
+      "order": 1,
+      "title": "A Anatomia de uma Página",
+      "duration": 25,
+      "objective": "Criar um documento HTML com doctype, html, head, body, title, charset e lang."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001010",
+      "number": 10,
+      "submoduleId": "b17a2000-0000-4000-8000-000000000004",
+      "order": 2,
+      "title": "Textos que Contam Histórias",
+      "duration": 25,
+      "objective": "Organizar títulos e parágrafos e usar ênfase semântica."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001011",
+      "number": 11,
+      "submoduleId": "b17a2000-0000-4000-8000-000000000004",
+      "order": 3,
+      "title": "Organizando Informações",
+      "duration": 25,
+      "objective": "Criar listas ordenadas e não ordenadas e organizar seções."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001012",
+      "number": 12,
+      "submoduleId": "b17a2000-0000-4000-8000-000000000004",
+      "order": 4,
+      "title": "Imagens e Caminhos pela Web",
+      "duration": 30,
+      "objective": "Inserir imagens acessíveis, links e caminhos relativos funcionais."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001013",
+      "number": 13,
+      "submoduleId": "b17a2000-0000-4000-8000-000000000005",
+      "order": 1,
+      "title": "Planejando Meu Primeiro Site",
+      "duration": 25,
+      "objective": "Definir tema, público, conteúdo, wireframe e estrutura de arquivos do site."
+    },
+    {
+      "id": "b17a2000-0000-4000-8000-000000001014",
+      "number": 14,
+      "submoduleId": "b17a2000-0000-4000-8000-000000000005",
+      "order": 2,
+      "title": "Meu Site Está Pronto para o Mundo",
+      "duration": 25,
+      "objective": "Revisar HTML, imagens e links; publicar com orientação e apresentar o projeto."
+    }
+  ],
+  "plannedEvents": [
+    {
+      "lessonNumber": 10,
+      "type": "mini_project"
+    },
+    {
+      "lessonNumber": 12,
+      "type": "mini_project"
+    },
+    {
+      "lessonNumber": 14,
+      "type": "final_project"
+    },
+    {
+      "lessonNumber": 10,
+      "type": "online_lesson"
+    },
+    {
+      "lessonNumber": 12,
+      "type": "online_lesson"
+    },
+    {
+      "lessonNumber": 13,
+      "type": "online_lesson"
+    },
+    {
+      "lessonNumber": 14,
+      "type": "online_lesson"
+    }
+  ]
+}

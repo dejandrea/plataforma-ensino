@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import { CurriculumLessonPublication } from './CurriculumLessonPublication';
 
 const AdminLessonPreview = lazy(() => import('../learning/AdminLessonPreview'));
 const LessonContentImporter = lazy(() => import('../learning/LessonContentImporter'));
@@ -774,6 +775,7 @@ export const TabContent = () => {
                         )}
                       </div>
                       {previewLessonId === lesson.id && <Suspense fallback={<p role="status">Carregando...</p>}><AdminLessonPreview lessonId={lesson.id} onClose={() => setPreviewLessonId(null)} /></Suspense>}
+                      {lesson.publication_status === 'planned' && <CurriculumLessonPublication lessonId={lesson.id} onPublished={() => { if (selectedSubmoduleId) void fetchLessons(selectedSubmoduleId); }}/>}
                       {importLessonId === lesson.id && <Suspense fallback={<p role="status" className="mt-4 text-sm text-white/65">Carregando importação…</p>}>
                         <LessonContentImporter key={lesson.id} lessonId={lesson.id} lessonTitle={lesson.title} onClose={() => setImportLessonId(null)} />
                       </Suspense>}
