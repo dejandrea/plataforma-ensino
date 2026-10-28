@@ -1263,6 +1263,237 @@
               "content"
             ],
             "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "type": {
+                "const": "flashcards"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "orderIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                },
+                "minItems": 0,
+                "maxItems": 200,
+                "uniqueItems": true
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "schemaVersion": {
+                    "const": 2
+                  },
+                  "type": {
+                    "const": "flashcards"
+                  },
+                  "cards": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                        },
+                        "front": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200,
+                              "pattern": "\\S"
+                            },
+                            "question": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "pattern": "\\S"
+                            },
+                            "image": {
+                              "type": "object",
+                              "properties": {
+                                "resourceUrl": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 2048,
+                                  "pattern": "^https://[a-zA-Z0-9.-]+(:443)?(/[^\\s]*)?$"
+                                },
+                                "altText": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 500,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "resourceUrl",
+                                "altText"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "title",
+                            "question"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "back": {
+                          "type": "object",
+                          "properties": {
+                            "summary": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "pattern": "\\S"
+                            },
+                            "explanation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4000,
+                              "pattern": "\\S"
+                            },
+                            "impact": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4000,
+                              "pattern": "\\S"
+                            },
+                            "curiosity": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4000,
+                              "pattern": "\\S"
+                            },
+                            "image": {
+                              "type": "object",
+                              "properties": {
+                                "resourceUrl": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 2048,
+                                  "pattern": "^https://[a-zA-Z0-9.-]+(:443)?(/[^\\s]*)?$"
+                                },
+                                "altText": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 500,
+                                  "pattern": "\\S"
+                                }
+                              },
+                              "required": [
+                                "resourceUrl",
+                                "altText"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "summary",
+                            "explanation",
+                            "impact"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "front",
+                        "back"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "type",
+                  "cards"
+                ],
+                "additionalProperties": false
+              },
+              "gamification": {
+                "type": "object",
+                "properties": {
+                  "rewardRuleKey": {
+                    "enum": [
+                      "activity_quiz",
+                      "activity_interactive",
+                      "activity_study",
+                      "activity_online",
+                      "activity_project",
+                      "activity_final_project"
+                    ]
+                  },
+                  "awardOn": {
+                    "enum": [
+                      "completed",
+                      "teacher_confirmed",
+                      "approved"
+                    ]
+                  },
+                  "achievementKeys": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^custom:[a-zA-Z0-9_-]{1,90}$"
+                    },
+                    "minItems": 0,
+                    "maxItems": 20,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "rewardRuleKey",
+                  "awardOn",
+                  "achievementKeys"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "key",
+              "type",
+              "title",
+              "orderIndex",
+              "required",
+              "prerequisites",
+              "content"
+            ],
+            "additionalProperties": false
           }
         ]
       },

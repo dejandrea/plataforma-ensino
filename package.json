@@ -15,6 +15,7 @@
     "test:video": "node --test --test-concurrency=1 tests/video-learning.test.mjs tests/video-learning-browser.test.mjs",
     "test:pedagogy": "node --test --test-concurrency=1 tests/pedagogy.test.mjs tests/pedagogy-browser.test.mjs",
     "test:curriculum": "node --test --test-concurrency=1 tests/curriculum-v2.test.mjs tests/curriculum-v2-browser.test.mjs",
+    "test:flashcards": "node --test --test-concurrency=1 tests/flashcards.test.mjs tests/flashcards-browser.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

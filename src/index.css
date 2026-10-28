@@ -136,3 +136,12 @@
   h1 { @apply text-3xl font-semibold tracking-tight; }
   h2 { @apply text-xl font-semibold; }
 }
+
+@keyframes flashcard-reveal {
+  from { transform: perspective(900px) rotateY(65deg); opacity: 0.55; }
+  to { transform: perspective(900px) rotateY(0); opacity: 1; }
+}
+.flashcard-face { animation: flashcard-reveal 220ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .flashcard-face { animation: none; }
+}

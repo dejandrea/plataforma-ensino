@@ -3,6 +3,7 @@ import { resourcePreview,safeHttpsUrl } from '../../lib/learningProgress';
 import { QuizActivity } from './QuizActivity';
 import { InteractiveActivity } from './InteractiveActivity';
 import { VideoActivity } from './VideoActivity';
+import { FlashcardsActivity } from './FlashcardsActivity';
 import ProjectSubmissionForm from './ProjectSubmissionForm';
 import type { AssessmentAnswers, ActivityMeeting, ActivityStatus, LearningActivity, ProjectReviewRow, ProjectSubmissionRow, QuizAttemptRow, ResourceContent } from '../../types/learning';
 
@@ -31,6 +32,8 @@ export function ActivityRenderer({ activity, status, disabled, attempts, meeting
 }) {
   if (!activity.is_unlocked) return <p className="text-sm text-white/65">Conclua os pré-requisitos para iniciar esta atividade.</p>;
   switch (activity.activity_type) {
+    case 'flashcards':
+      return <FlashcardsActivity key={`${activity.id}-${activity.revision}`} activityId={activity.id} revision={activity.revision} content={activity.content_json} preview={preview} disabled={preview?false:disabled} onSaved={onProjectSaved} onBusyChange={onQuizBusy}/>;
     case 'video':
       return <VideoActivity key={activity.content_json.resourceUrl} content={activity.content_json} title={activity.title}
         completed={status === 'completed'} disabled={disabled || preview} preview={preview} onComplete={onCompleteStudy} />;

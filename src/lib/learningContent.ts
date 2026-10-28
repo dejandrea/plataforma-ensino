@@ -21,6 +21,13 @@ export function validateLessonImport(input: unknown): ContentValidation {
   unique(data.activities.map(a => String(a.orderIndex)), '/activities/orderIndex');
   const activities = new Map(data.activities.map(a => [a.key, a]));
   for (const activity of data.activities) {
+    if (activity.type === 'flashcards') {
+      unique(activity.content.cards.map(c=>c.id), `/activities/${activity.key}/cards`);
+      for(const card of activity.content.cards)for(const face of [card.front,card.back])if(face.image){
+        const url=new URL(face.image.resourceUrl);
+        if(url.protocol!=='https:'||url.username||url.password||(url.port&&url.port!=='443'))errors.push(`/activities/${activity.key}/cards/${card.id}: imagem deve usar HTTPS sem credenciais`);
+      }
+    }
     if (activity.type === 'video') {
       const url = new URL(activity.content.resourceUrl);
       if (url.hostname !== 'drive.google.com' || url.username || url.password || url.port) {

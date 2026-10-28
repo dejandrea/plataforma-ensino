@@ -59,7 +59,9 @@ test('video import, required/optional progress, official ten XP, idempotency and
   assert.deepEqual(await acl(),permissions);
   for(const [resourceUrl] of validUrls) assert.equal((await query("select private.learning_public_content_valid('video',$1) valid",[JSON.stringify({schemaVersion:2,type:'video',resourceUrl})])).rows[0].valid,true);
   assert.deepEqual((await query('select id,activity_type,content_json from lesson_activities order by id')).rows,before);
-  assert.deepEqual((await query('select document from private.learning_content_schemas where version=2')).rows[0].document,JSON.parse(readSql('src/contracts/learning-content.v2.schema.json')));
+  const videoEraSchema=JSON.parse(readSql('src/contracts/learning-content.v2.schema.json'));
+  videoEraSchema.properties.activities.items.oneOf=videoEraSchema.properties.activities.items.oneOf.filter(v=>v.properties.type.const!=='flashcards');
+  assert.deepEqual((await query('select document from private.learning_content_schemas where version=2')).rows[0].document,videoEraSchema);
   await prepareVideoLesson(d);
   await t.test('server rejects invalid imports atomically including forged XP and unsafe URLs',async()=>{
     for(const mutate of [...Object.values(mutations),...invalidUrls.map(url=>doc=>{doc.activities[0].content.resourceUrl=url;})]){

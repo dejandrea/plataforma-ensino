@@ -1,6 +1,10 @@
 /** Contracts v1/v2: authoring payloads are privileged; only ActivityContent is student-safe. */
 export type LegacyActivityType = 'slides' | 'mindmap' | 'quiz' | 'online_lesson' | 'project';
-export type ActivityType = LegacyActivityType | 'interactive' | 'video';
+export type ActivityType = LegacyActivityType | 'interactive' | 'video' | 'flashcards';
+export type FlashcardImage = {resourceUrl:string;altText:string};
+export type Flashcard = {id:string;front:{title:string;question:string;image?:FlashcardImage};back:{summary:string;explanation:string;impact:string;curiosity?:string;image?:FlashcardImage}};
+export type FlashcardsContent = {schemaVersion:2;type:'flashcards';cards:Flashcard[]};
+export type FlashcardProgress = {activity_id:string;activity_revision:number;reviewed_card_ids:string[];reviewed_count:number;total:number;completed:boolean};
 export type VideoContent = { schemaVersion: 2; type: 'video'; resourceUrl: string };
 export type InteractiveItem = { id: string; label: string };
 export type OrderingContent = { schemaVersion: 2; type: 'interactive'; interactionType: 'ordering'; instructions: string; items: InteractiveItem[]; passingScore: number; maxAttempts: number };
@@ -16,7 +20,7 @@ export type QuizQuestion = { key: string; prompt: string; options: { key: string
 export type QuizContent = { schemaVersion: 1; type: 'quiz'; passingScore: number; maxAttempts: number; questions: QuizQuestion[] };
 export type OnlineContent = { schemaVersion: 1; type: 'online_lesson'; objective: string; preparation: string[] };
 export type ProjectContent = { schemaVersion: 1; type: 'project'; instructions: string; objectives: string[]; requirements: string[]; assessmentCriteria: string[]; resources: { title: string; url: string }[] };
-export type ActivityContent = ResourceContent<'slides'> | ResourceContent<'mindmap'> | QuizContent | OnlineContent | ProjectContent | InteractiveContent | VideoContent;
+export type ActivityContent = ResourceContent<'slides'> | ResourceContent<'mindmap'> | QuizContent | OnlineContent | ProjectContent | InteractiveContent | VideoContent | FlashcardsContent;
 export type QuizKey = { schemaVersion: 1; answers: { questionKey: string; optionKey: string; feedback: string }[] };
 export type TeachingStep = {
   key: string; title: string; objective: string; durationMinutes: number; guidance: string;

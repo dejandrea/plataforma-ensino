@@ -1,0 +1,80 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {createLearningBrowser} from './fixtures/learning-browser-harness.mjs';
+import {flashcardsDocument} from './fixtures/flashcards-db.mjs';
+import {id,fixtureUsers} from './fixtures/learning-test-db.mjs';
+const open=(app,query)=>app.page.goto(app.appUrl+'tests/fixtures/learning-browser.html?'+query,{waitUntil:'domcontentloaded',timeout:60000});
+test('native flashcards: keyboard, persisted review, mobile, lost response, shuffle and unique XP',{timeout:180000},async t=>{
+ const app=await createLearningBrowser(t,{flashcards:true});const {page,query}=app;
+ await mkdir('test-results',{recursive:true});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await open(app,'lesson='+id(9910));
+ await page.getByRole('button',{name:'Ver explicação',exact:true}).waitFor();
+ await page.getByRole('button',{name:'Ver explicação',exact:true}).focus();
+ await page.keyboard.press('Enter');
+ await page.getByText('1 de 6 revisados',{exact:true}).waitFor();
+ assert.equal(await page.getByText('Qual é o papel do HTML?',{exact:true}).count(),0);
+ assert.equal(await page.locator('.flashcard-face').evaluate(el=>getComputedStyle(el).animationName),'none');
+ await page.screenshot({path:'test-results/flashcards-desktop.png',fullPage:true});
+ await page.reload();
+ await page.getByText('1 de 6 revisados',{exact:true}).waitFor();
+ await page.setViewportSize({width:390,height:844});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.getByRole('button',{name:'Próximo cartão',exact:true}).click();
+ app.loseResponse();
+ await page.getByRole('button',{name:'Ver explicação',exact:true}).click();
+ await page.getByText('2 de 6 revisados',{exact:true}).waitFor();
+ assert.ok(app.requests.filter(r=>r.name==='review_student_flashcard'&&r.params.p_card_id==='css').length>=2);
+ let failOnce=true;
+ await page.route('**/rpc/review_student_flashcard',route=>{
+  if(!failOnce)return route.continue();failOnce=false;
+  return route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({message:'Falha simulada ao salvar',code:'22023'})});
+ });
+ for(let n=3;n<=6;n++){
+  await page.getByRole('button',{name:'Próximo cartão',exact:true}).click();
+  await page.getByRole('button',{name:'Ver explicação',exact:true}).click();
+  if(n===3){await page.getByRole('alert').filter({hasText:'A revisão não foi confirmada'}).waitFor();await page.getByRole('button',{name:'Tentar novamente',exact:true}).click();}
+  await page.getByText(n+' de 6 revisados',{exact:true}).waitFor();
+ }
+ await page.getByRole('heading',{name:'Cartões concluídos!',exact:true}).waitFor();
+ await page.screenshot({path:'test-results/flashcards-mobile.png',fullPage:true});
+ await page.getByRole('button',{name:'Embaralhar cartões',exact:true}).click();
+ await page.getByText('Cartão 1 de 6',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Reiniciar sessão',exact:true}).click();
+ await page.getByRole('button',{name:'Ver explicação',exact:true}).click();
+ await page.getByText('6 de 6 revisados',{exact:true}).waitFor();
+ await app.login('admin','postgres');
+ const activity=(await query("select id from lesson_activities where key='flashcards-isolated-study'")).rows[0].id;
+ const receipt=(await query("select points from student_xp_events where student_id=$1 and event_type='learning_activity' and source_id=$2",[fixtureUsers.student,activity])).rows;
+ assert.deepEqual(receipt,[{points:10}]);
+ assert.equal((await query('select count(*) n from private.flashcard_review_progress where student_id=$1 and activity_id=$2',[fixtureUsers.student,activity])).rows[0].n,6);
+ assert.deepEqual(app.pageErrors,[]);
+});
+test('import preview flips all six cards without writes, imports a draft and shows teacher progress counts',{timeout:180000},async t=>{
+ const app=await createLearningBrowser(t,{flashcards:true});const {page,query}=app;app.setIdentity('admin');
+ await open(app,'mode=import&lesson='+id(9910)+'&title='+encodeURIComponent('Cartões em homologação'));
+ const doc=flashcardsDocument();doc.activities[0].key='flashcards-preview-extra';doc.activities[0].orderIndex=1;doc.activities[0].required=false;
+ await page.getByRole('textbox',{name:'Conteúdo JSON',exact:true}).fill(JSON.stringify(doc));
+ await page.getByRole('button',{name:'Visualizar resultado como aluno',exact:true}).click();
+ await page.getByRole('navigation',{name:'Atividades da aula'}).getByRole('button',{name:/Seis conceitos para explorar/}).click();
+ await page.getByRole('button',{name:'Ver explicação',exact:true}).click();
+ await page.getByText('1 de 6 revisados',{exact:true}).waitFor();
+ for(let n=2;n<=6;n++){await page.getByRole('button',{name:'Próximo cartão',exact:true}).click();await page.getByRole('button',{name:'Ver explicação',exact:true}).click();}
+ await page.getByRole('heading',{name:'Todos os cartões revisados nesta prévia',exact:true}).waitFor();
+ assert.equal(app.requests.length,0);
+ await page.getByRole('button',{name:'Importar atividades',exact:true}).click();
+ await page.getByText('Rascunho importado. Confira a prévia antes de publicar.',{exact:true}).waitFor();
+ await app.login('admin','postgres');
+ assert.equal((await query("select publication_status from lesson_activities where key='flashcards-preview-extra'")).rows[0].publication_status,'draft');
+ const activity=(await query("select id from lesson_activities where key='flashcards-isolated-study'")).rows[0].id;
+ await app.login();await app.rpc('review_student_flashcard',[activity,'html']);app.setIdentity('teacher');
+ await open(app,'mode=pedagogy&jornada='+fixtureUsers.student+'&curso='+id(25));
+ await page.getByRole('heading',{name:'Aluno',exact:true}).waitFor();
+ await page.locator('summary').filter({hasText:'Aula antiga'}).click();
+ await page.locator('summary').filter({hasText:'Conteúdo'}).click();
+ const lesson=page.locator('li').filter({has:page.getByRole('heading',{name:'Cartões em homologação',exact:true})});
+ await lesson.getByRole('button',{name:'Ver atividades',exact:true}).click();
+ await page.getByText('1 de 6 cartões revisados',{exact:true}).waitFor();
+ assert.deepEqual(app.pageErrors,[]);
+});

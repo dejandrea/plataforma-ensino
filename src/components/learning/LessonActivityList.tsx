@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { ActivityStatusBadge } from './ActivityProgress';
 import type { LearningActivity, StudentActivityProgressRow } from '../../types/learning';
 
-const typeLabels = { slides: 'Slides', mindmap: 'Mapa mental', video: 'Vídeo', quiz: 'Questionário', online_lesson: 'Aula online', project: 'Miniprojeto', interactive: 'Prática interativa' };
+const typeLabels = { slides: 'Slides', mindmap: 'Mapa mental', video: 'Vídeo', quiz: 'Questionário', online_lesson: 'Aula online', project: 'Miniprojeto', interactive: 'Prática interativa', flashcards:'Cartões didáticos' };
 
 export function LessonActivityList({ activities, progress, selectedId, busy, onSelect, renderContent }: {
   activities: LearningActivity[]; progress: StudentActivityProgressRow[]; selectedId?: string | null; busy: boolean;

@@ -6,8 +6,8 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false} = {}) {
-  const database = improvements||pedagogy||curriculum ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false,flashcards = false} = {}) {
+  const database = improvements||pedagogy||curriculum||flashcards ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
   await login('admin','postgres');
@@ -15,7 +15,8 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   if(!improvements&&!pedagogy&&(officialXp||video)) await db.exec(readSql(learningMigration('_official_xp_rules_v1.sql')));
   if(video) await db.exec(readSql(learningMigration('_video_learning_activity.sql')));
   if(pedagogy) await (await import('./pedagogy-db.mjs')).preparePedagogy(database);
-  if(curriculum) {const prepared=await (await import('./curriculum-db.mjs')).prepareCurriculumFixture(database);await db.exec(prepared.releaseSql);}
+  if(curriculum||flashcards) {const prepared=await (await import('./curriculum-db.mjs')).prepareCurriculumFixture(database);await db.exec(prepared.releaseSql);}
+  if(flashcards) await (await import('./flashcards-db.mjs')).prepareFlashcards(database);
   const requests = [];
   let loseQuizResponse = false;
   let identity = 'student';
@@ -34,6 +35,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
     pedagogy_activity_attempts:['p_student_id','p_activity_id','p_page','p_page_size'],
     pedagogy_projects:['p_search','p_course_id','p_teacher_id','p_status','p_page','p_page_size','p_student_id'],pedagogy_project_detail:['p_submission_id'],
     publish_curriculum_lesson:['p_lesson_id'],
+    student_flashcard_progress:['p_activity_id'],review_student_flashcard:['p_activity_id','p_card_id'],
   };
   // Only PostgREST's HTTP shape/auth identity is replaced. Every operation below
   // runs the actual migration's function as authenticated inside a transaction.
@@ -55,7 +57,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
         await tx.query("select set_config('request.jwt.claim.sub',$1,true)",[fixtureUsers[identity]]);
         return (await tx.query(`select public.${name}(${args.map((_,i) => `$${i+1}`).join(',')}) value`,args)).rows[0].value;
       });
-      if (['submit_student_quiz','submit_student_assessment'].includes(name) && loseQuizResponse) { loseQuizResponse=false; req.socket.destroy(); return; }
+      if (['submit_student_quiz','submit_student_assessment','review_student_flashcard'].includes(name) && loseQuizResponse) { loseQuizResponse=false; req.socket.destroy(); return; }
       res.writeHead(200,{'content-type':'application/json'}); res.end(JSON.stringify(value));
     } catch (error) {
       res.writeHead(400,{'content-type':'application/json'});

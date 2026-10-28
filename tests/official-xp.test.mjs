@@ -166,8 +166,8 @@ test('official XP rollback before use restores prior rules and schemas without d
  for(const version of [1,2]) {
   const actual=(await db.query('select document from private.learning_content_schemas where version=$1',[version])).rows[0].document;
   const expected=JSON.parse(readSql(`src/contracts/learning-content.v${version}.schema.json`));
-  // This fixture stops at official-XP v1, before the additive video migration.
-  if(version===2) expected.properties.activities.items.oneOf=expected.properties.activities.items.oneOf.filter(v=>v.properties.type.const!=='video');
+  // This fixture stops at official-XP v1, before additive video/flashcards migrations.
+  if(version===2) expected.properties.activities.items.oneOf=expected.properties.activities.items.oneOf.filter(v=>!['video','flashcards'].includes(v.properties.type.const));
   assert.deepEqual(actual,expected);
  }
  await db.db.exec(readSql('supabase/rollbacks/official_xp_rules_v1.sql'));

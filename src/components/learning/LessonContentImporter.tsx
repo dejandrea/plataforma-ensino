@@ -16,6 +16,7 @@ function Preview({ activity }: { activity: ActivityDefinition }) {
   const c = activity.content;
   return <article className="space-y-3 rounded-2xl bg-background p-4 text-sm text-white/75">
     <h4 className="font-bold text-white">{activity.title} · {activity.required ? 'Obrigatória' : 'Opcional'}</h4>
+    {c.type==='flashcards'&&<p>{c.cards.length} cartões didáticos. Use “Visualizar resultado como aluno” para virar os cartões sem salvar progresso.</p>}
     {c.type === 'quiz' && c.questions.map(q => <div key={q.key}><p className="font-semibold">{q.prompt}</p><ul className="list-disc pl-5">{q.options.map(o => <li key={o.key}>{o.text}</li>)}</ul></div>)}
     {c.type === 'interactive' && <><p>{c.instructions}</p>{c.interactionType === 'ordering' ? <ul>{c.items.map(i => <li key={i.id}>{i.label}</li>)}</ul> : <div className="grid gap-3 sm:grid-cols-2"><ul>{c.leftItems.map(i => <li key={i.id}>{i.label}</li>)}</ul><ul>{c.rightItems.map(i => <li key={i.id}>{i.label}</li>)}</ul></div>}<p className="text-xs text-brand-ice">Os itens serão apresentados em ordem aleatória em cada tentativa.</p></>}
     {c.type === 'project' && <p>{c.instructions}</p>}

@@ -6,7 +6,7 @@ import type {PedagogyActivity,PedagogyAttempt,PedagogyJourney as JourneyData,Ped
 import {usePedagogyQuery} from './usePedagogyQuery';
 import {PedagogyBadge,PedagogyPagination,PedagogyProgress,PedagogyState,pedagogyField} from './PedagogyShared';
 
-const activityLabels={video:'Vídeo',slides:'Slides',mindmap:'Mapa mental',quiz:'Questionário',interactive:'Prática interativa',project:'Projeto',online_lesson:'Aula online'};
+const activityLabels={video:'Vídeo',slides:'Slides',mindmap:'Mapa mental',quiz:'Questionário',interactive:'Prática interativa',project:'Projeto',online_lesson:'Aula online',flashcards:'Cartões didáticos'};
 
 function Attempts({studentId,activityId}:{studentId:string;activityId:string}) {
  const [page,setPage]=useState(1);
@@ -24,6 +24,7 @@ function ActivityCard({activity:a,studentId,courseId}:{activity:PedagogyActivity
  return <li className="min-w-0 space-y-3 rounded-2xl border border-white/10 bg-background/50 p-4">
   <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-brand-lavender">{label} · {a.is_required?'Obrigatória':'Opcional'}</p><h4 className="mt-1 font-bold text-white">{a.title}</h4></div><PedagogyBadge complete={a.status==='completed'}>{activityStatusLabels[a.status]}</PedagogyBadge></div>
   <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/60"><p>Conclusão: {pedagogyDate(a.completed_at)}</p><p>{a.xp} XP recebidos</p>{!a.is_unlocked&&<p className="text-amber-200">Bloqueada por pré-requisitos ou etapa curricular</p>}</div>
+  {a.activity_type==='flashcards'&&<p className="text-sm text-white/75">{a.flashcards_reviewed??0} de {a.flashcards_total??0} cartões revisados</p>}
   {(a.activity_type==='quiz'||a.activity_type==='interactive')&&<div className="space-y-3 text-sm text-white/70">
    <p>{a.question_count!==null?`${a.question_count} pergunta(s) · `:''}{a.attempts_total}/{a.max_attempts} tentativas</p>
    {a.latest_attempt&&<p>Último resultado: <strong className="text-white">{a.latest_attempt.score}% · {a.latest_attempt.passed?'Aprovado':'Não aprovado'}</strong> · {pedagogyDate(a.latest_attempt.submitted_at)}</p>}
