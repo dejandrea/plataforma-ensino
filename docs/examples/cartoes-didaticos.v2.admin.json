@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 2,
+  "context": {
+    "courseTitle": "Curso de demonstração",
+    "moduleTitle": "Módulo de demonstração",
+    "submoduleTitle": "Conceitos da Web"
+  },
+  "lesson": {
+    "key": "web-vocabulary",
+    "title": "Vocabulário da Web",
+    "description": "Estudo em cartões com recuperação ativa.",
+    "objectives": [
+      "Relembrar conceitos e explicar suas aplicações."
+    ],
+    "durationMinutes": 10
+  },
+  "activities": [
+    {
+      "key": "web-vocabulary-cards",
+      "type": "flashcards",
+      "title": "Seis conceitos para explorar",
+      "orderIndex": 0,
+      "required": true,
+      "prerequisites": [],
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      },
+      "content": {
+        "schemaVersion": 2,
+        "type": "flashcards",
+        "cards": [
+          {
+            "id": "html",
+            "front": {
+              "title": "HTML",
+              "question": "Qual é o papel do HTML?"
+            },
+            "back": {
+              "summary": "Estrutura e conteúdo.",
+              "explanation": "HTML organiza elementos de uma página.",
+              "impact": "Ajuda a criar páginas compreensíveis."
+            }
+          },
+          {
+            "id": "css",
+            "front": {
+              "title": "CSS",
+              "question": "Como definimos a apresentação?"
+            },
+            "back": {
+              "summary": "Apresentação visual.",
+              "explanation": "CSS descreve estilos dos elementos.",
+              "impact": "Permite adaptar a página a diferentes telas."
+            }
+          },
+          {
+            "id": "javascript",
+            "front": {
+              "title": "JavaScript",
+              "question": "Como adicionamos comportamentos?"
+            },
+            "back": {
+              "summary": "Comportamento e interação.",
+              "explanation": "JavaScript permite responder a ações.",
+              "impact": "Ajuda a construir experiências interativas."
+            }
+          },
+          {
+            "id": "browser",
+            "front": {
+              "title": "Navegador",
+              "question": "O que exibe uma página web?"
+            },
+            "back": {
+              "summary": "Um programa para navegar.",
+              "explanation": "O navegador interpreta recursos da web.",
+              "impact": "Permite acessar informações e aplicações."
+            }
+          },
+          {
+            "id": "link",
+            "front": {
+              "title": "Link",
+              "question": "Como páginas se conectam?"
+            },
+            "back": {
+              "summary": "Uma conexão entre recursos.",
+              "explanation": "Um hiperlink aponta para um endereço.",
+              "impact": "Organiza caminhos de navegação."
+            }
+          },
+          {
+            "id": "accessibility",
+            "front": {
+              "title": "Acessibilidade",
+              "question": "Como incluir diferentes formas de uso?"
+            },
+            "back": {
+              "summary": "Acesso para mais pessoas.",
+              "explanation": "Texto alternativo e teclado são exemplos.",
+              "impact": "Melhora a participação de todos.",
+              "curiosity": "Boas práticas beneficiam muitas pessoas."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [],
+    "lessonPlans": [],
+    "interactiveKeys": []
+  }
+}
