@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Apresentações · Bitaria</title>
+  <link rel="stylesheet" href="./viewer.css">
+  <script type="module" src="./viewer.js"></script>
+</head>
+<body>
+  <main id="presentation" aria-label="Apresentação da aula">
+    <header class="toolbar">
+      <a class="brand" href="./">BITARIA<span aria-hidden="true"> / </span><span>APRENDER & CRIAR</span></a>
+      <div class="tools"><label class="button upload">Abrir JSON<input id="file" type="file" accept=".json,application/json"></label><button id="fullscreen" type="button">Tela cheia</button></div>
+    </header>
+    <p id="deck-title" class="deck-title"></p>
+    <p id="error" role="alert" hidden></p>
+    <section id="slide" tabindex="-1" aria-labelledby="slide-title"><p role="status">Carregando apresentação…</p></section>
+    <footer class="navigation">
+      <button id="previous" type="button" disabled aria-label="Slide anterior">← Anterior</button>
+      <div class="position"><p id="position" role="status" aria-live="polite" aria-atomic="true"></p><progress id="progress" max="1" value="0" aria-label="Progresso da apresentação"></progress></div>
+      <button id="next" type="button" disabled aria-label="Próximo slide">Próximo →</button>
+    </footer>
+    <p class="help">← → para navegar · Home: início · End: final · Deslize no celular</p>
+  </main>
+</body>
+</html>

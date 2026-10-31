@@ -1,0 +1,750 @@
+{
+  "bitara-001": {
+    "category": "neutra",
+    "tags": [
+      "em-pe",
+      "tablet",
+      "acolhimento"
+    ],
+    "alt": "Bitara em pé, com uma mão na cintura e um tablet ao lado.",
+    "purpose": "Abertura e apresentação da aula.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-002": {
+    "category": "comemorando",
+    "tags": [
+      "vitoria",
+      "corpo-inteiro",
+      "sorriso"
+    ],
+    "alt": "Bitara sorrindo, com um braço levantado em sinal de vitória.",
+    "purpose": "Celebrar uma descoberta.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-003": {
+    "category": "explicando",
+    "tags": [
+      "apontando",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé, apontando para a direita com as mãos.",
+    "purpose": "Destacar um conceito ao lado.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-004": {
+    "category": "neutra",
+    "tags": [
+      "mochila",
+      "livros",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara com mochila e livros nos braços.",
+    "purpose": "Introduzir materiais de estudo.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-005": {
+    "category": "programadora",
+    "tags": [
+      "notebook",
+      "sentada",
+      "texto-na-imagem"
+    ],
+    "alt": "Bitara sentada com um notebook e a frase Bora aprender.",
+    "purpose": "Convidar para uma prática.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-006": {
+    "category": "pensativa",
+    "tags": [
+      "reflexao",
+      "lampada",
+      "meio-corpo"
+    ],
+    "alt": "Bitara apoiando o rosto na mão, com uma lâmpada desenhada acima.",
+    "purpose": "Pausa para pensar em uma ideia.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-007": {
+    "category": "explicando",
+    "tags": [
+      "acenando",
+      "codigo",
+      "saudacao"
+    ],
+    "alt": "Bitara acenando, com um balão contendo um símbolo de código.",
+    "purpose": "Apresentar um assunto de programação.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-008": {
+    "category": "programadora",
+    "tags": [
+      "notebook",
+      "digitando",
+      "sorriso"
+    ],
+    "alt": "Bitara sorrindo enquanto usa um notebook.",
+    "purpose": "Acompanhar exemplos de código.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-009": {
+    "category": "outras",
+    "tags": [
+      "tablet",
+      "anotando"
+    ],
+    "alt": "Bitara segurando um tablet e uma caneta.",
+    "purpose": "Sugerir anotações.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-010": {
+    "category": "neutra",
+    "tags": [
+      "caneca",
+      "acolhimento",
+      "sorriso"
+    ],
+    "alt": "Bitara sorrindo de olhos fechados e segurando uma caneca com coração.",
+    "purpose": "Criar uma pausa acolhedora.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-011": {
+    "category": "explicando",
+    "tags": [
+      "mao-aberta",
+      "apresentando"
+    ],
+    "alt": "Bitara apresentando a mão aberta para o lado.",
+    "purpose": "Acompanhar uma explicação.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-012": {
+    "category": "pensativa",
+    "tags": [
+      "duvida",
+      "interrogacao",
+      "reflexao"
+    ],
+    "alt": "Bitara com a mão no queixo e um ponto de interrogação ao lado.",
+    "purpose": "Introduzir uma pergunta.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-013": {
+    "category": "comemorando",
+    "tags": [
+      "alegria",
+      "punhos-erguidos"
+    ],
+    "alt": "Bitara sorrindo de olhos fechados e levantando os punhos.",
+    "purpose": "Celebrar o avanço na missão.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-014": {
+    "category": "explicando",
+    "tags": [
+      "saudacao",
+      "acenando",
+      "moletom"
+    ],
+    "alt": "Bitara acenando com a mão erguida e um balão de saudação.",
+    "purpose": "Receber o aluno.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-015": {
+    "category": "pensativa",
+    "tags": [
+      "duvida",
+      "interrogacao",
+      "moletom"
+    ],
+    "alt": "Bitara olhando para cima com a mão no queixo e um balão de interrogação.",
+    "purpose": "Propor uma reflexão.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-016": {
+    "category": "explicando",
+    "tags": [
+      "ideia",
+      "lampada",
+      "apontando"
+    ],
+    "alt": "Bitara levantando um dedo ao lado de uma lâmpada acesa.",
+    "purpose": "Destacar uma nova ideia.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-017": {
+    "category": "comemorando",
+    "tags": [
+      "vitoria",
+      "texto-na-imagem"
+    ],
+    "alt": "Bitara erguendo os braços sob a palavra Consegui.",
+    "purpose": "Encerrar uma etapa.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-018": {
+    "category": "comemorando",
+    "tags": [
+      "aprovacao",
+      "polegar",
+      "sorriso"
+    ],
+    "alt": "Bitara sorrindo, com um polegar levantado e a outra mão apontando.",
+    "purpose": "Reconhecer um esforço.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-019": {
+    "category": "programadora",
+    "tags": [
+      "notebook",
+      "codigo",
+      "moletom"
+    ],
+    "alt": "Bitara digitando em um notebook roxo diante de uma tela de código.",
+    "purpose": "Ilustrar uma prática de programação.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-020": {
+    "category": "investigadora",
+    "tags": [
+      "lupa",
+      "investigacao",
+      "meio-corpo"
+    ],
+    "alt": "Bitara segurando uma lupa diante de um olho e mostrando a palma da outra mão.",
+    "purpose": "Convidar a observar detalhes.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-021": {
+    "category": "outras",
+    "tags": [
+      "livro",
+      "leitura",
+      "estudo"
+    ],
+    "alt": "Bitara lendo um livro roxo aberto.",
+    "purpose": "Apresentar uma leitura.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-022": {
+    "category": "explicando",
+    "tags": [
+      "apontando",
+      "tela",
+      "codigo"
+    ],
+    "alt": "Bitara apontando para uma tela com linhas coloridas de código.",
+    "purpose": "Explicar partes de um exemplo.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-023": {
+    "category": "comemorando",
+    "tags": [
+      "aprovacao",
+      "polegar",
+      "piscando"
+    ],
+    "alt": "Bitara piscando um olho e mostrando o polegar para cima.",
+    "purpose": "Reconhecer uma descoberta.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-024": {
+    "category": "comemorando",
+    "tags": [
+      "aprovacao",
+      "retrato",
+      "painel-neon"
+    ],
+    "alt": "Retrato da Bitara sorrindo e mostrando o polegar para cima em um painel neon.",
+    "purpose": "Dar incentivo.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-025": {
+    "category": "neutra",
+    "tags": [
+      "caderno",
+      "acolhimento",
+      "coracoes"
+    ],
+    "alt": "Bitara abraçando um caderno roxo, com corações ao redor.",
+    "purpose": "Valorizar o aprendizado.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-026": {
+    "category": "comemorando",
+    "tags": [
+      "vitoria",
+      "texto-na-imagem",
+      "estrelas"
+    ],
+    "alt": "Bitara com os braços abertos sob estrelas e uma faixa de missão concluída.",
+    "purpose": "Encerrar uma missão.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-027": {
+    "category": "comemorando",
+    "tags": [
+      "vitoria",
+      "brilhos"
+    ],
+    "alt": "Bitara fazendo sinal de vitória com os dedos, com brilhos ao redor.",
+    "purpose": "Celebrar uma etapa.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-028": {
+    "category": "explicando",
+    "tags": [
+      "apontando",
+      "moletom"
+    ],
+    "alt": "Bitara apontando com as duas mãos para a direita.",
+    "purpose": "Direcionar a atenção.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-029": {
+    "category": "neutra",
+    "tags": [
+      "mochila",
+      "de-costas"
+    ],
+    "alt": "Bitara olhando por cima do ombro com uma mochila roxa.",
+    "purpose": "Abertura de uma jornada.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-030": {
+    "category": "programadora",
+    "tags": [
+      "notebook",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé, segurando um notebook aberto.",
+    "purpose": "Introduzir uma atividade prática.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-031": {
+    "category": "explicando",
+    "tags": [
+      "tela",
+      "codigo",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé ao lado de uma tela de código, levantando um dedo.",
+    "purpose": "Apresentar uma explicação técnica.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-032": {
+    "category": "pensativa",
+    "tags": [
+      "reflexao",
+      "caderno",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara segurando um caderno junto ao corpo e levando a mão ao queixo.",
+    "purpose": "Pausa para pensar.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-033": {
+    "category": "comemorando",
+    "tags": [
+      "salto",
+      "vitoria",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara saltando com um punho erguido e um tablet na outra mão.",
+    "purpose": "Celebrar o fim de uma etapa.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-034": {
+    "category": "neutra",
+    "tags": [
+      "mochila",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé, olhando para trás e carregando uma mochila.",
+    "purpose": "Acompanhar transições.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-035": {
+    "category": "programadora",
+    "tags": [
+      "notebook",
+      "codigo",
+      "painel-neon"
+    ],
+    "alt": "Bitara digitando em um notebook diante de painéis de código neon.",
+    "purpose": "Ilustrar um exemplo de programação.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-036": {
+    "category": "pensativa",
+    "tags": [
+      "duvida",
+      "painel-neon",
+      "reflexao"
+    ],
+    "alt": "Bitara com a mão no queixo, olhando para um ponto de interrogação em um painel.",
+    "purpose": "Introduzir um problema.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-037": {
+    "category": "explicando",
+    "tags": [
+      "lampada",
+      "ideia",
+      "painel-neon"
+    ],
+    "alt": "Bitara sorrindo enquanto segura uma lâmpada acesa em um painel neon.",
+    "purpose": "Apresentar uma descoberta.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-038": {
+    "category": "investigadora",
+    "tags": [
+      "lupa",
+      "painel-neon"
+    ],
+    "alt": "Bitara segurando uma lupa diante de um olho em um painel neon.",
+    "purpose": "Investigar um detalhe.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-039": {
+    "category": "outras",
+    "tags": [
+      "caderno",
+      "anotando",
+      "painel-neon"
+    ],
+    "alt": "Bitara segurando um caderno e uma caneta em um painel neon.",
+    "purpose": "Sugerir um registro de ideias.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-040": {
+    "category": "programadora",
+    "tags": [
+      "monitores",
+      "codigo",
+      "cenario"
+    ],
+    "alt": "Bitara sentada diante de vários monitores de código em um ambiente neon.",
+    "purpose": "Contextualizar um ambiente de programação.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-041": {
+    "category": "explicando",
+    "tags": [
+      "fluxograma",
+      "apontando",
+      "cenario"
+    ],
+    "alt": "Bitara segurando um caderno e apontando para um fluxograma em uma tela.",
+    "purpose": "Explicar uma sequência de decisões.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-042": {
+    "category": "comemorando",
+    "tags": [
+      "confetes",
+      "vitoria",
+      "painel-neon"
+    ],
+    "alt": "Bitara com os braços erguidos e confetes em um painel neon.",
+    "purpose": "Celebrar uma conquista.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-043": {
+    "category": "programadora",
+    "tags": [
+      "notebook",
+      "sentada",
+      "cenario"
+    ],
+    "alt": "Bitara sentada com um notebook no colo em uma sala iluminada em roxo.",
+    "purpose": "Acompanhar uma prática.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-044": {
+    "category": "investigadora",
+    "tags": [
+      "lupa",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé, segurando uma lupa diante de um olho.",
+    "purpose": "Abrir uma missão de investigação.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-045": {
+    "category": "programadora",
+    "tags": [
+      "tablet",
+      "holograma",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé, interagindo com um tablet de aparência holográfica.",
+    "purpose": "Acompanhar uma exploração digital.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-046": {
+    "category": "pensativa",
+    "tags": [
+      "duvida",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé com a mão no queixo e um pequeno ponto de interrogação.",
+    "purpose": "Convidar a formular uma hipótese.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-047": {
+    "category": "explicando",
+    "tags": [
+      "apontando",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara em pé, com um braço levantado e um dedo apontando para cima.",
+    "purpose": "Destacar uma dica.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-048": {
+    "category": "investigadora",
+    "tags": [
+      "lupa",
+      "movimento",
+      "corpo-inteiro"
+    ],
+    "alt": "Bitara correndo com uma lupa na mão e uma mochila nas costas.",
+    "purpose": "Convidar a explorar.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-049": {
+    "category": "investigadora",
+    "tags": [
+      "lupa",
+      "close"
+    ],
+    "alt": "Close da Bitara segurando uma lupa que amplia um olho.",
+    "purpose": "Destacar a observação de detalhes.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-050": {
+    "category": "explicando",
+    "tags": [
+      "livro",
+      "lampada",
+      "painel-neon"
+    ],
+    "alt": "Bitara segurando um livro aberto e levantando uma caneta ao lado de uma lâmpada.",
+    "purpose": "Explicar uma descoberta.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-051": {
+    "category": "pensativa",
+    "tags": [
+      "duvida",
+      "retrato",
+      "interrogacao"
+    ],
+    "alt": "Retrato da Bitara com a mão no queixo e pontos de interrogação.",
+    "purpose": "Introduzir uma pergunta.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-052": {
+    "category": "surpresa",
+    "tags": [
+      "espanto",
+      "brilhos",
+      "retrato"
+    ],
+    "alt": "Bitara com as mãos nas bochechas, olhos abertos e brilhos ao redor.",
+    "purpose": "Apresentar uma curiosidade surpreendente.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-053": {
+    "category": "explicando",
+    "tags": [
+      "mao-aberta",
+      "apresentando",
+      "moletom"
+    ],
+    "alt": "Bitara sorrindo e apresentando a mão aberta para a direita.",
+    "purpose": "Acompanhar uma explicação.",
+    "reviewStatus": "revisada",
+    "kind": "pose"
+  },
+  "bitara-054": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "notebook"
+    ],
+    "alt": "Notebook roxo fechado com a letra B na tampa.",
+    "purpose": "Ilustrar materiais de programação.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-055": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "livros",
+      "texto-na-imagem"
+    ],
+    "alt": "Pilha de livros com as palavras Tecnologia, História e Ideias.",
+    "purpose": "Ilustrar fontes de estudo.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-056": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "mochila"
+    ],
+    "alt": "Mochila roxa com a letra B e um adesivo de gato.",
+    "purpose": "Ilustrar o início de uma jornada.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-057": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "lupa"
+    ],
+    "alt": "Lupa com cabo roxo e reflexos azulados.",
+    "purpose": "Sinalizar investigação.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-058": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "caderno",
+      "texto-na-imagem"
+    ],
+    "alt": "Caderno roxo com caneta e as palavras Descobrir, Criar e Evoluir.",
+    "purpose": "Ilustrar registros de estudo.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-059": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "tablet",
+      "codigo"
+    ],
+    "alt": "Tablet neon com um símbolo de código na tela.",
+    "purpose": "Ilustrar uma atividade digital.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-060": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "caneca"
+    ],
+    "alt": "Caneca roxa com um gato e vapor saindo pelo topo.",
+    "purpose": "Ilustrar uma pausa.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-061": {
+    "category": "outras",
+    "tags": [
+      "objeto",
+      "fone"
+    ],
+    "alt": "Fone de ouvido roxo e rosa.",
+    "purpose": "Ilustrar recursos de áudio.",
+    "reviewStatus": "revisada",
+    "kind": "objeto"
+  },
+  "bitara-prancha-missao": {
+    "category": "outras",
+    "tags": [
+      "prancha",
+      "multiplas-poses",
+      "referencia"
+    ],
+    "alt": "Prancha com várias poses da Bitara, de saudação, dúvida, estudo e comemoração.",
+    "purpose": "Referência visual; não selecionada automaticamente como pose.",
+    "reviewStatus": "revisada",
+    "kind": "prancha"
+  },
+  "bitara-prancha-programadora": {
+    "category": "outras",
+    "tags": [
+      "prancha",
+      "multiplas-poses",
+      "programacao"
+    ],
+    "alt": "Prancha da Bitara com poses de programação, telas, notebook e comemoração.",
+    "purpose": "Referência visual; não selecionada automaticamente como pose.",
+    "reviewStatus": "revisada",
+    "kind": "prancha"
+  },
+  "bitara-prancha-investigadora": {
+    "category": "outras",
+    "tags": [
+      "prancha",
+      "multiplas-poses",
+      "investigacao"
+    ],
+    "alt": "Ficha visual da Bitara com poses de investigação, expressões e objetos.",
+    "purpose": "Referência visual; não selecionada automaticamente como pose.",
+    "reviewStatus": "revisada",
+    "kind": "prancha"
+  }
+}

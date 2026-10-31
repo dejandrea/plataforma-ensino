@@ -1,0 +1,1148 @@
+{
+  "schemaVersion": 1,
+  "fallbackId": "bitara-001",
+  "categories": [
+    "pensativa",
+    "investigadora",
+    "programadora",
+    "comemorando",
+    "explicando",
+    "surpresa",
+    "neutra",
+    "outras"
+  ],
+  "images": [
+    {
+      "id": "bitara-001",
+      "src": "/biblioteca-bitara/images/bitara-001.webp",
+      "original": "src/assets/Mascote Bitara/mascote 1.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 21472,
+      "category": "neutra",
+      "tags": [
+        "em-pe",
+        "tablet",
+        "acolhimento"
+      ],
+      "alt": "Bitara em pé, com uma mão na cintura e um tablet ao lado.",
+      "purpose": "Abertura e apresentação da aula.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-002",
+      "src": "/biblioteca-bitara/images/bitara-002.webp",
+      "original": "src/assets/Mascote Bitara/mascote 2.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 19620,
+      "category": "comemorando",
+      "tags": [
+        "vitoria",
+        "corpo-inteiro",
+        "sorriso"
+      ],
+      "alt": "Bitara sorrindo, com um braço levantado em sinal de vitória.",
+      "purpose": "Celebrar uma descoberta.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-003",
+      "src": "/biblioteca-bitara/images/bitara-003.webp",
+      "original": "src/assets/Mascote Bitara/mascote 3.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 21882,
+      "category": "explicando",
+      "tags": [
+        "apontando",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé, apontando para a direita com as mãos.",
+      "purpose": "Destacar um conceito ao lado.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-004",
+      "src": "/biblioteca-bitara/images/bitara-004.webp",
+      "original": "src/assets/Mascote Bitara/mascote 4.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 19050,
+      "category": "neutra",
+      "tags": [
+        "mochila",
+        "livros",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara com mochila e livros nos braços.",
+      "purpose": "Introduzir materiais de estudo.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-005",
+      "src": "/biblioteca-bitara/images/bitara-005.webp",
+      "original": "src/assets/Mascote Bitara/mascote 5.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 36282,
+      "category": "programadora",
+      "tags": [
+        "notebook",
+        "sentada",
+        "texto-na-imagem"
+      ],
+      "alt": "Bitara sentada com um notebook e a frase Bora aprender.",
+      "purpose": "Convidar para uma prática.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-006",
+      "src": "/biblioteca-bitara/images/bitara-006.webp",
+      "original": "src/assets/Mascote Bitara/mascote 6.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 32410,
+      "category": "pensativa",
+      "tags": [
+        "reflexao",
+        "lampada",
+        "meio-corpo"
+      ],
+      "alt": "Bitara apoiando o rosto na mão, com uma lâmpada desenhada acima.",
+      "purpose": "Pausa para pensar em uma ideia.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-007",
+      "src": "/biblioteca-bitara/images/bitara-007.webp",
+      "original": "src/assets/Mascote Bitara/mascote 7.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 38568,
+      "category": "explicando",
+      "tags": [
+        "acenando",
+        "codigo",
+        "saudacao"
+      ],
+      "alt": "Bitara acenando, com um balão contendo um símbolo de código.",
+      "purpose": "Apresentar um assunto de programação.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-008",
+      "src": "/biblioteca-bitara/images/bitara-008.webp",
+      "original": "src/assets/Mascote Bitara/mascote 8.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 37354,
+      "category": "programadora",
+      "tags": [
+        "notebook",
+        "digitando",
+        "sorriso"
+      ],
+      "alt": "Bitara sorrindo enquanto usa um notebook.",
+      "purpose": "Acompanhar exemplos de código.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-009",
+      "src": "/biblioteca-bitara/images/bitara-009.webp",
+      "original": "src/assets/Mascote Bitara/mascote 9.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 35678,
+      "category": "outras",
+      "tags": [
+        "tablet",
+        "anotando"
+      ],
+      "alt": "Bitara segurando um tablet e uma caneta.",
+      "purpose": "Sugerir anotações.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-010",
+      "src": "/biblioteca-bitara/images/bitara-010.webp",
+      "original": "src/assets/Mascote Bitara/mascote 10.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 39874,
+      "category": "neutra",
+      "tags": [
+        "caneca",
+        "acolhimento",
+        "sorriso"
+      ],
+      "alt": "Bitara sorrindo de olhos fechados e segurando uma caneca com coração.",
+      "purpose": "Criar uma pausa acolhedora.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-011",
+      "src": "/biblioteca-bitara/images/bitara-011.webp",
+      "original": "src/assets/Mascote Bitara/mascote 11.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 36316,
+      "category": "explicando",
+      "tags": [
+        "mao-aberta",
+        "apresentando"
+      ],
+      "alt": "Bitara apresentando a mão aberta para o lado.",
+      "purpose": "Acompanhar uma explicação.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-012",
+      "src": "/biblioteca-bitara/images/bitara-012.webp",
+      "original": "src/assets/Mascote Bitara/mascote 12.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 35690,
+      "category": "pensativa",
+      "tags": [
+        "duvida",
+        "interrogacao",
+        "reflexao"
+      ],
+      "alt": "Bitara com a mão no queixo e um ponto de interrogação ao lado.",
+      "purpose": "Introduzir uma pergunta.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-013",
+      "src": "/biblioteca-bitara/images/bitara-013.webp",
+      "original": "src/assets/Mascote Bitara/mascote 13.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 43330,
+      "category": "comemorando",
+      "tags": [
+        "alegria",
+        "punhos-erguidos"
+      ],
+      "alt": "Bitara sorrindo de olhos fechados e levantando os punhos.",
+      "purpose": "Celebrar o avanço na missão.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-014",
+      "src": "/biblioteca-bitara/images/bitara-014.webp",
+      "original": "src/assets/Mascote Bitara/mascote 14.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 52564,
+      "category": "explicando",
+      "tags": [
+        "saudacao",
+        "acenando",
+        "moletom"
+      ],
+      "alt": "Bitara acenando com a mão erguida e um balão de saudação.",
+      "purpose": "Receber o aluno.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-015",
+      "src": "/biblioteca-bitara/images/bitara-015.webp",
+      "original": "src/assets/Mascote Bitara/mascote 15.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 36276,
+      "category": "pensativa",
+      "tags": [
+        "duvida",
+        "interrogacao",
+        "moletom"
+      ],
+      "alt": "Bitara olhando para cima com a mão no queixo e um balão de interrogação.",
+      "purpose": "Propor uma reflexão.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-016",
+      "src": "/biblioteca-bitara/images/bitara-016.webp",
+      "original": "src/assets/Mascote Bitara/mascote 16.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 47870,
+      "category": "explicando",
+      "tags": [
+        "ideia",
+        "lampada",
+        "apontando"
+      ],
+      "alt": "Bitara levantando um dedo ao lado de uma lâmpada acesa.",
+      "purpose": "Destacar uma nova ideia.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-017",
+      "src": "/biblioteca-bitara/images/bitara-017.webp",
+      "original": "src/assets/Mascote Bitara/mascote 17.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 61032,
+      "category": "comemorando",
+      "tags": [
+        "vitoria",
+        "texto-na-imagem"
+      ],
+      "alt": "Bitara erguendo os braços sob a palavra Consegui.",
+      "purpose": "Encerrar uma etapa.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-018",
+      "src": "/biblioteca-bitara/images/bitara-018.webp",
+      "original": "src/assets/Mascote Bitara/mascote 18.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 46726,
+      "category": "comemorando",
+      "tags": [
+        "aprovacao",
+        "polegar",
+        "sorriso"
+      ],
+      "alt": "Bitara sorrindo, com um polegar levantado e a outra mão apontando.",
+      "purpose": "Reconhecer um esforço.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-019",
+      "src": "/biblioteca-bitara/images/bitara-019.webp",
+      "original": "src/assets/Mascote Bitara/mascote 19.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 53214,
+      "category": "programadora",
+      "tags": [
+        "notebook",
+        "codigo",
+        "moletom"
+      ],
+      "alt": "Bitara digitando em um notebook roxo diante de uma tela de código.",
+      "purpose": "Ilustrar uma prática de programação.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-020",
+      "src": "/biblioteca-bitara/images/bitara-020.webp",
+      "original": "src/assets/Mascote Bitara/mascote 20.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 48686,
+      "category": "investigadora",
+      "tags": [
+        "lupa",
+        "investigacao",
+        "meio-corpo"
+      ],
+      "alt": "Bitara segurando uma lupa diante de um olho e mostrando a palma da outra mão.",
+      "purpose": "Convidar a observar detalhes.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-021",
+      "src": "/biblioteca-bitara/images/bitara-021.webp",
+      "original": "src/assets/Mascote Bitara/mascote 21.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 54184,
+      "category": "outras",
+      "tags": [
+        "livro",
+        "leitura",
+        "estudo"
+      ],
+      "alt": "Bitara lendo um livro roxo aberto.",
+      "purpose": "Apresentar uma leitura.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-022",
+      "src": "/biblioteca-bitara/images/bitara-022.webp",
+      "original": "src/assets/Mascote Bitara/mascote 22.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 46724,
+      "category": "explicando",
+      "tags": [
+        "apontando",
+        "tela",
+        "codigo"
+      ],
+      "alt": "Bitara apontando para uma tela com linhas coloridas de código.",
+      "purpose": "Explicar partes de um exemplo.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-023",
+      "src": "/biblioteca-bitara/images/bitara-023.webp",
+      "original": "src/assets/Mascote Bitara/mascote 23.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 44112,
+      "category": "comemorando",
+      "tags": [
+        "aprovacao",
+        "polegar",
+        "piscando"
+      ],
+      "alt": "Bitara piscando um olho e mostrando o polegar para cima.",
+      "purpose": "Reconhecer uma descoberta.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-024",
+      "src": "/biblioteca-bitara/images/bitara-024.webp",
+      "original": "src/assets/Mascote Bitara/mascote 24.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 54252,
+      "category": "comemorando",
+      "tags": [
+        "aprovacao",
+        "retrato",
+        "painel-neon"
+      ],
+      "alt": "Retrato da Bitara sorrindo e mostrando o polegar para cima em um painel neon.",
+      "purpose": "Dar incentivo.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-025",
+      "src": "/biblioteca-bitara/images/bitara-025.webp",
+      "original": "src/assets/Mascote Bitara/mascote 25.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 52352,
+      "category": "neutra",
+      "tags": [
+        "caderno",
+        "acolhimento",
+        "coracoes"
+      ],
+      "alt": "Bitara abraçando um caderno roxo, com corações ao redor.",
+      "purpose": "Valorizar o aprendizado.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-026",
+      "src": "/biblioteca-bitara/images/bitara-026.webp",
+      "original": "src/assets/Mascote Bitara/mascote 26.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 68356,
+      "category": "comemorando",
+      "tags": [
+        "vitoria",
+        "texto-na-imagem",
+        "estrelas"
+      ],
+      "alt": "Bitara com os braços abertos sob estrelas e uma faixa de missão concluída.",
+      "purpose": "Encerrar uma missão.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-027",
+      "src": "/biblioteca-bitara/images/bitara-027.webp",
+      "original": "src/assets/Mascote Bitara/mascote 27.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 39982,
+      "category": "comemorando",
+      "tags": [
+        "vitoria",
+        "brilhos"
+      ],
+      "alt": "Bitara fazendo sinal de vitória com os dedos, com brilhos ao redor.",
+      "purpose": "Celebrar uma etapa.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-028",
+      "src": "/biblioteca-bitara/images/bitara-028.webp",
+      "original": "src/assets/Mascote Bitara/mascote 28.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 37266,
+      "category": "explicando",
+      "tags": [
+        "apontando",
+        "moletom"
+      ],
+      "alt": "Bitara apontando com as duas mãos para a direita.",
+      "purpose": "Direcionar a atenção.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-029",
+      "src": "/biblioteca-bitara/images/bitara-029.webp",
+      "original": "src/assets/Mascote Bitara/mascote 29.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 38890,
+      "category": "neutra",
+      "tags": [
+        "mochila",
+        "de-costas"
+      ],
+      "alt": "Bitara olhando por cima do ombro com uma mochila roxa.",
+      "purpose": "Abertura de uma jornada.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-030",
+      "src": "/biblioteca-bitara/images/bitara-030.webp",
+      "original": "src/assets/Mascote Bitara/mascote 30.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 25254,
+      "category": "programadora",
+      "tags": [
+        "notebook",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé, segurando um notebook aberto.",
+      "purpose": "Introduzir uma atividade prática.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-031",
+      "src": "/biblioteca-bitara/images/bitara-031.webp",
+      "original": "src/assets/Mascote Bitara/mascote 31.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 33516,
+      "category": "explicando",
+      "tags": [
+        "tela",
+        "codigo",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé ao lado de uma tela de código, levantando um dedo.",
+      "purpose": "Apresentar uma explicação técnica.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-032",
+      "src": "/biblioteca-bitara/images/bitara-032.webp",
+      "original": "src/assets/Mascote Bitara/mascote 32.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 27490,
+      "category": "pensativa",
+      "tags": [
+        "reflexao",
+        "caderno",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara segurando um caderno junto ao corpo e levando a mão ao queixo.",
+      "purpose": "Pausa para pensar.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-033",
+      "src": "/biblioteca-bitara/images/bitara-033.webp",
+      "original": "src/assets/Mascote Bitara/mascote 33.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 33112,
+      "category": "comemorando",
+      "tags": [
+        "salto",
+        "vitoria",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara saltando com um punho erguido e um tablet na outra mão.",
+      "purpose": "Celebrar o fim de uma etapa.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-034",
+      "src": "/biblioteca-bitara/images/bitara-034.webp",
+      "original": "src/assets/Mascote Bitara/mascote 34.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 26414,
+      "category": "neutra",
+      "tags": [
+        "mochila",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé, olhando para trás e carregando uma mochila.",
+      "purpose": "Acompanhar transições.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-035",
+      "src": "/biblioteca-bitara/images/bitara-035.webp",
+      "original": "src/assets/Mascote Bitara/mascote 35.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 51328,
+      "category": "programadora",
+      "tags": [
+        "notebook",
+        "codigo",
+        "painel-neon"
+      ],
+      "alt": "Bitara digitando em um notebook diante de painéis de código neon.",
+      "purpose": "Ilustrar um exemplo de programação.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-036",
+      "src": "/biblioteca-bitara/images/bitara-036.webp",
+      "original": "src/assets/Mascote Bitara/mascote 36.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 53614,
+      "category": "pensativa",
+      "tags": [
+        "duvida",
+        "painel-neon",
+        "reflexao"
+      ],
+      "alt": "Bitara com a mão no queixo, olhando para um ponto de interrogação em um painel.",
+      "purpose": "Introduzir um problema.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-037",
+      "src": "/biblioteca-bitara/images/bitara-037.webp",
+      "original": "src/assets/Mascote Bitara/mascote 37.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 56452,
+      "category": "explicando",
+      "tags": [
+        "lampada",
+        "ideia",
+        "painel-neon"
+      ],
+      "alt": "Bitara sorrindo enquanto segura uma lâmpada acesa em um painel neon.",
+      "purpose": "Apresentar uma descoberta.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-038",
+      "src": "/biblioteca-bitara/images/bitara-038.webp",
+      "original": "src/assets/Mascote Bitara/mascote 38.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 57522,
+      "category": "investigadora",
+      "tags": [
+        "lupa",
+        "painel-neon"
+      ],
+      "alt": "Bitara segurando uma lupa diante de um olho em um painel neon.",
+      "purpose": "Investigar um detalhe.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-039",
+      "src": "/biblioteca-bitara/images/bitara-039.webp",
+      "original": "src/assets/Mascote Bitara/mascote 39.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 58930,
+      "category": "outras",
+      "tags": [
+        "caderno",
+        "anotando",
+        "painel-neon"
+      ],
+      "alt": "Bitara segurando um caderno e uma caneta em um painel neon.",
+      "purpose": "Sugerir um registro de ideias.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-040",
+      "src": "/biblioteca-bitara/images/bitara-040.webp",
+      "original": "src/assets/Mascote Bitara/mascote 40.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 40108,
+      "category": "programadora",
+      "tags": [
+        "monitores",
+        "codigo",
+        "cenario"
+      ],
+      "alt": "Bitara sentada diante de vários monitores de código em um ambiente neon.",
+      "purpose": "Contextualizar um ambiente de programação.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-041",
+      "src": "/biblioteca-bitara/images/bitara-041.webp",
+      "original": "src/assets/Mascote Bitara/mascote 41.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 41234,
+      "category": "explicando",
+      "tags": [
+        "fluxograma",
+        "apontando",
+        "cenario"
+      ],
+      "alt": "Bitara segurando um caderno e apontando para um fluxograma em uma tela.",
+      "purpose": "Explicar uma sequência de decisões.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-042",
+      "src": "/biblioteca-bitara/images/bitara-042.webp",
+      "original": "src/assets/Mascote Bitara/mascote 42.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 56630,
+      "category": "comemorando",
+      "tags": [
+        "confetes",
+        "vitoria",
+        "painel-neon"
+      ],
+      "alt": "Bitara com os braços erguidos e confetes em um painel neon.",
+      "purpose": "Celebrar uma conquista.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-043",
+      "src": "/biblioteca-bitara/images/bitara-043.webp",
+      "original": "src/assets/Mascote Bitara/mascote 43.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 43792,
+      "category": "programadora",
+      "tags": [
+        "notebook",
+        "sentada",
+        "cenario"
+      ],
+      "alt": "Bitara sentada com um notebook no colo em uma sala iluminada em roxo.",
+      "purpose": "Acompanhar uma prática.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-044",
+      "src": "/biblioteca-bitara/images/bitara-044.webp",
+      "original": "src/assets/Mascote Bitara/mascote 44.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 27324,
+      "category": "investigadora",
+      "tags": [
+        "lupa",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé, segurando uma lupa diante de um olho.",
+      "purpose": "Abrir uma missão de investigação.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-045",
+      "src": "/biblioteca-bitara/images/bitara-045.webp",
+      "original": "src/assets/Mascote Bitara/mascote 45.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 27900,
+      "category": "programadora",
+      "tags": [
+        "tablet",
+        "holograma",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé, interagindo com um tablet de aparência holográfica.",
+      "purpose": "Acompanhar uma exploração digital.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-046",
+      "src": "/biblioteca-bitara/images/bitara-046.webp",
+      "original": "src/assets/Mascote Bitara/mascote 46.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 25514,
+      "category": "pensativa",
+      "tags": [
+        "duvida",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé com a mão no queixo e um pequeno ponto de interrogação.",
+      "purpose": "Convidar a formular uma hipótese.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-047",
+      "src": "/biblioteca-bitara/images/bitara-047.webp",
+      "original": "src/assets/Mascote Bitara/mascote 47.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 26956,
+      "category": "explicando",
+      "tags": [
+        "apontando",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara em pé, com um braço levantado e um dedo apontando para cima.",
+      "purpose": "Destacar uma dica.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-048",
+      "src": "/biblioteca-bitara/images/bitara-048.webp",
+      "original": "src/assets/Mascote Bitara/mascote 48.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 30660,
+      "category": "investigadora",
+      "tags": [
+        "lupa",
+        "movimento",
+        "corpo-inteiro"
+      ],
+      "alt": "Bitara correndo com uma lupa na mão e uma mochila nas costas.",
+      "purpose": "Convidar a explorar.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-049",
+      "src": "/biblioteca-bitara/images/bitara-049.webp",
+      "original": "src/assets/Mascote Bitara/mascote 49.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 53784,
+      "category": "investigadora",
+      "tags": [
+        "lupa",
+        "close"
+      ],
+      "alt": "Close da Bitara segurando uma lupa que amplia um olho.",
+      "purpose": "Destacar a observação de detalhes.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-050",
+      "src": "/biblioteca-bitara/images/bitara-050.webp",
+      "original": "src/assets/Mascote Bitara/mascote 50.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 50520,
+      "category": "explicando",
+      "tags": [
+        "livro",
+        "lampada",
+        "painel-neon"
+      ],
+      "alt": "Bitara segurando um livro aberto e levantando uma caneta ao lado de uma lâmpada.",
+      "purpose": "Explicar uma descoberta.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-051",
+      "src": "/biblioteca-bitara/images/bitara-051.webp",
+      "original": "src/assets/Mascote Bitara/mascote 51.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 49738,
+      "category": "pensativa",
+      "tags": [
+        "duvida",
+        "retrato",
+        "interrogacao"
+      ],
+      "alt": "Retrato da Bitara com a mão no queixo e pontos de interrogação.",
+      "purpose": "Introduzir uma pergunta.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-052",
+      "src": "/biblioteca-bitara/images/bitara-052.webp",
+      "original": "src/assets/Mascote Bitara/mascote 52.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 49708,
+      "category": "surpresa",
+      "tags": [
+        "espanto",
+        "brilhos",
+        "retrato"
+      ],
+      "alt": "Bitara com as mãos nas bochechas, olhos abertos e brilhos ao redor.",
+      "purpose": "Apresentar uma curiosidade surpreendente.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-053",
+      "src": "/biblioteca-bitara/images/bitara-053.webp",
+      "original": "src/assets/Mascote Bitara/mascote 53.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 37536,
+      "category": "explicando",
+      "tags": [
+        "mao-aberta",
+        "apresentando",
+        "moletom"
+      ],
+      "alt": "Bitara sorrindo e apresentando a mão aberta para a direita.",
+      "purpose": "Acompanhar uma explicação.",
+      "reviewStatus": "revisada",
+      "kind": "pose"
+    },
+    {
+      "id": "bitara-054",
+      "src": "/biblioteca-bitara/images/bitara-054.webp",
+      "original": "src/assets/Mascote Bitara/54.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 18038,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "notebook"
+      ],
+      "alt": "Notebook roxo fechado com a letra B na tampa.",
+      "purpose": "Ilustrar materiais de programação.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-055",
+      "src": "/biblioteca-bitara/images/bitara-055.webp",
+      "original": "src/assets/Mascote Bitara/55.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 28550,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "livros",
+        "texto-na-imagem"
+      ],
+      "alt": "Pilha de livros com as palavras Tecnologia, História e Ideias.",
+      "purpose": "Ilustrar fontes de estudo.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-056",
+      "src": "/biblioteca-bitara/images/bitara-056.webp",
+      "original": "src/assets/Mascote Bitara/56.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 23352,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "mochila"
+      ],
+      "alt": "Mochila roxa com a letra B e um adesivo de gato.",
+      "purpose": "Ilustrar o início de uma jornada.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-057",
+      "src": "/biblioteca-bitara/images/bitara-057.webp",
+      "original": "src/assets/Mascote Bitara/57.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 24032,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "lupa"
+      ],
+      "alt": "Lupa com cabo roxo e reflexos azulados.",
+      "purpose": "Sinalizar investigação.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-058",
+      "src": "/biblioteca-bitara/images/bitara-058.webp",
+      "original": "src/assets/Mascote Bitara/58.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 27072,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "caderno",
+        "texto-na-imagem"
+      ],
+      "alt": "Caderno roxo com caneta e as palavras Descobrir, Criar e Evoluir.",
+      "purpose": "Ilustrar registros de estudo.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-059",
+      "src": "/biblioteca-bitara/images/bitara-059.webp",
+      "original": "src/assets/Mascote Bitara/59.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 34058,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "tablet",
+        "codigo"
+      ],
+      "alt": "Tablet neon com um símbolo de código na tela.",
+      "purpose": "Ilustrar uma atividade digital.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-060",
+      "src": "/biblioteca-bitara/images/bitara-060.webp",
+      "original": "src/assets/Mascote Bitara/60.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 19172,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "caneca"
+      ],
+      "alt": "Caneca roxa com um gato e vapor saindo pelo topo.",
+      "purpose": "Ilustrar uma pausa.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-061",
+      "src": "/biblioteca-bitara/images/bitara-061.webp",
+      "original": "src/assets/Mascote Bitara/61.png",
+      "width": 200,
+      "height": 200,
+      "bytes": 31514,
+      "category": "outras",
+      "tags": [
+        "objeto",
+        "fone"
+      ],
+      "alt": "Fone de ouvido roxo e rosa.",
+      "purpose": "Ilustrar recursos de áudio.",
+      "reviewStatus": "revisada",
+      "kind": "objeto"
+    },
+    {
+      "id": "bitara-prancha-missao",
+      "src": "/biblioteca-bitara/images/bitara-prancha-missao.webp",
+      "original": "src/assets/Mascote Bitara/Bitara_ Missão Concluída no Mundo Neon.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1941972,
+      "category": "outras",
+      "tags": [
+        "prancha",
+        "multiplas-poses",
+        "referencia"
+      ],
+      "alt": "Prancha com várias poses da Bitara, de saudação, dúvida, estudo e comemoração.",
+      "purpose": "Referência visual; não selecionada automaticamente como pose.",
+      "reviewStatus": "revisada",
+      "kind": "prancha"
+    },
+    {
+      "id": "bitara-prancha-programadora",
+      "src": "/biblioteca-bitara/images/bitara-prancha-programadora.webp",
+      "original": "src/assets/Mascote Bitara/Bitara_ Programadora Neon em Ação.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2056174,
+      "category": "outras",
+      "tags": [
+        "prancha",
+        "multiplas-poses",
+        "programacao"
+      ],
+      "alt": "Prancha da Bitara com poses de programação, telas, notebook e comemoração.",
+      "purpose": "Referência visual; não selecionada automaticamente como pose.",
+      "reviewStatus": "revisada",
+      "kind": "prancha"
+    },
+    {
+      "id": "bitara-prancha-investigadora",
+      "src": "/biblioteca-bitara/images/bitara-prancha-investigadora.webp",
+      "original": "src/assets/Mascote Bitara/Ficha de Personagem Bitara Investigadora.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1919212,
+      "category": "outras",
+      "tags": [
+        "prancha",
+        "multiplas-poses",
+        "investigacao"
+      ],
+      "alt": "Ficha visual da Bitara com poses de investigação, expressões e objetos.",
+      "purpose": "Referência visual; não selecionada automaticamente como pose.",
+      "reviewStatus": "revisada",
+      "kind": "prancha"
+    }
+  ]
+}

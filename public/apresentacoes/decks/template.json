@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "title": "Título da sua aula",
+  "slides": [
+    {"type":"cover","eyebrow":"BITARIA · CURSO · AULA","title":"Título da missão","subtitle":"O que vamos descobrir hoje?"},
+    {"type":"concept","title":"Uma ideia por vez","body":"Substitua este texto pela explicação do conceito. Use frases curtas e exemplos próximos dos alunos."},
+    {"type":"closing","title":"Hora de continuar","body":"Retome a ideia principal e convide o aluno a continuar as atividades na plataforma."}
+  ]
+}

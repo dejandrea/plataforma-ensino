@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test:bitara": "node --test tests/bitara-library.test.mjs",
+    "test:bitara:browser": "node --test tests/bitara-library-browser.test.mjs",
+    "test:presentations": "node --test tests/web-presentations.test.mjs",
+    "test:presentations:browser": "node --test tests/web-presentations-browser.test.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

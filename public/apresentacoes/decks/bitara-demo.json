@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "title": "Biblioteca visual da Bitara · Demonstração",
+  "slides": [
+    {"type":"cover","eyebrow":"BITARIA · BIBLIOTECA VISUAL","title":"Uma companheira para cada descoberta","subtitle":"Bitara nas apresentações web","mascot":{"category":"neutra"}},
+    {"type":"concept","title":"Vamos pensar juntas?","body":"Antes de começar, observe o problema e diga o que você já sabe.","mascot":{"category":"pensativa"}},
+    {"type":"highlight","title":"Olhe mais de perto","body":"Às vezes, um pequeno detalhe ajuda a entender uma grande ideia.","mascot":{"category":"investigadora"}},
+    {"type":"example","title":"Uma ideia em código","body":"Podemos dar um título à nossa página com HTML.","code":"<h1>Minha descoberta</h1>","mascot":{"category":"programadora"}},
+    {"type":"steps","title":"Uma etapa de cada vez","items":[{"title":"Observar","body":"Leia e identifique as informações."},{"title":"Experimentar","body":"Teste uma ideia e observe o resultado."}],"mascot":{"category":"explicando"}},
+    {"type":"highlight","title":"Opa, uma descoberta!","body":"Compartilhe algo que chamou sua atenção durante a aula.","mascot":{"category":"surpresa"}},
+    {"type":"concept","title":"Uma pose escolhida para a missão","body":"A lupa acompanha nosso convite para observar e investigar.","mascot":{"id":"bitara-044"}},
+    {"type":"closing","title":"Que bom aprender com você!","body":"Leve suas perguntas e descobertas para a próxima atividade.","mascot":{"category":"comemorando"}}
+  ]
+}
