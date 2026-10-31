@@ -2,6 +2,10 @@
 
 Estado: implantação NÃO autorizada nem executada. Consultas de produção somente de leitura. Este relatório é preliminar até confirmar o ambiente Vercel e a recuperabilidade do backup.
 
+Atualização após autorização da usuária: preparação e merge autorizados. Commit do gerenciador `2eedce1` integrado por fast-forward à `main` local, incluindo os commits anteriores de biblioteca, template, navegação e correção de títulos. A branch `feat/template-apresentacoes-web` já é ancestral da main. Push e implantação permanecem pendentes da confirmação do destino Vercel e do backup recuperável; nenhuma escrita em produção foi executada.
+
+Os testes do gerenciador agora carregam o pacote de referência de `tests/fixtures/a02-package/`, fora da pasta pública. Os sete arquivos reais em `public/apresentacoes/` continuam locais e não rastreados, excluídos do commit. O build do workspace local ainda pode copiá-los para `dist`: não usar esse diretório para deploy; gerar o artefato exclusivamente de checkout limpo do commit aprovado. Os scripts gerais de apresentações não dependem mais dos testes locais específicos da Aula 02.
+
 ## Repositório e escopo
 
 - Origin: `dejandrea/plataforma-ensino` no GitHub.
