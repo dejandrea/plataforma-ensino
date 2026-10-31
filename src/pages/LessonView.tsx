@@ -5,7 +5,7 @@ import { ActivityRenderer } from '../components/learning/ActivityRenderer';
 import { LegacyLessonContent } from '../components/learning/LegacyLessonContent';
 import { LessonActivityList } from '../components/learning/LessonActivityList';
 import { requiredActivityProgress, resumeActivityId } from '../lib/learningProgress';
-import { completeStudentLesson, completeStudentStudy, fetchStudentLesson, startStudentActivity, submitStudentAssessment } from '../lib/studentLearning';
+import { completeStudentLesson, completeStudentStudy, fetchStudentLesson, fetchNextStudentLesson, startStudentActivity, submitStudentAssessment } from '../lib/studentLearning';
 import { PlayerLevelCard } from '../components/PlayerLevelCard';
 import type { LearningActivity, StudentLessonLearning } from '../types/learning';
 
@@ -19,8 +19,18 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
   const [saving, setSaving] = useState(false);
   const [quizBusy, setQuizBusy] = useState(false);
   const [rewardNotice, setRewardNotice] = useState('');
+  const [nextLesson, setNextLesson] = useState<{id: string; title: string} | null>(null);
+  const [navigationError, setNavigationError] = useState(false);
   const mutationInFlight = useRef(false);
   const alive = useRef(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchNextStudentLesson(lessonId).then(next => {
+      if (!cancelled) { setNextLesson(next); setNavigationError(false); }
+    }).catch(() => { if (!cancelled) setNavigationError(true); });
+    return () => { cancelled = true; };
+  }, [lessonId, reload, data?.completed_at]);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,6 +96,7 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
   const status = selectedProgress?.status ?? 'not_started';
   const busy = saving || quizBusy;
   const summary = requiredActivityProgress(data);
+  const nextActivity = selected ? data.activities.slice(data.activities.indexOf(selected) + 1).find(a => a.is_unlocked) : null;
 
   return <main className="app-bg" aria-busy={busy}>
     <div className="mx-auto max-w-6xl space-y-7 px-4 py-8 pb-40">
@@ -128,7 +139,10 @@ function StudentLessonPage({ lessonId }: { lessonId: string }) {
         <div><h2 className="font-bold text-white">{data.completed_at ? 'Aula concluída' : 'Sua jornada continua'}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">{data.completed_at ? 'A conclusão está salva na sua jornada. Você pode revisar os materiais quando quiser.' : data.has_activity_model ? 'Sua jornada é atualizada quando todas as atividades obrigatórias são concluídas.' : 'Estude os materiais e confirme a conclusão para atualizar sua jornada.'}</p>
         </div>
-        <div className="flex shrink-0 flex-wrap gap-3">
+        <div className="flex min-w-0 flex-wrap gap-3 md:max-w-sm">
+          {nextActivity ? <button type="button" disabled={busy} className="btn-primary" onClick={() => { selectActivity(nextActivity); window.scrollTo({ top: 0, behavior: 'instant' }); }}>Próximo conteúdo →</button>
+            : nextLesson && !busy ? <Link to={`/lesson/${nextLesson.id}`} className="btn-primary" aria-label={`Próxima aula: ${nextLesson.title}`}>Próxima aula →</Link> : null}
+          {!nextActivity && !nextLesson && navigationError && <p role="status" className="text-sm text-white/65">Não foi possível consultar a próxima aula. Use Atualizar progresso para tentar novamente.</p>}
           <button type="button" disabled={busy} onClick={retry} className="btn-secondary">Atualizar progresso</button>
           <button type="button" disabled={busy || Boolean(data.completed_at) || !data.can_complete} onClick={() => void save(() => completeStudentLesson(lessonId))} className="btn-primary">{data.completed_at ? 'Conclusão registrada' : 'Concluir aula'}</button>
         </div>

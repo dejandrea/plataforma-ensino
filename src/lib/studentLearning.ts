@@ -1,10 +1,21 @@
 import { supabase } from './supabaseClient';
+import { nextAvailableLesson } from './lessonNavigation';
 import type { AssessmentAnswers, AssessmentSession, FlashcardProgress, LessonImport, QuizAttemptRow, StudentActivityProgressRow, StudentLessonLearning } from '../types/learning';
 
 function rpcError(error: { message: string; code?: string }) {
   if (error.code === 'PGRST202' || error.code === '42883') return new Error('O ambiente de aprendizagem está temporariamente indisponível. Tente novamente mais tarde.');
   if (['42501', '23514', '22023'].includes(error.code ?? '')) return new Error(error.message);
   return new Error('Não foi possível acessar o ambiente de aprendizagem. Verifique sua conexão e tente novamente.');
+}
+
+export async function fetchNextStudentLesson(lessonId: string) {
+  const results = await Promise.all([
+    supabase.from('lessons').select('id,title,submodule_id,order_index,publication_status'),
+    supabase.from('submodules').select('id,module_id,order_index').eq('is_active', true),
+    supabase.from('modules').select('id,course_id,order_index').eq('is_active', true),
+  ]);
+  for (const result of results) if (result.error) throw rpcError(result.error);
+  return nextAvailableLesson(lessonId, results[0].data ?? [], results[1].data ?? [], results[2].data ?? []);
 }
 
 export async function fetchFlashcardProgress(activityId:string):Promise<FlashcardProgress> {
