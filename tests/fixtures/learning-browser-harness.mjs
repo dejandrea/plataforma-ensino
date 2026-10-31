@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false,flashcards = false} = {}) {
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false,flashcards = false,presentations=false} = {}) {
   const database = improvements||pedagogy||curriculum||flashcards ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
@@ -17,10 +17,20 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   if(pedagogy) await (await import('./pedagogy-db.mjs')).preparePedagogy(database);
   if(curriculum||flashcards) {const prepared=await (await import('./curriculum-db.mjs')).prepareCurriculumFixture(database);await db.exec(prepared.releaseSql);}
   if(flashcards) await (await import('./flashcards-db.mjs')).prepareFlashcards(database);
+  let presentationPipeline;
+  const signedPresentationFiles=new Map();
+  if(presentations){
+    const {preparePresentations,localImportPipeline}=await import('./presentations-db.mjs');
+    await preparePresentations(database);presentationPipeline=localImportPipeline(database);
+  }
   const requests = [];
   let loseQuizResponse = false;
   let identity = 'student';
   const rpcArguments = {
+    lesson_web_presentations:['p_lesson_id'],
+    web_presentation_state:['p_lesson_id'],resolve_web_presentation:['p_presentation_id','p_version_id'],
+    publish_web_presentation:['p_presentation_id','p_version_id','p_expected_active_version','p_confirmed'],
+    bind_web_presentation:['p_presentation_id','p_activity_id','p_expected_presentation','p_confirmed'],
     student_lesson_learning:['p_lesson_id'],start_student_activity:['p_activity_id'],complete_student_study:['p_activity_id'],
     complete_student_lesson:['p_lesson_id'],submit_student_quiz:['p_activity_id','p_answers','p_request_id'],
     begin_student_assessment:['p_activity_id'],submit_student_assessment:['p_activity_id','p_answers','p_session_id'],
@@ -41,8 +51,32 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   // runs the actual migration's function as authenticated inside a transaction.
   const api = createHttpServer(async (req,res) => {
     res.setHeader('Access-Control-Allow-Origin','*');
-    res.setHeader('Access-Control-Allow-Headers','authorization,apikey,content-type,x-client-info');
+    res.setHeader('Access-Control-Allow-Headers','authorization,apikey,content-type,x-client-info,x-lesson-id,x-presentation-id');
     if (req.method==='OPTIONS') { res.writeHead(204); res.end(); return; }
+    if(presentationPipeline&&req.url?.startsWith('/functions/v1/import-web-presentation')){
+      const chunks=[];for await(const chunk of req)chunks.push(chunk);
+      requests.push({name:'import-web-presentation',params:{}});
+      const response=await presentationPipeline.handle(new Request('http://local/import',{method:'POST',headers:{authorization:`Bearer ${identity}`,'x-lesson-id':req.headers['x-lesson-id'],...(req.headers['x-presentation-id']?{'x-presentation-id':req.headers['x-presentation-id']}:{})},body:Buffer.concat(chunks)}));
+      res.writeHead(response.status,{'Content-Type':'application/json'});res.end(await response.text());return;
+    }
+    if(presentationPipeline&&req.method==='POST'&&req.url==='/storage/v1/object/sign/web-presentations'){
+      try{
+        let body='';for await(const chunk of req)body+=chunk;const {paths}=JSON.parse(body);
+        const {roleQuery}=await import('./presentations-db.mjs');const data=[];
+        for(const path of paths){
+          const allowed=(await roleQuery(database,identity,"select name from storage.objects where bucket_id='web-presentations' and name=$1",[path])).rows.length>0;
+          if(!allowed)throw new Error('Storage RLS denied');
+          const token=crypto.randomUUID();signedPresentationFiles.set(token,{path,expires:Date.now()+300000});
+          data.push({path,signedURL:`/object/sign/web-presentations/${path}?token=${token}`,error:null});
+        }
+        res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(data));
+      }catch(error){res.writeHead(403,{'Content-Type':'application/json'});res.end(JSON.stringify({message:error.message}));}return;
+    }
+    if(presentationPipeline&&req.method==='GET'&&req.url?.startsWith('/storage/v1/object/sign/web-presentations/')){
+      const url=new URL(req.url,'http://localhost');const path=url.pathname.slice('/storage/v1/object/sign/web-presentations/'.length);const signed=signedPresentationFiles.get(url.searchParams.get('token'));const object=presentationPipeline.objects.get(path);
+      if(signed?.path!==path||signed.expires<Date.now()||!object){res.writeHead(403);res.end();return;}
+      res.writeHead(200,{'Content-Type':object.mime});res.end(object.bytes);return;
+    }
     const name = req.url?.split('/').at(-1);
     if (req.method!=='POST' || !Object.hasOwn(rpcArguments,name) || req.headers.authorization!=='Bearer test-local-public-key') {
       res.writeHead(403); res.end('{}'); return;
@@ -67,7 +101,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   await new Promise(resolve => api.listen(0,'127.0.0.1',resolve));
   t.after(() => new Promise(resolve => api.close(resolve)));
   const apiUrl = `http://127.0.0.1:${api.address().port}`;
-  const vite = await createViteServer({ configFile:false,envFile:false,plugins:[react()],server:{host:'127.0.0.1',port:0},
+  const vite = await createViteServer({ configFile:false,envFile:false,plugins:[react(),...(presentations?[{name:'managed-presentation-test-route',configureServer(server){server.middlewares.use((req,res,next)=>{if(req.url?.startsWith('/apresentacoes/gerenciada/'))req.url='/tests/fixtures/learning-browser.html';next();});}}]:[])],server:{host:'127.0.0.1',port:0},
     optimizeDeps:{include:['react','react-dom/client','react-router-dom','@supabase/supabase-js','ajv','pdf-lib','@pdf-lib/fontkit']},
     define:{'import.meta.env.VITE_SUPABASE_URL':JSON.stringify(apiUrl),'import.meta.env.VITE_SUPABASE_ANON_KEY':JSON.stringify('test-local-public-key')} });
   await vite.listen(); t.after(() => vite.close());
@@ -94,5 +128,5 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   page.setDefaultTimeout(25000);
   page.setDefaultNavigationTimeout(30000);
   page.on('pageerror',error => pageErrors.push(error.message));
-  return { ...database,context,page,appUrl,requests,pageErrors,steps,setIdentity:user => { identity=user; },loseResponse:() => { loseQuizResponse=true; } };
+  return { ...database,context,page,appUrl,requests,pageErrors,steps,presentationPipeline,setIdentity:user => { identity=user; },loseResponse:() => { loseQuizResponse=true; } };
 }

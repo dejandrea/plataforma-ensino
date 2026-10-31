@@ -8,6 +8,9 @@
 @media(prefers-reduced-motion:reduce){.slide{animation:none}}
 @media print{.toolbar,.navigation,.help,.deck-title{display:none}.slide{border:0}body,#presentation{background:white;color:black}}
 
+figcaption a,.sources a{color:var(--cyan);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.embedded #presentation{min-height:0}
+
 /* Official mascot: a separate column preserves the complete silhouette. */
 .slide.has-mascot{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,.38fr);gap:24px 32px;align-items:start}
 .has-mascot>.heading{grid-column:1;grid-row:1}

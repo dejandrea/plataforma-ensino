@@ -25,6 +25,7 @@ import { CommercialManagement } from "./pages/CommercialManagement";
 import {MyMasteries} from './pages/MyMasteries';
 import {AchievementsManagement} from './pages/AchievementsManagement';
 import {PedagogicalMonitoring} from './pages/PedagogicalMonitoring';
+import {ManagedPresentation} from './pages/ManagedPresentation';
 
 const RoleRoute = ({
   children,
@@ -90,6 +91,7 @@ function App() {
       <div className="flex min-h-screen flex-col bg-background">
         <div className="flex-1">
           <Routes>
+            <Route path="/apresentacoes/gerenciada/:id" element={<RoleRoute allowedRoles={['admin','student']}><ManagedPresentation/></RoleRoute>}/>
             <Route path="/" element={<Login />} />
             <Route path="/redefinir-senha" element={<ResetPassword />} />
             <Route path="/minhas-maestrias" element={<RoleRoute allowedRole="student"><Navbar/><MyMasteries/></RoleRoute>}/>

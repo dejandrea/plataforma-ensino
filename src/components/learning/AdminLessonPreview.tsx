@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { ActivityRenderer } from './ActivityRenderer';
 import { LessonActivityList } from './LessonActivityList';
+import {withPresentationLinks} from '../../lib/webPresentations';
 import type { LearningActivity, LessonActivityRow } from '../../types/learning';
 
 export default function AdminLessonPreview({ lessonId, activities, onClose }: {
@@ -15,11 +16,15 @@ export default function AdminLessonPreview({ lessonId, activities, onClose }: {
     if (activities) return;
     let active = true;
     supabase.from('lesson_activities').select('id,lesson_id,key,title,description,activity_type,content_json,order_index,duration_minutes,is_required,is_active,publication_status,revision,created_at,updated_at,published_at')
-      .eq('lesson_id', lessonId).eq('is_active', true).order('order_index').then(({ data, error: cause }) => {
+      .eq('lesson_id', lessonId).eq('is_active', true).order('order_index').then(async ({ data, error: cause }) => {
         if (!active) return;
         if (cause) setError('Não foi possível carregar a prévia. Tente novamente.');
-        else { const rows = (data as LessonActivityRow[] ?? []).map(a => ({ ...a, is_unlocked: true, prerequisite_ids: [] })); setSaved(rows); setSelected(rows[0]?.id ?? null); }
-        setLoading(false);
+        else {
+          try{const rows=await withPresentationLinks(lessonId,(data as LessonActivityRow[]??[]).map(a=>({...a,is_unlocked:true,prerequisite_ids:[]})));
+            if(active){setSaved(rows);setSelected(rows[0]?.id??null);}
+          }catch{if(active)setError('Não foi possível carregar os vínculos das apresentações.');}
+        }
+        if(active)setLoading(false);
       });
     return () => { active = false; };
   }, [lessonId, activities]);

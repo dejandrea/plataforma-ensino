@@ -78,7 +78,7 @@ export type PlanSessionRow = {
   updated_at: string;
 };
 
-export type LearningActivity = LessonActivityRow & { is_unlocked: boolean; prerequisite_ids: string[] };
+export type LearningActivity = LessonActivityRow & { is_unlocked: boolean; prerequisite_ids: string[]; web_presentation_id?:string };
 export type LearningLesson = {
   id: string; title: string; description: string | null; duration_minutes: number | null;
   video_url: string | null; pdf_url: string | null; slides_url: string | null; meet_link: string | null;

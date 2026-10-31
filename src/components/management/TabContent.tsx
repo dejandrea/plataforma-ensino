@@ -4,6 +4,7 @@ import { CurriculumLessonPublication } from './CurriculumLessonPublication';
 
 const AdminLessonPreview = lazy(() => import('../learning/AdminLessonPreview'));
 const LessonContentImporter = lazy(() => import('../learning/LessonContentImporter'));
+const WebPresentationManager = lazy(() => import('./WebPresentationManager'));
 
 const emptyModuleForm = {
   title: "",
@@ -32,6 +33,7 @@ export const TabContent = () => {
   const [lessons, setLessons] = useState<any[]>([]);
   const [previewLessonId, setPreviewLessonId] = useState<string | null>(null);
   const [importLessonId, setImportLessonId] = useState<string | null>(null);
+  const [presentationLessonId,setPresentationLessonId]=useState<string|null>(null);
 
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
@@ -752,6 +754,7 @@ export const TabContent = () => {
 
                       <div className="mt-4 flex flex-wrap gap-2 border-t border-white/5 pt-4">
                         <button type="button" className="btn-secondary" onClick={() => setImportLessonId(lesson.id)}>Importar atividades JSON</button>
+                        <button type="button" className="btn-secondary" onClick={()=>setPresentationLessonId(lesson.id)}>Apresentações web</button>
                         <button type="button" className="btn-secondary" onClick={() => setPreviewLessonId(lesson.id)}>Visualizar aula</button>
                         {lesson.meet_link && (
                           <span className="rounded-lg bg-blue-500/20 px-2 py-1 text-[9px] font-black text-blue-400">
@@ -775,6 +778,7 @@ export const TabContent = () => {
                         )}
                       </div>
                       {previewLessonId === lesson.id && <Suspense fallback={<p role="status">Carregando...</p>}><AdminLessonPreview lessonId={lesson.id} onClose={() => setPreviewLessonId(null)} /></Suspense>}
+                      {presentationLessonId===lesson.id&&<Suspense fallback={<p role="status">Carregando apresentações…</p>}><WebPresentationManager key={lesson.id} lessonId={lesson.id} onClose={()=>setPresentationLessonId(null)}/></Suspense>}
                       {lesson.publication_status === 'planned' && <CurriculumLessonPublication lessonId={lesson.id} onPublished={() => { if (selectedSubmoduleId) void fetchLessons(selectedSubmoduleId); }}/>}
                       {importLessonId === lesson.id && <Suspense fallback={<p role="status" className="mt-4 text-sm text-white/65">Carregando importação…</p>}>
                         <LessonContentImporter key={lesson.id} lessonId={lesson.id} lessonTitle={lesson.title} onClose={() => setImportLessonId(null)} />

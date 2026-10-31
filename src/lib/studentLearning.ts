@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { nextAvailableLesson } from './lessonNavigation';
+import {withPresentationLinks} from './webPresentations';
 import type { AssessmentAnswers, AssessmentSession, FlashcardProgress, LessonImport, QuizAttemptRow, StudentActivityProgressRow, StudentLessonLearning } from '../types/learning';
 
 function rpcError(error: { message: string; code?: string }) {
@@ -33,7 +34,8 @@ export async function fetchStudentLesson(lessonId: string): Promise<StudentLesso
   const { data, error } = await supabase.rpc('student_lesson_learning', { p_lesson_id: lessonId });
   if (error) throw rpcError(error);
   if (!data?.lesson) throw new Error('Aula não encontrada. Volte para sua jornada.');
-  return data as StudentLessonLearning;
+  const lesson=data as StudentLessonLearning;
+  return {...lesson,activities:await withPresentationLinks(lessonId,lesson.activities)};
 }
 
 export async function startStudentActivity(activityId: string): Promise<StudentActivityProgressRow> {

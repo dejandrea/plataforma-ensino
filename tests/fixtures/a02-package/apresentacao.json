@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "title": "LEVEL 02 — Grandes Nomes da Tecnologia",
+  "slides": [
+    {
+      "type": "cover",
+      "title": "Grandes Nomes da Tecnologia",
+      "subtitle": "LEVEL 02 • Depois das histórias, vamos descobrir as ideias!",
+      "mascot": {
+        "category": "neutra"
+      }
+    },
+    {
+      "type": "concept",
+      "title": "DESCOBRIR • Qual ideia você reconhece?",
+      "body": "No vídeo, seis pessoas enfrentaram desafios diferentes. O que suas descobertas têm em comum? Pense em uma ideia que ajuda você a usar tecnologia hoje.",
+      "mascot": {
+        "category": "pensativa"
+      }
+    },
+    {
+      "type": "steps",
+      "title": "Algoritmo: um caminho em passos",
+      "eyebrow": "COMPREENDER",
+      "items": [
+        {
+          "title": "Avance duas casas",
+          "body": "Comece olhando para a frente."
+        },
+        {
+          "title": "Vire à direita",
+          "body": "A direção muda; a posição continua igual."
+        },
+        {
+          "title": "Avance uma casa",
+          "body": "Você chegou ao destino planejado."
+        }
+      ],
+      "note": "Um algoritmo organiza instruções para realizar uma tarefa. A ordem dos passos pode mudar o resultado.",
+      "mascot": {
+        "category": "programadora"
+      }
+    },
+    {
+      "type": "image",
+      "title": "Ada • Planejar antes de executar",
+      "body": "Ada Lovelace descreveu um algoritmo para a Máquina Analítica. Também percebeu possibilidades além dos cálculos. Ao planejar os passos do seu jogo, você começa a pensar como quem programa.",
+      "image": {
+        "src": "./images/ada-lovelace.webp",
+        "alt": "Retrato pintado de Ada Lovelace com vestido longo e adornos florais no cabelo.",
+        "caption": "Alfred Edward Chalon, retrato de Ada Lovelace, 1838. Domínio público / PD-Art. Via Wikimedia Commons."
+      },
+      "sources": [
+        "https://commons.wikimedia.org/wiki/File:Ada_lovelace.jpg",
+        "https://creativecommons.org/publicdomain/mark/1.0/",
+        "https://www.computerhistory.org/babbage/adalovelace/"
+      ]
+    },
+    {
+      "type": "concept",
+      "title": "EXPERIMENTAR • O robô entende?",
+      "body": "Imagine um robô olhando para a frente. A instrução “vá para lá” é suficiente? Troque por “avance duas casas”. Instruções precisam ser claras para o sistema que vai executá-las.",
+      "mascot": {
+        "category": "pensativa"
+      }
+    },
+    {
+      "type": "image",
+      "title": "Babbage • Uma máquina, diferentes tarefas",
+      "body": "Babbage projetou a Máquina Analítica para seguir instruções e trabalhar com dados. O projeto não ficou pronto em sua vida. A ideia ajuda a entender por que uma máquina pode realizar tarefas diferentes.",
+      "image": {
+        "src": "./images/charles-babbage.webp",
+        "alt": "Gravura de Charles Babbage, homem mais velho com cabelo claro e casaco escuro.",
+        "caption": "Thomas Dewell Scott, The Illustrated London News, 1871. Domínio público. Via Wikimedia Commons."
+      },
+      "sources": [
+        "https://commons.wikimedia.org/wiki/File:Charles_Babbage_1860.jpg",
+        "https://creativecommons.org/publicdomain/mark/1.0/",
+        "https://www.computerhistory.org/babbage/history/"
+      ]
+    },
+    {
+      "type": "image",
+      "title": "Turing • Quais regras resolvem o problema?",
+      "body": "Turing estudou como uma máquina poderia seguir regras para calcular. Antes de programar um jogo, pergunte: quais informações entram e quais passos levam ao resultado? Seu modelo era uma ideia matemática, não um celular antigo.",
+      "image": {
+        "src": "./images/alan-turing.webp",
+        "alt": "Fotografia em preto e branco de Alan Turing adolescente, com terno e gravata.",
+        "caption": "Alan Turing aos 16 anos, c. 1928–1929. Possivelmente A. R. Chaffin. Domínio público. Via Wikimedia Commons / arquivo do King’s College."
+      },
+      "sources": [
+        "https://commons.wikimedia.org/wiki/File:Alan_Turing_Aged_16.jpg",
+        "https://creativecommons.org/publicdomain/mark/1.0/",
+        "https://turingarchive.kings.cam.ac.uk/about-alan-turing"
+      ]
+    },
+    {
+      "type": "steps",
+      "title": "Entrada → instrução → resultado",
+      "items": [
+        {
+          "title": "Entrada",
+          "body": "Você aperta a seta para a direita."
+        },
+        {
+          "title": "Instrução",
+          "body": "O programa manda mover o personagem uma casa."
+        },
+        {
+          "title": "Resultado",
+          "body": "A posição do personagem muda."
+        }
+      ],
+      "note": "O computador executa regras do programa; ele não adivinha sua intenção.",
+      "mascot": {
+        "category": "programadora"
+      }
+    },
+    {
+      "type": "image",
+      "title": "Hopper • Traduzir para executar",
+      "body": "Grace Hopper foi pioneira no desenvolvimento de compiladores. Um compilador traduz código de uma linguagem para outra forma usada pelo sistema. Isso ajuda a criar programas, mas não dispensa testes.",
+      "image": {
+        "src": "./images/grace-hopper.webp",
+        "alt": "Fotografia de Grace Hopper usando óculos e uniforme naval escuro.",
+        "caption": "James S. Davis / U.S. Navy, retrato oficial de Grace Hopper, 1984. Domínio público nos EUA. Via Wikimedia Commons."
+      },
+      "sources": [
+        "https://commons.wikimedia.org/wiki/File:Grace_Hopper.jpg",
+        "https://creativecommons.org/publicdomain/mark/1.0/",
+        "https://computerhistory.org/profile/grace-murray-hopper/"
+      ]
+    },
+    {
+      "type": "concept",
+      "title": "DESAFIO • O resultado faz sentido?",
+      "body": "Você ganhou três pacotes com quatro moedas em cada um. A tela mostrou dez moedas. Confira: 4 + 4 + 4 = 12. Antes de aceitar o resultado, revise os dados e a regra usada.",
+      "mascot": {
+        "category": "investigadora"
+      }
+    },
+    {
+      "type": "image",
+      "title": "Katherine • Conferir também é criar",
+      "body": "Katherine Johnson calculou trajetórias espaciais e verificou resultados de computadores na NASA. Em um projeto, conferir dados e contas pode revelar erros antes que eles causem problemas. Tecnologia exige cuidado e colaboração.",
+      "image": {
+        "src": "./images/katherine-johnson.webp",
+        "alt": "Fotografia em preto e branco de Katherine Johnson sorrindo, com óculos e blazer.",
+        "caption": "NASA, retrato de Katherine Johnson, 1983. Domínio público nos EUA. Via Wikimedia Commons."
+      },
+      "sources": [
+        "https://commons.wikimedia.org/wiki/File:Katherine_Johnson_1983.jpg",
+        "https://creativecommons.org/publicdomain/mark/1.0/",
+        "https://www.nasa.gov/centers-and-facilities/langley/katherine-johnson-biography/"
+      ]
+    },
+    {
+      "type": "comparison",
+      "title": "Internet e Web: ideias diferentes",
+      "columns": [
+        {
+          "title": "Internet",
+          "body": "Conecta redes e dispositivos. Um jogo pode usar a internet sem ser uma página da Web."
+        },
+        {
+          "title": "Web",
+          "body": "Reúne páginas e outros recursos acessados por endereços e links, geralmente em um navegador."
+        }
+      ],
+      "mascot": {
+        "category": "explicando"
+      },
+      "note": "Uma analogia: a internet oferece caminhos de conexão; a Web é como uma biblioteca de documentos ligados entre si, acessível por esses caminhos."
+    },
+    {
+      "type": "image",
+      "title": "Tim • Conectar informações por links",
+      "body": "Tim Berners-Lee propôs e desenvolveu a Web no CERN, com contribuição de outras pessoas. A internet já existia. Ao criar páginas com HTML e links, você participa dessa rede de informações.",
+      "image": {
+        "src": "./images/tim-berners-lee.webp",
+        "alt": "Fotografia de Tim Berners-Lee falando e gesticulando, com paletó escuro e gravata.",
+        "caption": "Paul Clarke, Tim Berners-Lee at data.gov.uk launch, 2010. CC BY 2.0. Via Wikimedia Commons. Conversão para WebP e redução de resolução."
+      },
+      "sources": [
+        "https://commons.wikimedia.org/wiki/File:Tim_Berners-Lee_at_data.gov.uk_launch.jpg",
+        "https://creativecommons.org/licenses/by/2.0/",
+        "https://home.cern/science/computing/the-birth-of-the-web/short-history-web/"
+      ]
+    },
+    {
+      "type": "summary",
+      "title": "Descobertas que se conectam",
+      "items": [
+        {
+          "title": "Babbage",
+          "body": "Projetar uma máquina programável."
+        },
+        {
+          "title": "Lovelace",
+          "body": "Planejar passos e imaginar possibilidades."
+        },
+        {
+          "title": "Turing",
+          "body": "Estudar regras e limites do cálculo."
+        },
+        {
+          "title": "Hopper",
+          "body": "Desenvolver compiladores."
+        },
+        {
+          "title": "Johnson",
+          "body": "Calcular e verificar trajetórias."
+        },
+        {
+          "title": "Berners-Lee",
+          "body": "Conectar informações pela Web."
+        }
+      ],
+      "note": "Pessoas de épocas e equipes diferentes contribuíram para essa história. Ninguém criou toda a tecnologia sozinho.",
+      "mascot": {
+        "category": "comemorando"
+      }
+    },
+    {
+      "type": "closing",
+      "title": "PRÓXIMA MISSÃO • Conecte pessoas e ideias",
+      "body": "Revise os seis flashcards. Depois, associe cada pessoa à sua contribuição, consulte o mapa mental e faça o quiz final. Se precisar, volte aos materiais. Entender as ideias vale mais que decorar datas!",
+      "mascot": {
+        "category": "comemorando"
+      }
+    }
+  ]
+}

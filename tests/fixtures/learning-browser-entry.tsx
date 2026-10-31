@@ -1,4 +1,6 @@
 import {TeacherReports} from '../../src/pages/TeacherReports';
+import WebPresentationManager from '../../src/components/management/WebPresentationManager';
+import {ManagedPresentation} from '../../src/pages/ManagedPresentation';
 import {CurriculumLessonPublication} from '../../src/components/management/CurriculumLessonPublication';
 import {LessonCard} from '../../src/components/LessonCard';
 import {useEffect,useState} from 'react';
@@ -29,7 +31,11 @@ function CurriculumCards() {
  return <div className="app-bg mx-auto max-w-5xl space-y-4 p-5"><h1 className="text-2xl text-white">HTML Básico</h1>{lessons.filter(l=>l.curriculum_number!=null).sort((a,b)=>a.curriculum_number-b.curriculum_number).map(l=><LessonCard key={l.id} id={l.id} title={l.title} type="pdf" isCompleted={false} isPlanned={l.publication_status==='planned'} curriculumNumber={l.curriculum_number}/>)}</div>;
 }
 const pedagogyParams=new URLSearchParams(params);pedagogyParams.delete('mode');pedagogyParams.delete('jornada');
-if(params.get('mode')==='curriculum-publication') {
+if(location.pathname.startsWith('/apresentacoes/gerenciada/')){
+ createRoot(document.getElementById('root')!).render(<MemoryRouter initialEntries={[location.pathname]}><Routes><Route path="/apresentacoes/gerenciada/:id" element={<ManagedPresentation/>}/></Routes></MemoryRouter>);
+} else if(params.get('mode')==='presentation-manager'){
+ createRoot(document.getElementById('root')!).render(<MemoryRouter><main className="app-bg mx-auto max-w-6xl p-4"><WebPresentationManager lessonId={lessonId} onClose={()=>{}}/></main></MemoryRouter>);
+} else if(params.get('mode')==='curriculum-publication') {
  createRoot(document.getElementById('root')!).render(<div className="app-bg min-h-screen p-5"><CurriculumLessonPublication lessonId={lessonId} onPublished={()=>{document.getElementById('published-result')!.textContent='Aula liberada';}}/><p id="published-result" role="status" className="text-white"/></div>);
 } else if(params.get('mode')==='curriculum-cards') {
  createRoot(document.getElementById('root')!).render(<MemoryRouter><CurriculumCards/></MemoryRouter>);

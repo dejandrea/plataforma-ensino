@@ -4,23 +4,25 @@ import { QuizActivity } from './QuizActivity';
 import { InteractiveActivity } from './InteractiveActivity';
 import { VideoActivity } from './VideoActivity';
 import { FlashcardsActivity } from './FlashcardsActivity';
+import {managedPresentationPath} from '../../lib/webPresentations';
 import ProjectSubmissionForm from './ProjectSubmissionForm';
 import type { AssessmentAnswers, ActivityMeeting, ActivityStatus, LearningActivity, ProjectReviewRow, ProjectSubmissionRow, QuizAttemptRow, ResourceContent } from '../../types/learning';
 
-function ResourceActivity({ content, completed, disabled, onComplete }: {
-  content: ResourceContent; completed: boolean; disabled: boolean; onComplete: () => void;
+function ResourceActivity({ content, completed, disabled, onComplete, presentationId }: {
+  content: ResourceContent; completed: boolean; disabled: boolean; onComplete: () => void; presentationId?:string;
 }) {
   const url = safeHttpsUrl(content.resourceUrl);
   const preview=resourcePreview(content.resourceUrl);
+  const managed=content.type==='slides'&&presentationId?managedPresentationPath(presentationId):null;
   return <div className="space-y-5">
-    {url ? <>
+    {managed?<Link to={managed} target="_blank" rel="noopener noreferrer" className="btn-secondary">Abrir apresentação web em nova aba ↗</Link>:url ? <>
       {content.format === 'image' && <img src={url} alt={content.altText} referrerPolicy="no-referrer" className="max-h-[36rem] w-full rounded-2xl bg-white object-contain" />}
       {content.format === 'pdf' && preview && <iframe title={content.altText} src={preview.url} sandbox={preview.googleDrive?'allow-scripts allow-same-origin':''} referrerPolicy={preview.googleDrive?'strict-origin-when-cross-origin':'no-referrer'} loading="lazy" className="h-[32rem] w-full rounded-2xl border border-white/10 bg-white" />}
       <a href={url} target="_blank" rel="noopener noreferrer" className="btn-secondary">Abrir {content.type === 'slides' ? 'material de estudo' : 'mapa mental'} em nova aba ↗</a>
       {content.format === 'pdf' && <p className="text-xs text-white/55">{preview?.googleDrive?'Se o Google pedir acesso, abra o material em nova aba. Se ainda não abrir, avise sua professora.':'Se a prévia não abrir, use o link para consultar o PDF.'}</p>}
     </> : <p role="alert" className="text-sm text-amber-200">Material indisponível. Avise sua professora.</p>}
     <p className="text-sm leading-6 text-white/65">Leia o material e revise os conceitos antes de confirmar seu estudo. Abrir o arquivo não conclui a atividade.</p>
-    <button type="button" disabled={disabled || completed || !url} onClick={onComplete} className="btn-primary">{completed ? 'Estudo confirmado' : 'Confirmar estudo'}</button>
+    <button type="button" disabled={disabled || completed || (!url&&!managed)} onClick={onComplete} className="btn-primary">{completed ? 'Estudo confirmado' : 'Confirmar estudo'}</button>
   </div>;
 }
 
@@ -39,7 +41,7 @@ export function ActivityRenderer({ activity, status, disabled, attempts, meeting
         completed={status === 'completed'} disabled={disabled || preview} preview={preview} onComplete={onCompleteStudy} />;
     case 'slides':
     case 'mindmap':
-      return <ResourceActivity content={activity.content_json} completed={status === 'completed'} disabled={disabled || preview} onComplete={onCompleteStudy} />;
+      return <ResourceActivity content={activity.content_json} presentationId={activity.web_presentation_id} completed={status === 'completed'} disabled={disabled || preview} onComplete={onCompleteStudy} />;
     case 'quiz':
       if (preview) return <div className="space-y-5">{activity.content_json.questions.map((q, index) => <fieldset key={q.key} className="space-y-3 rounded-2xl border border-white/10 p-4"><legend className="font-bold text-white">{index + 1}. {q.prompt}</legend>{q.options.map(o => <label key={o.key} className="flex gap-3 rounded-xl border border-white/10 p-3 text-sm text-white/75"><input type="radio" name={`${activity.id}-${q.key}`} />{o.text}</label>)}</fieldset>)}<p className="text-sm text-white/60">Prévia: respostas não são enviadas nem corrigidas.</p></div>;
       return <QuizActivity key={activity.id} activityId={activity.id} content={activity.content_json} attempts={attempts} disabled={disabled}

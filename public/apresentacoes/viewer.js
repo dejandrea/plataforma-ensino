@@ -4,6 +4,8 @@ import { selectMascot } from '../biblioteca-bitara/select.js';
 const byId = id => document.getElementById(id);
 let deck, schema, index = 0;
 const root = byId('slide');
+const embeddedNonce=new URLSearchParams(location.search).get('embedded');
+let managedAssets=null,managedVersion=null;
 let catalogPromise;
 function mascotFigure(request) {
   const figure = element('figure', null, 'mascot');
@@ -33,6 +35,17 @@ function element(tag, text, className) {
   if (className) node.className = className;
   return node;
 }
+function referenceUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password && (!url.port || url.port === '443') ? url : null;
+  } catch { return null; }
+}
+function referenceLink(url, text = url.href) {
+  const link = element('a', text);
+  link.href = url.href; link.target = '_blank'; link.rel = 'noopener noreferrer';
+  return link;
+}
 function go(next, focus = true) {
   if (!deck) return;
   index = Math.max(0, Math.min(deck.slides.length - 1, next));
@@ -54,9 +67,16 @@ function go(next, focus = true) {
   }
   if (slide.type === 'image') {
     const figure = element('figure'); const image = element('img');
-    image.src = new URL(slide.image.src, location.href).href; image.alt = slide.image.alt;
+    image.src = managedAssets ? managedAssets[slide.image.src] : new URL(slide.image.src, location.href).href;
+    image.dataset.resourcePath=slide.image.src; image.alt = slide.image.alt;
     image.addEventListener('error', () => { image.replaceWith(element('p', `Imagem indisponível: ${slide.image.alt}`, 'image-error')); });
-    figure.append(image); if (slide.image.caption) figure.append(element('figcaption', slide.image.caption));
+    figure.append(image);
+    const licenses = (slide.sources ?? []).map(referenceUrl).filter(url => url?.hostname === 'creativecommons.org' && /^\/(licenses|publicdomain)\//.test(url.pathname));
+    if (slide.image.caption || licenses.length) {
+      const caption = element('figcaption', slide.image.caption);
+      for (const url of licenses) caption.append(document.createTextNode(' '), referenceLink(url, 'Ver licença da imagem ↗'));
+      figure.append(caption);
+    }
     content.append(figure);
   }
   if (slide.columns) {
@@ -75,7 +95,15 @@ function go(next, focus = true) {
   root.append(content);
   if (slide.mascot) root.append(mascotFigure(slide.mascot));
   if (slide.note) root.append(element('p', slide.note, 'note'));
-  if (slide.sources) { const details = element('details', null, 'sources'); details.append(element('summary', 'Fontes e referências')); const list = element('ul'); slide.sources.forEach(source => list.append(element('li', source))); details.append(list); root.append(details); }
+  if (slide.sources) {
+    const details = element('details', null, 'sources'); details.append(element('summary', 'Fontes e referências'));
+    const list = element('ul');
+    slide.sources.forEach(source => {
+      const item = element('li'); const url = referenceUrl(source);
+      item.append(url ? referenceLink(url) : document.createTextNode(source)); list.append(item);
+    });
+    details.append(list); root.append(details);
+  }
   byId('previous').disabled = index === 0;
   byId('next').disabled = index === deck.slides.length - 1;
   byId('position').textContent = `${index + 1} / ${deck.slides.length}`;
@@ -122,9 +150,45 @@ byId('file').addEventListener('change', async event => {
   event.target.value = '';
 });
 async function readJson(url) { const response = await fetch(url); if (!response.ok) throw new Error('Arquivo não encontrado.'); return response.json(); }
+function receiveBundle(event){
+  if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='bitara-presentation-data'||event.data.nonce!==embeddedNonce)return;
+  try{
+    const {deck:next,assets,versionKey,assetOrigin}=event.data;
+    const errors=validatePresentation(next,schema);if(errors.length)throw new Error(errors.slice(0,8).join('\n'));
+    if(!assets||typeof assets!=='object'||Array.isArray(assets)||typeof versionKey!=='string'||versionKey.length>100)throw new Error('Arquivos de prévia inválidos.');
+    const verified=Object.create(null);
+    for(const slide of next.slides){
+      if(!slide.image)continue;
+      const path=slide.image.src;
+      if(!Object.hasOwn(assets,path)||typeof assets[path]!=='string')throw new Error('Imagem da versão indisponível.');
+      const url=new URL(assets[path]);
+      const localBlob=url.protocol==='blob:'&&url.origin===location.origin;
+      const privateStorage=url.origin===assetOrigin&&(url.protocol==='https:'||(url.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(url.hostname)))&&url.pathname.startsWith('/storage/v1/object/sign/web-presentations/');
+      if(!localBlob&&!privateStorage)throw new Error('Origem de imagem não autorizada.');
+      verified[path]=url.href;
+    }
+    managedAssets=verified;
+    if(managedVersion===versionKey&&deck){
+      root.querySelectorAll('img[data-resource-path]').forEach(image=>{const nextUrl=verified[image.dataset.resourcePath];if(nextUrl&&image.src!==nextUrl)image.src=nextUrl;});
+    }else{managedVersion=versionKey;load(next);}
+  }catch(cause){showError(cause);}
+}
+if(embeddedNonce){
+  document.body.classList.add('embedded');
+  const announce=()=>window.parent.postMessage({type:'bitara-presentation-height',nonce:embeddedNonce,height:document.getElementById('presentation').scrollHeight+5},location.origin);
+  new ResizeObserver(announce).observe(document.getElementById('presentation'));
+}
 try {
   schema = await readJson('./presentation.schema.json');
-  const name = new URLSearchParams(location.search).get('deck') ?? 'aula-02-demo';
-  if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(name)) throw new Error('Nome de apresentação inválido.');
-  load(await readJson(`./decks/${name}.json`));
+  if(embeddedNonce){
+    if(window.parent===window||!/^[a-f0-9-]{36}$/.test(embeddedNonce))throw new Error('Abra esta apresentação pelo painel ou pela aula.');
+    byId('file').closest('label').hidden=true;
+    document.querySelector('.brand').removeAttribute('href');
+    window.addEventListener('message',receiveBundle);
+    window.parent.postMessage({type:'bitara-presentation-ready',nonce:embeddedNonce},location.origin);
+  }else{
+    const name = new URLSearchParams(location.search).get('deck') ?? 'aula-02-demo';
+    if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(name)) throw new Error('Nome de apresentação inválido.');
+    load(await readJson(`./decks/${name}.json`));
+  }
 } catch (cause) { showError(cause); }
