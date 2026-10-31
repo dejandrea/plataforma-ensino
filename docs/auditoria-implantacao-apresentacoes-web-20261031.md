@@ -1,5 +1,15 @@
 # Auditoria pré-implantação — 31/10/2026
 
+## Atualização — acesso Vercel confirmado
+
+Após o consentimento da equipe, foi confirmado o domínio HTTPS `https://plataforma-ensino-chi.vercel.app`, atualmente apontando para o deployment de produção `dpl_5A8o7uMNwLZmnVPpXnSq7RWPWRrw`, estado READY, fonte Git, branch `main`, SHA `b01e64be708cf176d9897586d76c3235cc87a5be`. Esse deployment foi listado como candidato de rollback. O projeto não indica proteção SSO/senha/IP. As variáveis VITE de produção estão presentes; o valor de `VITE_SUPABASE_URL` foi comparado sem expor segredos e corresponde ao ref `gnyiyhnbpjhdgrhsevbh`.
+
+Consulta CLI `supabase backups list --project-ref gnyiyhnbpjhdgrhsevbh --output json`: `backups: null`, `physical_backup_data: {}`, `pitr_enabled: false`, `walg_enabled: true`. O indicador WAL-G não comprova um ponto recuperável disponível. Tentativa de exportação de schema com `supabase db dump --linked --file tmp/backups/pre-managed-presentations-schema-20261031.sql` falhou: Docker/Podman ausentes. `pg_dump`/`psql` não encontrados no PATH nem nas instalações PostgreSQL consultadas. Nenhum backup completo foi produzido; não tratar eventual arquivo parcial como backup.
+
+Condição de parada mantida: comprovar um backup atual restaurável (incluindo estratégia separada para binários Storage) antes da primeira migration e do push à main que pode disparar deploy automático. Nenhuma migration, importação, publicação, vínculo ou push executado. A autorização da usuária para o plano e merge continua válida; falta cumprir esse pré-requisito técnico.
+
+Validação após integração local: build passou; dez testes de pacote, gerenciador, banco, contrato e biblioteca passaram. Navegador: biblioteca e viewer passaram; gerenciador apresentou timeout de carregamento Vite no grupo, mas passou na repetição isolada sem isolamento por subprocessos. Não há testes reais de produção executados.
+
 Estado: implantação NÃO autorizada nem executada. Consultas de produção somente de leitura. Este relatório é preliminar até confirmar o ambiente Vercel e a recuperabilidade do backup.
 
 Atualização após autorização da usuária: preparação e merge autorizados. Commit do gerenciador `2eedce1` integrado por fast-forward à `main` local, incluindo os commits anteriores de biblioteca, template, navegação e correção de títulos. A branch `feat/template-apresentacoes-web` já é ancestral da main. Push e implantação permanecem pendentes da confirmação do destino Vercel e do backup recuperável; nenhuma escrita em produção foi executada.
