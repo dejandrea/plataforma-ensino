@@ -1,0 +1,133 @@
+{
+  "manifestVersion": 1,
+  "lessonKey": "html-m01-s01-a02",
+  "title": "Grandes Nomes da Tecnologia",
+  "sourceFolder": "https://drive.google.com/drive/folders/1w7tnnyBAeV3or-wHrekyY8hBcc3vRFJe",
+  "sourceManifest": "https://drive.google.com/file/d/1kl00oi6wQ8ypSETJx5EIITt6TNaDcix_/view",
+  "status": "validado_localmente_sem_publicacao",
+  "viewerLocal": "http://localhost:5173/apresentacoes/?deck=html-m01-s01-a02",
+  "publishedPresentationUrl": null,
+  "adminPendingField": "/activities/1/content/resourceUrl",
+  "resources": [
+    {
+      "path": "public/apresentacoes/decks/html-m01-s01-a02.json",
+      "bytes": 9799,
+      "sha256": "0505d228dcbc1166ba28a792e845f0dbf0a0c9b071412d1bacd8251e7d260f98"
+    },
+    {
+      "path": "public/apresentacoes/images/charles-babbage.webp",
+      "bytes": 256034,
+      "sha256": "c73f616a72a36b039518c27b8e8426d4c1766efe49cfbb3cd337c40410b433f5",
+      "author": "Thomas Dewell Scott / The Illustrated London News",
+      "license": "Domínio público (PD-old e publicação anterior a 1931), conforme a página da obra.",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "credit": "Thomas Dewell Scott, The Illustrated London News, 1871. Domínio público. Via Wikimedia Commons.",
+      "changes": "Conversão JPEG para WebP; redução proporcional quando necessária; orientação EXIF aplicada; sem recorte, colorização ou alteração de fisionomia.",
+      "source": "https://commons.wikimedia.org/wiki/File:Charles_Babbage_1860.jpg"
+    },
+    {
+      "path": "public/apresentacoes/images/ada-lovelace.webp",
+      "bytes": 45114,
+      "sha256": "4ccc928e184b437073eee734e07c8d11d6be5ee5d39bdb52482f45ce6dac3e73",
+      "author": "Alfred Edward Chalon",
+      "license": "Domínio público da obra (autor falecido em 1860); reprodução bidimensional identificada como PD-Art na fonte.",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "credit": "Alfred Edward Chalon, retrato de Ada Lovelace, 1838. Domínio público / PD-Art. Via Wikimedia Commons.",
+      "changes": "Conversão JPEG para WebP; redução proporcional quando necessária; orientação EXIF aplicada; sem recorte, colorização ou alteração de fisionomia.",
+      "source": "https://commons.wikimedia.org/wiki/File:Ada_lovelace.jpg"
+    },
+    {
+      "path": "public/apresentacoes/images/alan-turing.webp",
+      "bytes": 54138,
+      "sha256": "b544cff8b6324dc1c63e5c489c1cbaa10432ed61d1306d5413831613f551a67a",
+      "author": "Possivelmente Arthur Reginald Chaffin, atribuição da fonte não conclusiva",
+      "license": "Domínio público, conforme ficha Commons: autor falecido em 1954 e publicação anterior a 1931.",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "credit": "Alan Turing aos 16 anos, c. 1928–1929. Possivelmente A. R. Chaffin. Domínio público. Via Wikimedia Commons / arquivo do King’s College.",
+      "changes": "Conversão JPEG para WebP; redução proporcional quando necessária; orientação EXIF aplicada; sem recorte, colorização ou alteração de fisionomia.",
+      "source": "https://commons.wikimedia.org/wiki/File:Alan_Turing_Aged_16.jpg"
+    },
+    {
+      "path": "public/apresentacoes/images/grace-hopper.webp",
+      "bytes": 70510,
+      "sha256": "8ebcc276e0961b813d9dbb334d769a052125364efb0c66bcbafadd052f0ac61b",
+      "author": "James S. Davis / U.S. Navy",
+      "license": "Domínio público nos EUA: trabalho oficial de servidor da U.S. Navy; página identificada com Public Domain Mark.",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "credit": "James S. Davis / U.S. Navy, retrato oficial de Grace Hopper, 1984. Domínio público nos EUA. Via Wikimedia Commons.",
+      "changes": "Conversão JPEG para WebP; redução proporcional quando necessária; orientação EXIF aplicada; sem recorte, colorização ou alteração de fisionomia.",
+      "source": "https://commons.wikimedia.org/wiki/File:Grace_Hopper.jpg"
+    },
+    {
+      "path": "public/apresentacoes/images/katherine-johnson.webp",
+      "bytes": 104962,
+      "sha256": "232ea2fd0a9eaf84e52c98fff72f16277d4209b9db2d6c4cf98136a8b2e3e451",
+      "author": "NASA",
+      "license": "Domínio público nos EUA, por criação da NASA, conforme a ficha individual.",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "credit": "NASA, retrato de Katherine Johnson, 1983. Domínio público nos EUA. Via Wikimedia Commons.",
+      "changes": "Conversão JPEG para WebP; redução proporcional quando necessária; orientação EXIF aplicada; sem recorte, colorização ou alteração de fisionomia.",
+      "source": "https://commons.wikimedia.org/wiki/File:Katherine_Johnson_1983.jpg"
+    },
+    {
+      "path": "public/apresentacoes/images/tim-berners-lee.webp",
+      "bytes": 33170,
+      "sha256": "8c84df538daa794db5303db1e76a504ba24e753fdec0c75199e282ac093a9c8e",
+      "author": "Paul Clarke",
+      "license": "Creative Commons Attribution 2.0 Generic (CC BY 2.0).",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "credit": "Paul Clarke, Tim Berners-Lee at data.gov.uk launch, 2010. CC BY 2.0. Via Wikimedia Commons. Conversão para WebP e redução de resolução.",
+      "changes": "Conversão JPEG para WebP; redução proporcional quando necessária; orientação EXIF aplicada; sem recorte, colorização ou alteração de fisionomia.",
+      "source": "https://commons.wikimedia.org/wiki/File:Tim_Berners-Lee_at_data.gov.uk_launch.jpg"
+    }
+  ],
+  "localEvidence": {
+    "status": "passed",
+    "scope": "local_only_not_deployment",
+    "slideCount": 15,
+    "viewports": [
+      {
+        "width": 1366,
+        "height": 900
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "screenshotCount": 30,
+    "screenshots": "test-results/a02-web/",
+    "visualReview": "15 slides inspecionados em desktop e celular; imagens, mascotes e atribuições visíveis, sem cortes ou rolagem horizontal.",
+    "report": "docs/homologacao-local-html-m01-s01-a02-web.md",
+    "checks": {
+      "presentationContract": "5 testes aprovados",
+      "presentationBrowser": "2 cenários aprovados",
+      "bitaraContract": "3 testes aprovados",
+      "bitaraBrowser": "1 cenário aprovado",
+      "build": "passed",
+      "fixtureLint": "passed",
+      "sourceHashes": "7 de 7 conferem com o manifesto recebido",
+      "privateFilesInPublicOrBuild": false,
+      "viewerProgressOrXpWrites": false,
+      "returnToLesson": "verificado com ActivityRenderer real e estado sintético, sem banco"
+    }
+  },
+  "administrativeCandidate": {
+    "status": "incompleta_intencionalmente_nao_importar",
+    "publicUrlFilled": false,
+    "databaseReconciliation": "pendente_antes_de_qualquer_escrita",
+    "existingActivityKeysToReconcile": 8,
+    "requiredActivities": 6,
+    "optionalReinforcementActivities": 2,
+    "changesToActivityIdentity": false,
+    "initialValidation": "rejeitada_por_validateLessonImport_sem_resourceUrl",
+    "originalUnchanged": true,
+    "finalSchemaV2AndPublicProjection": "pendentes_da_URL_HTTPS_real_apos_deploy_autorizado"
+  },
+  "pending": [
+    "Aprovação da usuária antes de deploy.",
+    "Confirmar URL HTTPS real, acesso público e imagens após deploy autorizado.",
+    "Somente depois preencher resourceUrl da candidata, validar schema v2 e validateLessonImport e verificar projeção pública sem teacherOnly.",
+    "Consultar inventário atual e backup, reconciliar as oito keys e apresentar alterações concretas para aprovação antes de qualquer escrita no banco."
+  ]
+}
