@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "title": "Exemplo mínimo — Bitaria",
+  "slides": [
+    {
+      "type": "concept",
+      "title": "Uma página conecta ideias",
+      "body": "HTML organiza o conteúdo de uma página. Este material é apenas uma apresentação de homologação."
+    }
+  ]
+}
