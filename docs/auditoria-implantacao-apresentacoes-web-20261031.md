@@ -1,5 +1,7 @@
 # Auditoria pré-implantação — 31/10/2026
 
+> **Estado atual consolidado:** consulte [Revisão dos bloqueios e proposta de release](revisao-bloqueios-release-apresentacoes-web-20261031.md). As seções abaixo registram etapas anteriores e contêm afirmações temporais superadas (como acesso Vercel bloqueado e gerenciador sem commit). A revisão mais recente não autoriza alterações de produção e prevalece para decisões de implantação.
+
 ## Atualização — acesso Vercel confirmado
 
 Após o consentimento da equipe, foi confirmado o domínio HTTPS `https://plataforma-ensino-chi.vercel.app`, atualmente apontando para o deployment de produção `dpl_5A8o7uMNwLZmnVPpXnSq7RWPWRrw`, estado READY, fonte Git, branch `main`, SHA `b01e64be708cf176d9897586d76c3235cc87a5be`. Esse deployment foi listado como candidato de rollback. O projeto não indica proteção SSO/senha/IP. As variáveis VITE de produção estão presentes; o valor de `VITE_SUPABASE_URL` foi comparado sem expor segredos e corresponde ao ref `gnyiyhnbpjhdgrhsevbh`.
