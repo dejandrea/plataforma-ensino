@@ -136,7 +136,7 @@ test('real migration preserves existing rows and RLS permits assigned teacher/ad
     create policy assigned_read on teacher_student_relations for select to authenticated using(teacher_id=auth.uid() or student_id=auth.uid());
     insert into profiles values('00000000-0000-4000-8000-000000000001','professor',true),('00000000-0000-4000-8000-000000000002','student',true),('00000000-0000-4000-8000-000000000003','admin',true),('00000000-0000-4000-8000-000000000004','professor',true);
     insert into teacher_student_relations values('00000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000002');`);
-  await db.exec(readFileSync('supabase/migrations/20261107135452_student_meet_preferences.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20261108210555_student_meet_preferences.sql','utf8'));
   assert.equal((await db.query('select default_meet_link from teacher_student_relations')).rows[0].default_meet_link,null);
   await db.exec('set role authenticated');
   const login=n=>db.query("select set_config('test.uid',$1,false)",[`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`]);
@@ -162,7 +162,7 @@ test('narrow scheduling prerequisite preserves legacy rows and enforces occurren
   await db.exec(`create table scheduled_lessons(id integer primary key,teacher_id uuid,recurrence_index integer,meet_link text);
     insert into scheduled_lessons values(1,'00000000-0000-4000-8000-000000000001',1,'https://meet.google.com/abc-defg-hij');`);
   const before=(await db.query('select to_jsonb(s) row from scheduled_lessons s')).rows[0].row;
-  await db.exec(readFileSync('supabase/migrations/20261108210159_scheduling_request_prerequisite.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20261108210544_scheduling_request_prerequisite.sql','utf8'));
   const after=(await db.query("select to_jsonb(s)-'scheduling_request_id' row from scheduled_lessons s")).rows[0].row;
   assert.deepEqual(after,before);
   await db.exec("insert into scheduled_lessons values(2,'00000000-0000-4000-8000-000000000001',1,null,'00000000-0000-4000-8000-000000000009')");
