@@ -1,3 +1,4 @@
+import {chooseNewLessonMeet, studentMeetPreference} from '../_shared/meet-link.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import {
@@ -18,6 +19,9 @@ type ConfirmLessonPayload = {
   recurrenceWeekdays?: number[];
   recurrenceUntil?: string;
   requestId?: string;
+  meetLink?: string;
+  useDefaultMeet?: boolean;
+  replaceExistingMeet?: boolean;
 };
 
 type RecurrenceTarget = {
@@ -157,6 +161,8 @@ serve(async (req) => {
     }
 
     await assertStudentCanBook(adminClient, studentId);
+    const preferredMeet = await studentMeetPreference(adminClient, user.id, studentId);
+    const selectedMeet = chooseNewLessonMeet(lesson.meet_link || null, body.meetLink, preferredMeet, body.useDefaultMeet !== false, body.replaceExistingMeet === true);
 
     const { data: studentProfile, error: studentProfileError } = await adminClient
       .from("profiles")
@@ -334,7 +340,8 @@ serve(async (req) => {
           endDateTime: target.endsAt,
           timezone,
           attendeeEmails: studentEmail ? [studentEmail] : [],
-          autoCreateMeet,
+          autoCreateMeet: autoCreateMeet && !selectedMeet,
+          meetLink: selectedMeet,
           eventId: requestId.replaceAll('-','')+target.recurrenceIndex.toString(16),
         });
 
@@ -361,7 +368,7 @@ serve(async (req) => {
             recurrence_index: target.recurrenceIndex,
             scheduling_request_id: requestId,
             booked_at: new Date().toISOString(),
-            meet_link: googleMeetLink || matchingAvailable.meet_link || null,
+            meet_link: selectedMeet || matchingAvailable.meet_link || googleMeetLink || null,
             calendar_provider: googleEventId ? "google_calendar" : matchingAvailable.calendar_provider,
             calendar_calendar_id: googleEventId ? calendarId : matchingAvailable.calendar_calendar_id,
             calendar_event_id: googleEventId || matchingAvailable.calendar_event_id,
@@ -397,7 +404,7 @@ serve(async (req) => {
           status: "scheduled",
           starts_at: target.startsAt,
           ends_at: target.endsAt,
-          meet_link: googleMeetLink || null,
+          meet_link: selectedMeet || googleMeetLink || null,
           calendar_provider: googleEventId ? "google_calendar" : null,
           calendar_calendar_id: googleEventId ? calendarId : null,
           calendar_event_id: googleEventId,

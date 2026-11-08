@@ -1,3 +1,4 @@
+import {PrintEvaluationButton} from '../components/PrintEvaluationButton';
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { evaluationTitle } from "../lib/evaluationPeriods";
@@ -6,6 +7,7 @@ import { evaluationCriteria } from "../lib/evaluationDraft";
 export const StudentReport = () => {
   const [evaluations, setEvaluations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [studentName, setStudentName] = useState("");
 
   useEffect(() => {
     fetchMyEvaluations();
@@ -21,6 +23,8 @@ export const StudentReport = () => {
       return;
     }
 
+    const { data: student } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+    setStudentName(student?.full_name || "Nome não informado");
     const { data, error } = await supabase
       .from("module_evaluations")
       .select(
@@ -115,7 +119,7 @@ export const StudentReport = () => {
             </div>
           ) : (
             <div className="grid gap-8">
-              <EvaluationCard evaluation={evaluations[0]} />
+              <EvaluationCard evaluation={evaluations[0]} studentName={studentName} />
               {evaluations.length > 1 && (
                 <section aria-labelledby="previous-evaluations-title">
                   <h2 id="previous-evaluations-title" className="mb-4 text-xl font-bold text-white">
@@ -134,7 +138,7 @@ export const StudentReport = () => {
                           <span aria-hidden="true" className="shrink-0 text-brand-lavender transition-transform group-open:rotate-180">⌄</span>
                         </summary>
                         <div className="px-3 pb-3 sm:px-5 sm:pb-5">
-                          <EvaluationCard evaluation={evaluation} />
+                          <EvaluationCard evaluation={evaluation} studentName={studentName} />
                         </div>
                       </details>
                     ))}
@@ -149,7 +153,7 @@ export const StudentReport = () => {
   );
 };
 
-const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
+const EvaluationCard = ({ evaluation, studentName }: { evaluation: any; studentName: string }) => {
   const feedback =
     evaluation.ai_feedback_json &&
     typeof evaluation.ai_feedback_json === "object" &&
@@ -180,6 +184,7 @@ const EvaluationCard = ({ evaluation }: { evaluation: any }) => {
       </div>
 
       <div className="space-y-6 p-6">
+        <PrintEvaluationButton evaluation={evaluation} studentName={studentName} />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {evaluationCriteria.map(({ id, label }) => {
             const score = Number(evaluation[`score_${id}`]);

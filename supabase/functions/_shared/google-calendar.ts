@@ -316,6 +316,7 @@ export const createGoogleCalendarEvent = async ({
   attendeeEmails = [],
   autoCreateMeet,
   eventId,
+  meetLink,
 }: {
   accessToken: string;
   calendarId: string;
@@ -327,13 +328,14 @@ export const createGoogleCalendarEvent = async ({
   attendeeEmails?: string[];
   autoCreateMeet: boolean;
   eventId?: string;
+  meetLink?: string | null;
 }) => {
   const url = new URL(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
   );
   url.searchParams.set("sendUpdates", "all");
 
-  if (autoCreateMeet) {
+  if (autoCreateMeet && !meetLink) {
     url.searchParams.set("conferenceDataVersion", "1");
   }
 
@@ -351,13 +353,18 @@ export const createGoogleCalendarEvent = async ({
     },
   };
 
+  if (meetLink) {
+    body.location = meetLink;
+    body.extendedProperties = {private: {bitariaMeetLink: meetLink}};
+  }
+
   if (attendeeEmails.length > 0) {
     body.attendees = attendeeEmails.map((email) => ({
       email,
     }));
   }
 
-  if (autoCreateMeet) {
+  if (autoCreateMeet && !meetLink) {
     body.conferenceData = {
       createRequest: {
         requestId: crypto.randomUUID(),
@@ -379,11 +386,15 @@ export const createGoogleCalendarEvent = async ({
 
   const json = await response.json();
   if (!response.ok) {
-    if(response.status===409&&eventId) return await getGoogleCalendarEvent({accessToken,calendarId,eventId});
+    if (response.status === 409 && eventId) {
+      const existing = await getGoogleCalendarEvent({accessToken, calendarId, eventId});
+      if (meetLink && extractMeetLink(existing) !== meetLink) throw new Error('O evento já existe com outra sala. Sincronize a agenda antes de alterar o link.');
+      return existing;
+    }
     throw new Error(json?.error?.message || "Falha ao criar evento no Google Calendar.");
   }
 
-  if (autoCreateMeet && typeof json?.id === "string" && !extractMeetLink(json)) {
+  if (autoCreateMeet && !meetLink && typeof json?.id === "string" && !extractMeetLink(json)) {
     for (let attempt = 0; attempt < 4; attempt += 1) {
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
@@ -509,6 +520,9 @@ export const deleteGoogleCalendarEvent = async ({
 };
 
 export const extractMeetLink = (event: any) => {
+  const fixed = event?.extendedProperties?.private?.bitariaMeetLink;
+  if (typeof fixed === 'string' && /^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/.test(fixed)) return fixed;
+
   if (typeof event?.hangoutLink === "string" && event.hangoutLink) {
     return event.hangoutLink;
   }
@@ -520,3 +534,21 @@ export const extractMeetLink = (event: any) => {
   const videoEntry = entryPoints.find((entry: any) => entry?.entryPointType === "video");
   return typeof videoEntry?.uri === "string" ? videoEntry.uri : null;
 };
+
+/** Replace the room only after explicit confirmation; leave timing, title and guests alone. */
+export async function replaceGoogleEventMeet({accessToken, calendarId, eventId, meetLink, confirmed}: {
+  accessToken: string; calendarId: string; eventId: string; meetLink: string; confirmed: boolean;
+}) {
+  if (!confirmed) throw new Error('Confirme a alteração do evento externo.');
+  const current = await getGoogleCalendarEvent({accessToken, calendarId, eventId});
+  const url = new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`);
+  url.searchParams.set('conferenceDataVersion', '1'); url.searchParams.set('sendUpdates', 'all');
+  const response = await fetch(url, {method: 'PATCH', headers: {
+    Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json',
+    ...(current?.etag ? {'If-Match': current.etag} : {}),
+  }, body: JSON.stringify({location: meetLink, conferenceData: null,
+    extendedProperties: {...current?.extendedProperties, private: {...current?.extendedProperties?.private, bitariaMeetLink: meetLink}},
+  })});
+  if (!response.ok) throw new Error('O evento externo mudou ou não pôde ser atualizado. Atualize a agenda e tente novamente.');
+  return response.json();
+}

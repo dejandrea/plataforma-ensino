@@ -1,3 +1,4 @@
+import {chooseNewLessonMeet, studentMeetPreference} from '../_shared/meet-link.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import {
@@ -112,6 +113,8 @@ serve(async (req) => {
     }
 
     await assertStudentCanBook(adminClient, user.id);
+    const preferredMeet = await studentMeetPreference(adminClient, lesson.teacher_id, user.id);
+    const selectedMeet = chooseNewLessonMeet(lesson.meet_link || null, undefined, preferredMeet);
 
     const { data: settings, error: settingsError } = await adminClient
       .from("teacher_calendar_settings")
@@ -176,7 +179,8 @@ serve(async (req) => {
         endDateTime: lesson.ends_at,
         timezone,
         attendeeEmails: studentEmail ? [studentEmail] : [],
-        autoCreateMeet,
+        autoCreateMeet: autoCreateMeet && !selectedMeet,
+        meetLink: selectedMeet,
       });
 
       googleEventId = typeof event?.id === "string" ? event.id : null;
@@ -190,7 +194,7 @@ serve(async (req) => {
         title: nextTitle,
         status: "scheduled",
         booked_at: new Date().toISOString(),
-        meet_link: googleMeetLink || lesson.meet_link || null,
+        meet_link: selectedMeet || googleMeetLink || null,
         calendar_provider: googleEventId ? "google_calendar" : lesson.calendar_provider,
         calendar_calendar_id: googleEventId ? calendarId : lesson.calendar_calendar_id,
         calendar_event_id: googleEventId || lesson.calendar_event_id,

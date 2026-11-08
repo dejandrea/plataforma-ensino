@@ -1,16 +1,15 @@
 import { createLessonReportPdf, type LessonReportParams, type ReportAssets } from './lessonReportPdfDocument';
 import bodyFont from '../assets/fonts/Inter.ttf?url';
 import headingFont from '../assets/fonts/ChakraPetch-Bold.ttf?url';
-import logo from '../assets/logo/logo-horizontal-para-fundo-escuro.png';
-import mascot from '../assets/Mascote Bitara/mascote 1.png';
+import logo from '../assets/logo/logo-horizontal.png';
 
 let assetPromise: Promise<ReportAssets> | undefined;
 function loadAssets() {
-  assetPromise ??= Promise.all([bodyFont, headingFont, logo, mascot].map(async url => {
+  assetPromise ??= Promise.all([bodyFont, headingFont, logo].map(async url => {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Não foi possível carregar os recursos do relatório. Tente novamente.');
     return new Uint8Array(await response.arrayBuffer());
-  })).then(([bodyFont, headingFont, logo, mascot]) => ({ bodyFont, headingFont, logo, mascot })).catch(error => {
+  })).then(([bodyFont, headingFont, logo]) => ({ bodyFont, headingFont, logo })).catch(error => {
     assetPromise = undefined; throw error;
   });
   return assetPromise;

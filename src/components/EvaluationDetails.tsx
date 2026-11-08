@@ -1,3 +1,4 @@
+import {PrintEvaluationButton} from './PrintEvaluationButton';
 import { evaluationTitle } from "../lib/evaluationPeriods";
 
 const criteria = [
@@ -11,7 +12,7 @@ const criteria = [
   ["patience", "Paciência"],
 ];
 
-export const EvaluationDetails = ({ evaluation }: { evaluation: any }) => {
+export const EvaluationDetails = ({ evaluation, studentName }: { evaluation: any; studentName: string }) => {
   const feedback = evaluation.ai_feedback_json;
   return (
     <article className="overflow-hidden rounded-2xl bg-brand-900/40 ring-1 ring-white/10">
@@ -23,6 +24,7 @@ export const EvaluationDetails = ({ evaluation }: { evaluation: any }) => {
         </p>
       </header>
       <div className="space-y-6 p-5 md:p-6">
+        <PrintEvaluationButton evaluation={evaluation} studentName={studentName} />
         <dl className="grid gap-3 sm:grid-cols-2">
           {criteria.map(([key, label]) => (
             <div key={key} className="rounded-xl bg-surface p-4 ring-1 ring-white/10">

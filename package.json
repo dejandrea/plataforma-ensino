@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test:scheduling-print": "node --experimental-strip-types --test --test-concurrency=1 tests/meet-scheduling.test.mjs tests/google-calendar-sync.test.mjs tests/evaluation-review.test.mjs tests/lesson-report-pdf.test.mjs",
+    "test:scheduling-print:browser": "node --experimental-strip-types --test --test-concurrency=1 tests/scheduling-print-browser.test.mjs tests/lesson-report-pdf-browser.test.mjs",
     "test:presentation-manager": "node --test --test-concurrency=1 tests/presentation-package.test.mjs tests/managed-presentations.test.mjs",
     "test:presentation-manager:browser": "node --test tests/managed-presentations-browser.test.mjs",
     "test:bitara": "node --test tests/bitara-library.test.mjs",

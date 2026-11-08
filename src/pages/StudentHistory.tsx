@@ -1,3 +1,5 @@
+import {PrintEvaluationButton} from '../components/PrintEvaluationButton';
+import {StudentMeetDefaults} from '../components/MeetSchedulingFields';
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
@@ -360,6 +362,7 @@ export const StudentHistory = () => {
             </div>
           </section>
 
+          {canManageDiscounts && studentId && <StudentMeetDefaults studentId={studentId} />}
           {evaluations.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-white/15 bg-surface p-12 text-center">
               <p className="text-white/45">
@@ -393,6 +396,7 @@ export const StudentHistory = () => {
                   </div>
                 </div>
 
+                <PrintEvaluationButton evaluation={item} studentName={student?.full_name || 'Nome não informado'} />
                 <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
                   {[
                     { label: "Logica", val: item.score_logic },

@@ -1,3 +1,4 @@
+import {chooseNewLessonMeet, studentMeetPreference} from '../_shared/meet-link.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import {
@@ -23,6 +24,8 @@ type LessonPayload = {
   recurrenceWeekdays?: number[];
   recurrenceUntil?: string;
   requestId?: string;
+  useDefaultMeet?: boolean;
+  replaceExistingMeet?: boolean;
 };
 
 const getStudentInviteEmail = async (adminClient: any, studentId: string) => {
@@ -105,6 +108,8 @@ serve(async (req) => {
       ? Number(body.recurrenceCount || 1)
       : 1;
     if (mode === "scheduled" && body.studentId) await assertStudentCanBook(adminClient, body.studentId);
+    const preferredMeet = mode === 'scheduled' && body.studentId ? await studentMeetPreference(adminClient, user.id, body.studentId) : null;
+    const selectedMeet = chooseNewLessonMeet(null, body.meetLink, preferredMeet, body.useDefaultMeet !== false);
     const recurrenceGroupId = recurrenceCount > 1 ? crypto.randomUUID() : null;
     const durationMinutes = Math.max(parseInt(String(body.durationMinutes || "60"), 10) || 60, 15);
 
@@ -190,7 +195,8 @@ serve(async (req) => {
           endDateTime: lessonEnd.toISOString(),
           timezone,
           attendeeEmails: studentEmail ? [studentEmail] : [],
-          autoCreateMeet,
+          autoCreateMeet: autoCreateMeet && !selectedMeet,
+          meetLink: selectedMeet,
           eventId: requestId.replaceAll('-','')+(index+1).toString(16),
         });
 
@@ -211,7 +217,7 @@ serve(async (req) => {
         status: mode === "available" ? "available" : "scheduled",
         starts_at: lessonStart.toISOString(),
         ends_at: lessonEnd.toISOString(),
-        meet_link: googleMeetLink || body.meetLink?.trim() || null,
+        meet_link: selectedMeet || googleMeetLink || null,
         calendar_provider: googleEventId ? "google_calendar" : null,
         calendar_calendar_id: googleEventId ? calendarId : null,
         calendar_event_id: googleEventId,

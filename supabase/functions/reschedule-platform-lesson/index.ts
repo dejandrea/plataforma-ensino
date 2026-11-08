@@ -330,7 +330,7 @@ serve(async (req) => {
         });
 
         googleResultsByLessonId.set(target.lesson.id, {
-          meetLink: extractMeetLink(updatedEvent) || target.lesson.meet_link || null,
+          meetLink: target.lesson.meet_link || extractMeetLink(updatedEvent) || null,
           calendarProvider: "google_calendar",
           calendarCalendarId: target.lesson.calendar_calendar_id,
           calendarEventId: target.lesson.calendar_event_id,
@@ -348,11 +348,12 @@ serve(async (req) => {
           endDateTime: target.endsAt,
           timezone,
           attendeeEmails: studentEmail ? [studentEmail] : [],
-          autoCreateMeet,
+          autoCreateMeet: autoCreateMeet && !target.lesson.meet_link,
+          meetLink: target.lesson.meet_link || null,
         });
 
         googleResultsByLessonId.set(target.lesson.id, {
-          meetLink: extractMeetLink(createdEvent) || target.lesson.meet_link || null,
+          meetLink: target.lesson.meet_link || extractMeetLink(createdEvent) || null,
           calendarProvider: typeof createdEvent?.id === "string" ? "google_calendar" : null,
           calendarCalendarId:
             typeof createdEvent?.id === "string" ? selectedCalendarId : null,

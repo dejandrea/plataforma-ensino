@@ -7,7 +7,7 @@ export type LessonReportParams = {
   grossAmount?: number; discountAmount?: number;
   lessons: { title: string; session_track: string; starts_at: string; ends_at: string }[];
 };
-export type ReportAssets = { bodyFont: Uint8Array; headingFont: Uint8Array; logo: Uint8Array; mascot: Uint8Array };
+export type ReportAssets = { bodyFont: Uint8Array; headingFont: Uint8Array; logo: Uint8Array; mascot?: Uint8Array };
 // Bitaria Design System v1.0, on white paper for legibility and printing.
 const C = { ink: '#201936', pink: '#E956C9', muted: '#C8BCD8', white: '#F7F4FC' };
 const color = (hex: string) => rgb(...[1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number]);
@@ -29,101 +29,96 @@ function wrap(value: string, font: PDFFont, size: number, width: number): string
   return lines.length ? lines : [''];
 }
 
-/** Presentation only: financial totals come from the existing billing flow. */
+/** Presentation only: financial totals come unchanged from the existing billing flow. */
 export async function createLessonReportPdf(data: LessonReportParams, assets: ReportAssets): Promise<Uint8Array> {
   const doc = await PDFDocument.create(); doc.registerFontkit(fontkit);
-  const [body, heading, logo, mascot] = await Promise.all([
-    doc.embedFont(assets.bodyFont, { subset: false }), doc.embedFont(assets.headingFont, { subset: true }),
-    doc.embedPng(assets.logo), doc.embedPng(assets.mascot),
+  const [body, heading, logo] = await Promise.all([
+    doc.embedFont(assets.bodyFont, {subset: false}), doc.embedFont(assets.headingFont, {subset: true}), doc.embedPng(assets.logo),
   ]);
   doc.setTitle(`Relatório de aulas realizadas - ${data.studentName}`); doc.setAuthor('Bitaria');
   doc.setSubject(data.periodLabel); doc.setLanguage('pt-BR');
-  let page: PDFPage; let y = 0;
-  const text = (value: string, x: number, top: number, size = 10, font = body, fill = C.ink) => {
-    page.drawText(value, { x, y: H - top - size, size, font, color: color(fill) });
-  };
-  const rect = (x: number, top: number, width: number, height: number, fill: string, radius = 10) => {
-    const r = Math.min(radius, width / 2, height / 2);
-    const path = `M ${r} 0 L ${width-r} 0 Q ${width} 0 ${width} ${r} L ${width} ${height-r} Q ${width} ${height} ${width-r} ${height} L ${r} ${height} Q 0 ${height} 0 ${height-r} L 0 ${r} Q 0 0 ${r} 0 Z`;
-    page.drawSvgPath(path, { x, y: H - top, color: color(fill) });
-  };
-  const paragraph = (value: string, x: number, top: number, width: number, size = 10, font = body, fill = C.ink) => {
+  let page: PDFPage; let y = 0; let rowsOnPage = 0;
+  const ink = color(C.ink), lineColor = color('#D8D1DF'), soft = color('#F5F0F8');
+  function text(value: string, x: number, top: number, size = 10, font = body) {
+    page.drawText(value, {x, y: H - top - size, size, font, color: ink});
+  }
+  function line(top: number) {page.drawLine({start: {x: M, y: H-top}, end: {x: W-M, y: H-top}, thickness: .5, color: lineColor});}
+  function paragraph(value: string, top: number, width = CONTENT, size = 10, font = body) {
     const lines = wrap(value, font, size, width);
-    lines.forEach((line, i) => text(line, x, top + i * (size + 4), size, font, fill));
-    return lines.length * (size + 4);
-  };
+    for (const item of lines) {if (top + size + 4 > BOTTOM) {newPage(); top = y;} text(item, M, top, size, font); top += size+4;}
+    return top;
+  }
+  function tableHeader() {
+    page.drawRectangle({x:M,y:H-y-24,width:CONTENT,height:24,color:soft});
+    text('DATA / HORA',M+7,y+6,8.5,heading); text('DURAÇÃO',M+97,y+6,8.5,heading);
+    text('ASSUNTO / MODALIDADE',M+156,y+6,8.5,heading); text('SITUAÇÃO',W-M-68,y+6,8.5,heading);
+    y += 28;
+  }
   function newPage(first = false) {
-    page = doc.addPage([W, H]);
-    rect(0, 0, W, first ? 88 : 64, C.ink, 0);
-    rect(0, first ? 85 : 61, W, 3, C.pink, 0);
+    page = doc.addPage([W,H]); rowsOnPage = 0;
+    // A small ink-saving brand bar; all text remains dark on white paper.
+    page.drawRectangle({x:M,y:H-31,width:CONTENT,height:2,color:color('#A64FCC')});
     if (first) {
-      page.drawImage(logo, { x: (W - 336) / 2, y: H - 84, width: 336, height: 84 });
-      y = 108;
-      y += paragraph('Relatório de aulas realizadas', M, y, CONTENT - 104, 20, heading) + 6;
-      y += paragraph(`Aluno: ${data.studentName}`, M, y, CONTENT - 110, 11) + 3;
-      y += paragraph(`Período: ${data.periodLabel}`, M, y, CONTENT - 110, 10) + 4;
-      const tracks = new Set(data.lessons.map(l => l.session_track));
-      if (tracks.size === 1) y += paragraph(tracks.has('course') ? 'Modalidade: Curso completo' : 'Modalidade: Mentoria', M, y, CONTENT - 110, 9) + 3;
-      page.drawImage(mascot, { x: W - M - 96, y: H - 204, width: 84, height: 84 });
-      y = Math.max(y + 10, 202);
+      const ratio=logo.width/logo.height; page.drawImage(logo,{x:M,y:H-73,width:148,height:148/ratio});
+      text('Relatório de aulas realizadas',M+170,43,16,heading);
+      y=86; y=paragraph(`Aluno: ${data.studentName}`,y,CONTENT,11,heading)+2;
+      y=paragraph(`Período: ${data.periodLabel}`,y,CONTENT,10)+10;
     } else {
-      text('Relatório de aulas realizadas', M, 15, 16, heading, C.white);
-      y = 84;
-      y += paragraph(`${data.studentName} | ${data.periodLabel}`, M, y, CONTENT, 10) + 12;
+      text('Relatório de aulas realizadas · continuação',M,42,12,heading);
+      y=64; y=paragraph(`${data.studentName} | ${data.periodLabel}`,y,CONTENT,9)+10;
     }
   }
-  newPage(true);
-  text('AULAS REALIZADAS', M, y, 10, heading); y += 23;
-  const lessons = data.lessons.map((lesson, index) => ({ lesson, index })).sort((a, b) =>
-    Date.parse(b.lesson.starts_at) - Date.parse(a.lesson.starts_at) || a.index - b.index);
-  if (!lessons.length) { text('Nenhuma aula registrada neste período.', M, y, 11); y += 35; }
-  for (const { lesson } of lessons) {
-    const title = wrap(lesson.title, body, 10, CONTENT - 30);
-    const track = lesson.session_track === 'course' ? 'Curso completo' : 'Mentoria';
-    const start = new Date(lesson.starts_at), end = new Date(lesson.ends_at);
-    const valid = Number.isFinite(start.getTime()) && Number.isFinite(end.getTime());
-    const when = valid ? `${start.toLocaleDateString('pt-BR')} · ${start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : 'Data não registrada';
-    const duration = valid ? `${number((end.getTime() - start.getTime()) / 3_600_000)}h` : 'Não registrada';
-    let offset = 0;
-    while (offset < title.length) {
-      // Normal cards remain whole; exceptionally large titles use explicit continuation cards.
-      const chunk = title.slice(offset, offset + 35);
-      const height = 35 + chunk.length * 14;
-      if (y + height > BOTTOM) newPage();
-      rect(M, y, CONTENT, height, C.ink); rect(M, y + 12, 3, height - 24, C.pink, 1);
-      text(when + (offset ? ' · continuação' : ''), M + 15, y + 7, 10, heading, C.white);
-      chunk.forEach((line, i) => text(line, M + 15, y + 23 + i * 14, 10, body, C.white));
-      text(`${track} · Duração: ${duration}`, M + 15, y + height - 12, 8.5, body, C.muted);
-      y += height + 7; offset += chunk.length;
+  newPage(true); tableHeader();
+  const lessons=data.lessons.map((lesson,index)=>({lesson,index})).sort((a,b)=>Date.parse(b.lesson.starts_at)-Date.parse(a.lesson.starts_at)||a.index-b.index);
+  if (!lessons.length) {text('Nenhuma aula registrada neste período.',M+7,y+8); y+=35;}
+  for (const {lesson} of lessons) {
+    const start=new Date(lesson.starts_at),end=new Date(lesson.ends_at);
+    const valid=Number.isFinite(start.getTime())&&Number.isFinite(end.getTime());
+    const day=valid?start.toLocaleDateString('pt-BR',{timeZone:'America/Bahia'}):'Não registrada';
+    const time=valid?start.toLocaleTimeString('pt-BR',{timeZone:'America/Bahia',hour:'2-digit',minute:'2-digit'}):'';
+    const duration=valid?`${number((end.getTime()-start.getTime())/3600000)}h`:'—';
+    const title=wrap(lesson.title,body,10,CONTENT-241);
+    const track=lesson.session_track==='course'?'Curso completo':'Mentoria';
+    let offset=0;
+    while(offset<title.length) {
+      const remaining=title.length-offset;
+      const wholeHeight=Math.max(39,remaining*13+22);
+      if (rowsOnPage>=10 || (wholeHeight<=BOTTOM-140 && y+wholeHeight>BOTTOM) || y+48>BOTTOM) {newPage();tableHeader();}
+      const capacity=Math.max(1,Math.floor((BOTTOM-y-22)/13));
+      const chunk=title.slice(offset,offset+capacity);
+      const height=Math.max(39,chunk.length*13+22);
+      text(day,M+7,y+5,9); text(time,M+7,y+18,9);
+      text(duration,M+97,y+5,10);
+      chunk.forEach((item,i)=>text(item,M+156,y+5+i*13,10));
+      text(track+(offset?' · continuação':''),M+156,y+height-13,8.5);
+      text('Realizada',W-M-68,y+5,9);
+      y+=height; line(y); offset+=chunk.length; rowsOnPage++;
     }
   }
-  if (y + 157 > BOTTOM) newPage();
-  y += 16; text('RESUMO DO PERÍODO', M, y, 11, heading); y += 25;
-  const metrics = [
-    ['AULAS NO PERÍODO', number(data.totalLessons)], ['CARGA HORÁRIA', `${number(data.totalHours)}h`],
-    ['HORA/AULA', data.hourlyRate == null ? 'Não definido' : money(data.hourlyRate)],
-    ['VALOR BRUTO', data.grossAmount == null ? 'Não informado' : money(data.grossAmount)],
-    ['DESCONTOS', data.discountAmount == null ? 'Não informado' : money(data.discountAmount)],
+  // Reserve the complete financial summary. No calculations or discount rules are changed here.
+  if(y+155>BOTTOM)newPage();
+  y+=14; text('RESUMO DO PERÍODO',M,y,11,heading); y+=24;
+  const metrics=[
+    ['Aulas no período',number(data.totalLessons)],['Carga horária',`${number(data.totalHours)}h`],
+    ['Hora/aula',data.hourlyRate==null?'Não definido':money(data.hourlyRate)],
+    ['Valor bruto',data.grossAmount==null?'Não informado':money(data.grossAmount)],
+    ['Descontos',data.discountAmount==null?'Não informado':money(data.discountAmount)],
+    ['Total final',data.hourlyRate==null?'A definir':money(data.totalAmount)],
   ];
-  const gap = 8, col = (CONTENT - gap * 4) / 5;
-  metrics.forEach(([label, value], i) => {
-    const x = M + i * (col + gap), top = y;
-    rect(x, top, col, 52, C.ink); text(label, x + 8, top + 9, 6.5, body, C.muted);
-    const size = Math.min(14, (col - 16) / Math.max(heading.widthOfTextAtSize(value, 1), 1));
-    text(value, x + 8, top + 26, size, heading, C.white);
-  });
-  y += 62; rect(M, y, CONTENT, 54, C.ink); rect(M, y, 4, 54, C.pink, 0);
-  text('TOTAL FINAL', M + 15, y + 19, 11, heading, C.muted);
-  const total = data.hourlyRate == null ? 'A definir' : money(data.totalAmount);
-  const totalSize = Math.min(23, (CONTENT - 160) / Math.max(heading.widthOfTextAtSize(total, 1), 1));
-  text(total, W - M - 15 - heading.widthOfTextAtSize(total, totalSize), y + 13, totalSize, heading, C.white);
-  doc.getPages().forEach((p, index) => {
-    page = p;
-    page.drawLine({ start: { x: M, y: 43 }, end: { x: W - M, y: 43 }, thickness: 0.6, color: color(C.muted) });
-    page.drawImage(logo, { x: M - 20, y: 3, width: 144, height: 36 });
-    text('Aprenda. Crie. Evolua.', M + 135, H - 28, 8, heading);
-    const count = `${index + 1} / ${doc.getPageCount()}`;
-    text(count, W - M - body.widthOfTextAtSize(count, 8), H - 32, 8);
+  const cellWidth=(CONTENT-20)/2;
+  for(let i=0;i<metrics.length;i+=2){
+    const values=metrics.slice(i,i+2).map(([label,value],j)=>({label,lines:wrap(value,heading,11,cellWidth-12),x:M+j*(cellWidth+20)}));
+    const height=20+Math.max(...values.map(v=>v.lines.length))*14;
+    if(y+height>BOTTOM)newPage();
+    for(const value of values){
+      text(value.label.toUpperCase(),value.x,y,8.5);
+      value.lines.forEach((item,k)=>text(item,value.x+cellWidth-heading.widthOfTextAtSize(item,11),y+14+k*14,11,heading));
+    }
+    y+=height;line(y);y+=5;
+  }
+  doc.getPages().forEach((p,index)=>{
+    page=p;line(H-43);text('Bitaria · Aprenda. Crie. Evolua.',M,H-31,8.5);
+    const count=`${index+1} / ${doc.getPageCount()}`;text(count,W-M-body.widthOfTextAtSize(count,9),H-31,9);
   });
   return doc.save();
 }

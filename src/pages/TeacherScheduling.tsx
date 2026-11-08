@@ -1,3 +1,5 @@
+import {MeetReservationFields, LessonMeetEditor} from '../components/MeetSchedulingFields';
+import {normalizeMeetLink} from '../../supabase/functions/_shared/meet-link';
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
@@ -6,6 +8,8 @@ import { AgendaActivity } from "../components/AgendaActivity";
 const initialReservationForm = {
   sessionTrack: "mentoring",
   studentId: "",
+  meetLink: "",
+  useDefaultMeet: false,
   isRecurring: false,
   recurrenceCount: "4",
   recurrenceWeekdays: [] as number[],
@@ -256,6 +260,9 @@ export const TeacherScheduling = () => {
 
   useEffect(() => {
     fetchSchedulingData();
+    const refresh = () => { void fetchSchedulingData(); };
+    window.addEventListener('bitaria-meet-updated', refresh);
+    return () => window.removeEventListener('bitaria-meet-updated', refresh);
   }, []);
 
   useEffect(() => {
@@ -978,11 +985,19 @@ export const TeacherScheduling = () => {
       return;
     }
 
+    let meetLink: string | null;
+    try { meetLink = normalizeMeetLink(reservationForm.meetLink); }
+    catch (cause) { alert(cause instanceof Error ? cause.message : 'Link inválido.'); return; }
+    const replacingMeet = Boolean(selectedSlotForReservation.meet_link && meetLink && selectedSlotForReservation.meet_link !== meetLink);
+    if (replacingMeet && !window.confirm('Substituir o link existente somente neste novo agendamento?')) return;
     setSaving(true);
 
     const { data, error } = await supabase.functions.invoke("confirm-platform-lesson", {
       body: {
         lessonId: selectedSlotForReservation.id,
+        meetLink: meetLink || undefined,
+        useDefaultMeet: reservationForm.useDefaultMeet,
+        replaceExistingMeet: replacingMeet,
         studentId: reservationForm.studentId,
         sessionTrack: reservationForm.sessionTrack,
         isRecurring: reservationForm.isRecurring,
@@ -1014,7 +1029,7 @@ export const TeacherScheduling = () => {
         );
       } else {
         setRecurrenceFeedback(null);
-        alert("Aula agendada com sucesso. O Meet ja foi gerado e vinculado ao horario.");
+        alert("Aula agendada com sucesso. A sala foi vinculada ao horário.");
       }
 
       setSelectedSlotForReservation(null);
@@ -1799,6 +1814,8 @@ export const TeacherScheduling = () => {
                   </select>
                 </Field>
               </div>
+
+              <MeetReservationFields teacherId={currentUserId} studentId={reservationForm.studentId} existingLink={selectedSlotForReservation.meet_link} value={reservationForm} onChange={choice => setReservationForm(current => ({...current, ...choice}))} />
 
               <div className="rounded-2xl bg-surface p-4 ring-1 ring-white/10">
                 <label className="flex items-center gap-3 text-sm font-semibold text-white">
@@ -2762,6 +2779,8 @@ const SessionCard = ({
           <span>Acessos: {accessCounts[session.id] || 0}</span>
           {session.recurrence_group_id && <span>Recorrencia #{session.recurrence_index}</span>}
         </div>
+
+        {!past && <LessonMeetEditor lesson={session} />}
 
         {!past && !canAccessRoom(session) && session.meet_link && (
           <p className={`${compactGrid ? "text-xs" : "text-sm"} text-white/45`}>

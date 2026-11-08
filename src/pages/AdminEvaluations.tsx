@@ -198,7 +198,7 @@ export const AdminEvaluations = () => {
             </div>
             {viewedEvaluation && (
               <div id="evaluation-details" className="mt-6 border-t border-white/10 pt-6">
-                <EvaluationDetails evaluation={viewedEvaluation} />
+                <EvaluationDetails evaluation={viewedEvaluation} studentName={students.find(student => student.id === selectedStudent)?.full_name || "Nome não informado"} />
               </div>
             )}
           </aside>
