@@ -1,4 +1,6 @@
 import AdminLessonPreview from './AdminLessonPreview';
+import A02Reconciliation from './A02Reconciliation';
+import {A02_LESSON_ID} from '../../lib/a02Reconciliation';
 import { useMemo, useState } from 'react';
 import { toStudentLesson, validateLessonImport } from '../../lib/learningContent';
 import { importLearningLesson, publishLearningActivities } from '../../lib/studentLearning';
@@ -29,6 +31,7 @@ function Preview({ activity }: { activity: ActivityDefinition }) {
 
 export default function LessonContentImporter({ lessonId, lessonTitle, onClose }: { lessonId: string; lessonTitle: string; onClose: () => void }) {
   const [showPreview, setShowPreview] = useState(false);
+  const [reconcileMode,setReconcileMode]=useState(lessonId===A02_LESSON_ID);
   const [source, setSource] = useState('');
   const [publish, setPublish] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -59,6 +62,7 @@ export default function LessonContentImporter({ lessonId, lessonTitle, onClose }
   return <section aria-label={`Importar atividades para ${lessonTitle}`} className="mt-5 space-y-5 rounded-3xl border border-brand-purple/40 p-5">
     <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold text-white">Importar atividades — {lessonTitle}</h3><button type="button" disabled={saving} className="btn-secondary" onClick={onClose}>Fechar importação</button></div>
     <p className="text-sm leading-6 text-white/65">Escolha um arquivo v1 ou v2. A importação atualiza descrição, duração e objetivos desta aula e adiciona atividades novas; conteúdos existentes não serão sobrescritos.</p>
+    {lessonId===A02_LESSON_ID&&<label className="flex items-start gap-3 text-sm text-white"><input type="checkbox" checked={reconcileMode} disabled={saving||Boolean(imported)} onChange={e=>setReconcileMode(e.target.checked)}/>Atualizar a Aula 02 com comparação e preservação dos registros existentes. Desmarque somente para adicionar atividades pelo importador original.</label>}
     <label className="block text-sm font-semibold text-white">Arquivo JSON<input type="file" accept="application/json,.json" disabled={saving} className="mt-2 block w-full text-sm" onChange={async event => {
       const file = event.target.files?.[0]; if (!file) return;
       if (file.size > 2000000) { change(''); setMessage('O arquivo deve ter no máximo 2 MB.'); return; }
@@ -68,13 +72,14 @@ export default function LessonContentImporter({ lessonId, lessonTitle, onClose }
     {validation && !validation.valid && <ul role="alert" className="max-h-44 overflow-auto text-sm text-red-200">{validation.errors.slice(0,15).map((error,index) => <li key={index}>{error}</li>)}</ul>}
     {preview && <><p className="text-sm text-brand-ice">Contrato v{preview.schemaVersion} válido · {preview.context.courseTitle} / {preview.context.moduleTitle} / {preview.context.submoduleTitle}</p>
       {!correctLesson && <p role="alert" className="text-sm text-red-200">O título do arquivo deve corresponder à aula de destino.</p>}
+      {reconcileMode&&validation?.valid&&correctLesson&&!imported&&<A02Reconciliation key={source} document={validation.data} onSaved={ids=>{setShowPreview(false);setImported({activityIds:ids,published:false});setMessage('Aula reconciliada. Novas atividades em rascunho; nenhuma publicação ou vínculo foi alterado. Abra “Visualizar aula” para conferir. A publicação dos novos rascunhos exige uma ação separada.');}}/>}
       <button type="button" className="btn-secondary" onClick={() => setShowPreview(value => !value)}>{showPreview ? 'Recolher resultado' : 'Visualizar resultado como aluno'}</button>
       {showPreview && <AdminLessonPreview lessonId={lessonId} activities={preview.activities.map(a => ({ ...definitionActivity(a, lessonId), publication_status: imported?.published ? 'published' : 'draft' }))} />}
-      <section aria-label="Prévia pública das atividades" className="space-y-3">{preview.activities.map(activity => <Preview key={activity.key} activity={activity} />)}</section>
+      {!reconcileMode&&<section aria-label="Prévia pública das atividades" className="space-y-3">{preview.activities.map(activity => <Preview key={activity.key} activity={activity} />)}</section>}
     </>}
-    <label className="flex items-center gap-3 text-sm text-white"><input type="checkbox" checked={publish} disabled={saving || Boolean(imported)} onChange={event => setPublish(event.target.checked)} />Publicar após validar a importação</label>
-    <button type="button" className="btn-primary" disabled={saving || !validation?.valid || !correctLesson || Boolean(imported)} onClick={() => void save()}>{saving ? 'Salvando…' : 'Importar atividades'}</button>
-    {imported && !imported.published && <button type="button" className="btn-secondary ml-3" disabled={saving} onClick={() => void publishDraft()}>Publicar atividades importadas</button>}
+    {!reconcileMode&&<><label className="flex items-center gap-3 text-sm text-white"><input type="checkbox" checked={publish} disabled={saving || Boolean(imported)} onChange={event => setPublish(event.target.checked)} />Publicar após validar a importação</label>
+    <button type="button" className="btn-primary" disabled={saving || !validation?.valid || !correctLesson || Boolean(imported)} onClick={() => void save()}>{saving ? 'Salvando…' : 'Importar atividades'}</button></>}
+    {imported && !imported.published && imported.activityIds.length>0 && <button type="button" className="btn-secondary ml-3" disabled={saving} onClick={() => void publishDraft()}>Publicar atividades importadas</button>}
     {message && <p role="status" className="text-sm text-brand-ice">{message}</p>}
   </section>;
 }

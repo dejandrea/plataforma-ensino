@@ -1,0 +1,32 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createLearningBrowser} from './fixtures/learning-browser-harness.mjs';
+import {a02Lesson,prepareA02Reconciliation} from './fixtures/a02-reconciliation-db.mjs';
+
+test('admin reviews real reconciliation on desktop/mobile; changing JSON invalidates approval',{timeout:120000},async t=>{
+ const app=await createLearningBrowser(t,{flashcards:true,presentations:true});await prepareA02Reconciliation(app);
+ app.setIdentity('admin');const {page}=app;
+ await page.goto(`${app.appUrl}tests/fixtures/a02-reconciliation.html`);
+ await page.getByLabel('Arquivo JSON',{exact:false}).setInputFiles('tests/fixtures/a02-reconciliation.v2.admin.json');
+ const section=page.getByRole('region',{name:'Atualização segura da Aula 02'});
+ await section.getByRole('button',{name:'Comparar com as atividades existentes'}).click();
+ const save=section.getByRole('button',{name:'Salvar atualização revisada'});await save.waitFor();assert.equal(await save.isDisabled(),true);
+ assert.equal(await section.getByText(/Inserir rascunho/).count(),2);
+ await section.locator('details').first().getByText('Revisar antes e depois',{exact:true}).click();
+ await page.screenshot({path:'test-results/a02-reconciliation-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+ await section.getByRole('checkbox').check();
+ const textarea=page.getByLabel('Conteúdo JSON');const original=await textarea.inputValue();
+ await textarea.fill(original+' ');assert.equal(await section.getByRole('button',{name:'Salvar atualização revisada'}).count(),0);
+ await section.getByRole('button',{name:'Comparar com as atividades existentes'}).click();await section.getByRole('checkbox').check();
+ await page.screenshot({path:'test-results/a02-reconciliation-mobile.png',fullPage:true});
+ await section.getByRole('button',{name:'Salvar atualização revisada'}).click();
+ await page.getByRole('status').filter({hasText:'Aula reconciliada'}).waitFor();
+ await app.login('admin','postgres');
+ assert.equal((await app.query('select count(*) n from lesson_activities where lesson_id=$1',[a02Lesson])).rows[0].n,8);
+ assert.equal((await app.query("select count(*) n from lesson_activities where lesson_id=$1 and publication_status='draft'",[a02Lesson])).rows[0].n,2);
+ assert.equal(app.requests.filter(r=>r.name==='apply_a02_reconciliation').length,1);
+ assert.equal(app.requests.some(r=>r.name==='publish_learning_activities'),false);
+ assert.deepEqual(app.pageErrors,[]);
+});

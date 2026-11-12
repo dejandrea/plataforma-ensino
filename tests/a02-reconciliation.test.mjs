@@ -1,0 +1,78 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createPresentationsDb,presentationRpc,roleQuery} from './fixtures/presentations-db.mjs';
+import {readSql,fixtureUsers} from './fixtures/learning-test-db.mjs';
+import {prepareA02Reconciliation} from './fixtures/a02-reconciliation-db.mjs';
+
+const lesson='b17a2000-0000-4000-8000-000000001002';
+const input=()=>JSON.parse(readSql('tests/fixtures/a02-reconciliation.v2.admin.json'));
+test('A02 reconciliation preserves identities and receipts, rejects stale plans, history and unsafe changes',{timeout:120000},async t=>{
+ const d=await createPresentationsDb();t.after(()=>d.db.close());const {query}=d;
+ await prepareA02Reconciliation(d);const doc=input();
+ const before=(await query('select id,key,revision,published_at,publication_status from lesson_activities where lesson_id=$1 order by key',[lesson])).rows;
+ const lessonStatus=(await query('select publication_status from lessons where id=$1',[lesson])).rows[0];
+ const receipts=async()=>JSON.stringify((await query("select jsonb_build_object('profiles',(select jsonb_agg(to_jsonb(p) order by id) from profiles p),'progress',(select jsonb_agg(to_jsonb(p) order by activity_id,student_id) from student_activity_progress p),'xp',(select jsonb_agg(to_jsonb(e) order by source_id,student_id) from student_xp_events e)) value")).rows[0].value);
+ const snapshot=await receipts();
+ const plan=async(document=doc,who='admin')=>presentationRpc(d,who,'plan_a02_reconciliation',[JSON.stringify(document)]);
+ const apply=async(document,token,confirmed=true,who='admin')=>presentationRpc(d,who,'apply_a02_reconciliation',[JSON.stringify(document),token,confirmed]);
+ for(const who of ['student','teacher','inactive','other'])await assert.rejects(plan(doc,who),/administradores/);
+ await assert.rejects(roleQuery(d,'admin','select * from private.a02_reconciliation_permits'),/permission denied/);
+ await assert.rejects(roleQuery(d,'admin','select private.a02_reconciliation_state()'),/permission denied/);
+ await assert.rejects(roleQuery(d,'admin',"update lesson_activities set title='Bypass' where id=$1",[before[0].id]),/imutavel/);
+ const p=await plan();assert.equal(p.activities.filter(a=>a.action==='insert').length,2);assert.notDeepEqual(p.actualContext,p.documentContext);
+ await assert.rejects(apply(doc,p.token,false),/Confirme/);
+ const changed=structuredClone(doc);changed.activities[0].title+=' changed';await assert.rejects(apply(changed,p.token),/mudou/);
+ const duplicate=structuredClone(doc);duplicate.activities[1].orderIndex=0;await assert.rejects(plan(duplicate),/posições/);
+ const badKey=structuredClone(doc);badKey.teacherOnly.quizKeys[0].content.answers[0].optionKey='wrong';await assert.rejects(plan(badKey),/gabarito/);
+ const badQuestion=structuredClone(doc);badQuestion.activities.find(a=>a.type==='quiz').content.questions[0].prompt='Changed question';await assert.rejects(plan(badQuestion),/avaliação/);
+ const prereq=structuredClone(doc);prereq.activities[1].prerequisites=[doc.activities[0].key];await assert.rejects(plan(prereq),/pré-requisitos/);
+ const wrongType=structuredClone(doc);wrongType.activities[1].type='mindmap';wrongType.activities[1].content.type='mindmap';await assert.rejects(plan(wrongType),/Tipo/);
+ await d.login('admin','postgres');
+ await query('insert into student_activity_progress(student_id,activity_id,activity_revision) values($1,$2,1)',[fixtureUsers.student,before[0].id]);
+ await assert.rejects(plan(),/histórico/);
+ await d.login('admin','postgres');await query('delete from student_activity_progress where activity_id=$1',[before[0].id]);
+ // A history row arriving after comparison also blocks application.
+ await query('insert into student_xp_events(student_id,event_type,source_id,title,points) values($1,$2,$3,$4,1)',[fixtureUsers.student,'activity_study',before[0].id,'Synthetic']);
+ await assert.rejects(apply(doc,p.token),/histórico/);
+ await d.login('admin','postgres');await query('delete from student_xp_events where source_id=$1',[before[0].id]);
+ // Late failure must roll back updates and leave no temporary permits or audit.
+ await d.db.exec(`create function public.fail_a02_insert() returns trigger language plpgsql as $$begin if new.key='a02-v2-video-genios' then raise exception 'synthetic late failure';end if;return new;end$$;
+ create trigger fail_a02_insert before insert on public.lesson_activities for each row execute function public.fail_a02_insert();`);
+ const originalRows=(await query('select to_jsonb(a) value from lesson_activities a where lesson_id=$1 order by key',[lesson])).rows;
+ await assert.rejects(apply(doc,p.token),/synthetic late failure/);
+ await d.login('admin','postgres');
+ assert.deepEqual((await query('select to_jsonb(a) value from lesson_activities a where lesson_id=$1 order by key',[lesson])).rows,originalRows);
+ assert.equal((await query('select count(*) n from private.a02_reconciliation_permits')).rows[0].n,0);
+ assert.equal((await query('select count(*) n from private.a02_reconciliation_audit')).rows[0].n,0);
+ await d.db.exec('drop trigger fail_a02_insert on public.lesson_activities;drop function public.fail_a02_insert();');
+ // A bound presentation is never silently replaced or hidden by a material edit.
+ const presentationId='00000000-0000-4000-8000-000000009999';
+ await query('insert into web_presentations(id,lesson_id,title,created_by) values($1,$2,$3,$4)',[presentationId,lesson,'Synthetic private deck',fixtureUsers.admin]);
+ await query('insert into web_presentation_links(activity_id,presentation_id,linked_by) values($1,$2,$3)',[before[0].id,presentationId,fixtureUsers.admin]);
+ await assert.rejects(plan(),/vinculada/);
+ await d.login('admin','postgres');await query('delete from web_presentation_links where presentation_id=$1',[presentationId]);
+ // Changing the inventory after review invalidates the old token.
+ await assert.rejects(apply(doc,p.token),/mudou/);
+ const preservedPresentation=(await query('select to_jsonb(p) value from web_presentations p where id=$1',[presentationId])).rows;
+ const invalid=structuredClone(doc);invalid.activities[0].durationMinutes=0;await assert.rejects(plan(invalid),/contrato/);
+ const result=await apply(doc,(await plan()).token);assert.equal(result.newActivityIds.length,2);
+ await d.login('admin','postgres');
+ const after=(await query('select id,key,revision,published_at,publication_status from lesson_activities where lesson_id=$1 order by key',[lesson])).rows;
+ assert.equal(after.length,8);for(const row of before)assert.deepEqual(after.find(a=>a.id===row.id),row);
+ for(const id of result.newActivityIds)assert.equal(after.find(a=>a.id===id).publication_status,'draft');
+ assert.deepEqual((await query('select publication_status from lessons where id=$1',[lesson])).rows[0],lessonStatus);
+ assert.equal(new Set((await query('select order_index from lesson_activities where lesson_id=$1',[lesson])).rows.map(a=>a.order_index)).size,8);
+ const required=(await query('select key,is_required from lesson_activities where lesson_id=$1',[lesson])).rows;
+ assert.equal(required.find(a=>a.key==='a02-v2-seis-descobertas').is_required,true);
+ assert.equal(required.find(a=>a.key==='a02-v2-associacao-parte1').is_required,false);
+ assert.equal(required.find(a=>a.key==='a02-v2-novas-pistas').is_required,false);
+ assert.equal(await receipts(),snapshot);
+ assert.deepEqual((await query('select to_jsonb(p) value from web_presentations p where id=$1',[presentationId])).rows,preservedPresentation);
+ assert.equal((await query('select count(*) n from private.a02_reconciliation_permits')).rows[0].n,0);
+ assert.equal((await query('select count(*) n from private.a02_reconciliation_audit')).rows[0].n,1);
+ await assert.rejects(apply(doc,p.token),/mudou/);
+ assert.ok((await plan()).activities.every(a=>a.action==='keep'));
+ await apply(doc,(await plan()).token);await d.login('admin','postgres');
+ assert.equal((await query('select count(*) n from lesson_activities where lesson_id=$1',[lesson])).rows[0].n,8);
+ await assert.rejects(roleQuery(d,'admin',"update lesson_activities set title='Still guarded' where id=$1",[before[0].id]),/imutavel/);
+});

@@ -27,6 +27,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   let loseQuizResponse = false;
   let identity = 'student';
   const rpcArguments = {
+    plan_a02_reconciliation:['p_document'],apply_a02_reconciliation:['p_document','p_expected_token','p_confirmed'],
     lesson_web_presentations:['p_lesson_id'],
     web_presentation_state:['p_lesson_id'],resolve_web_presentation:['p_presentation_id','p_version_id'],
     publish_web_presentation:['p_presentation_id','p_version_id','p_expected_active_version','p_confirmed'],
