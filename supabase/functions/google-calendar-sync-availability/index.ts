@@ -5,18 +5,8 @@ import {
   ensureFreshGoogleAccessToken,
   getGoogleCalendarFreeBusy,
 } from "../_shared/google-calendar.ts";
+import {readWeeklyAvailability, availabilityIntervals} from "../_shared/weekly-availability.ts";
 import { getAuthenticatedProfile } from "../_shared/supabase.ts";
-
-const parseTimeParts = (value: string, fallbackHour: number, fallbackMinute: number) => {
-  const [hourRaw, minuteRaw] = value.split(":");
-  const hour = Number.parseInt(hourRaw || "", 10);
-  const minute = Number.parseInt(minuteRaw || "", 10);
-
-  return {
-    hour: Number.isFinite(hour) ? hour : fallbackHour,
-    minute: Number.isFinite(minute) ? minute : fallbackMinute,
-  };
-};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -87,15 +77,16 @@ serve(async (req) => {
     }
 
     const timezone = settings.timezone || "America/Bahia";
-    const allowedWeekdays = Array.isArray(settings.availability_weekdays)
-      ? settings.availability_weekdays.filter((value: unknown) => Number.isInteger(value))
-      : [1, 2, 3, 4, 5];
-    const slotMinutes = Math.max(Number(settings.availability_slot_minutes) || 60, 15);
-    const horizonDays = Math.min(Math.max(Number(settings.availability_horizon_days) || 21, 1), 60);
-    const startTime = parseTimeParts(settings.availability_start_time || "08:00", 8, 0);
-    const endTime = parseTimeParts(settings.availability_end_time || "18:00", 18, 0);
+    const slotMinutes = Number(settings.availability_slot_minutes ?? 60);
+    const horizonDays = Number(settings.availability_horizon_days ?? 21);
+    if(!Number.isInteger(horizonDays)||horizonDays<1||horizonDays>60)throw new Error("Escolha entre 1 e 60 dias futuros.");
+    const schedule = readWeeklyAvailability(settings.availability_weekly_intervals,
+      Array.isArray(settings.availability_weekdays)?settings.availability_weekdays:[1,2,3,4,5],
+      settings.availability_start_time || "08:00", settings.availability_end_time || "18:00");
+    const intervalsByDay = availabilityIntervals(schedule, settings.availability_start_time || "08:00", settings.availability_end_time || "18:00", slotMinutes);
 
     const now = DateTime.now().setZone(timezone);
+    if(!now.isValid)throw new Error("Informe um fuso horário válido.");
     const rangeStart = now.startOf("day");
     const rangeEnd = rangeStart.plus({ days: horizonDays }).endOf("day");
 
@@ -112,6 +103,7 @@ serve(async (req) => {
       timeZone: timezone,
     });
 
+    if(selectedCalendarIds.some((id: string)=>!freeBusyResponse[id]||freeBusyResponse[id].errors?.length))throw new Error('Não foi possível verificar os conflitos de todas as agendas. Tente sincronizar novamente.');
     const busyIntervals = Object.values(freeBusyResponse)
       .flatMap((calendar: any) => Array.isArray(calendar?.busy) ? calendar.busy : [])
       .map((busy: any) => ({
@@ -124,7 +116,7 @@ serve(async (req) => {
       .select("starts_at, ends_at, status")
       .eq("teacher_id", teacherId)
       .in("status", ["scheduled", "completed"])
-      .gte("starts_at", rangeStart.toISO() || new Date().toISOString())
+      .gt("ends_at", rangeStart.toISO() || new Date().toISOString())
       .lte("starts_at", rangeEnd.toISO() || new Date().toISOString());
 
     if (lessonsError) {
@@ -138,34 +130,17 @@ serve(async (req) => {
       }));
 
     const blockedIntervals = [...busyIntervals, ...platformIntervals];
+    if(blockedIntervals.some(interval=>!interval.start.isValid||!interval.end.isValid||interval.end<=interval.start))throw new Error('Uma agenda retornou um intervalo de conflito inválido. Nenhum horário foi substituído.');
 
     const generatedSlots: Array<Record<string, unknown>> = [];
 
-    for (let offset = 0; offset < horizonDays; offset += 1) {
+    // Include the previous weekday only for the future portion of overnight windows.
+    for (let offset = -1; offset < horizonDays; offset += 1) {
       const day = rangeStart.plus({ days: offset });
-
-      if (!allowedWeekdays.includes(day.weekday)) {
-        continue;
-      }
-
-      let slotStart = day.set({
-        hour: startTime.hour,
-        minute: startTime.minute,
-        second: 0,
-        millisecond: 0,
-      });
-      let dayEnd = day.set({
-        hour: endTime.hour,
-        minute: endTime.minute,
-        second: 0,
-        millisecond: 0,
-      });
-
-      // Allow availability windows that cross midnight, such as 14:00 -> 00:00.
-      if (dayEnd <= slotStart) {
-        dayEnd = dayEnd.plus({ days: 1 });
-      }
-
+      const atMinute = (minute: number) => day.plus({days:Math.floor(minute/1440)}).set({hour:Math.floor(minute/60)%24,minute:minute%60,second:0,millisecond:0});
+      for (const interval of intervalsByDay[day.weekday]) {
+        let slotStart = atMinute(interval.start);
+        const dayEnd = atMinute(interval.end);
       while (slotStart.plus({ minutes: slotMinutes }) <= dayEnd) {
         const slotEnd = slotStart.plus({ minutes: slotMinutes });
         const isPast = slotStart <= now.plus({ minutes: 5 });
@@ -197,6 +172,7 @@ serve(async (req) => {
 
         slotStart = slotStart.plus({ minutes: slotMinutes });
       }
+    }
     }
 
     const { error: cleanupError } = await adminClient

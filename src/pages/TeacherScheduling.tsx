@@ -4,6 +4,8 @@ import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { AgendaActivity } from "../components/AgendaActivity";
+import {WeeklyAvailabilityEditor} from '../components/WeeklyAvailabilityEditor';
+import {readWeeklyAvailability, legacyWeeklyAvailability, availabilityIntervals} from '../../supabase/functions/_shared/weekly-availability';
 
 const initialReservationForm = {
   sessionTrack: "mentoring",
@@ -29,6 +31,7 @@ const initialCalendarSettings = {
   timezone: "America/Bahia",
   syncMode: "booking_link",
   availabilityWeekdays: [1, 2, 3, 4, 5],
+  availabilityWeeklyIntervals: legacyWeeklyAvailability([1,2,3,4,5], '08:00', '18:00'),
   availabilityStartTime: "08:00",
   availabilityEndTime: "18:00",
   availabilitySlotMinutes: "60",
@@ -229,6 +232,7 @@ export const TeacherScheduling = () => {
   const [autoSyncAttempted, setAutoSyncAttempted] = useState(false);
   const [showEventSettingsModal, setShowEventSettingsModal] = useState(false);
   const [showAvailabilitySettingsModal, setShowAvailabilitySettingsModal] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState('');
   const [selectedSlotForReservation, setSelectedSlotForReservation] = useState<any | null>(null);
   const [cancellationTarget, setCancellationTarget] = useState<any | null>(null);
   const [rescheduleTarget, setRescheduleTarget] = useState<any | null>(null);
@@ -428,6 +432,11 @@ export const TeacherScheduling = () => {
               ? teacherSettings.availability_weekdays
               : [1, 2, 3, 4, 5],
           availabilityStartTime: teacherSettings.availability_start_time || "08:00",
+          availabilityWeeklyIntervals: readWeeklyAvailability(
+            teacherSettings.availability_weekly_intervals,
+            Array.isArray(teacherSettings.availability_weekdays) ? teacherSettings.availability_weekdays : [1,2,3,4,5],
+            teacherSettings.availability_start_time || '08:00', teacherSettings.availability_end_time || '18:00',
+          ),
           availabilityEndTime: teacherSettings.availability_end_time || "18:00",
           availabilitySlotMinutes: String(
             teacherSettings.availability_slot_minutes || 60,
@@ -877,6 +886,12 @@ export const TeacherScheduling = () => {
 
     if (!currentUserId) return;
 
+    setAvailabilityError('');
+    try {
+      availabilityIntervals(calendarSettings.availabilityWeeklyIntervals,calendarSettings.availabilityStartTime,calendarSettings.availabilityEndTime,Number(calendarSettings.availabilitySlotMinutes));
+      if(!Number.isInteger(Number(calendarSettings.availabilityHorizonDays))||Number(calendarSettings.availabilityHorizonDays)<1||Number(calendarSettings.availabilityHorizonDays)>60)throw new Error('Escolha entre 1 e 60 dias futuros.');
+      if(!calendarSettings.timezone.trim())throw new Error('Informe o fuso horário.');
+    } catch(error) {setAvailabilityError((error as Error).message);return;}
     setSavingCalendarSettings(true);
 
     const { error } = await supabase.from("teacher_calendar_settings").upsert({
@@ -885,7 +900,8 @@ export const TeacherScheduling = () => {
       availability_calendar_ids: calendarSettings.availabilityCalendarIds,
       availability_calendar_names: calendarSettings.availabilityCalendarNames,
       timezone: calendarSettings.timezone.trim() || null,
-      availability_weekdays: calendarSettings.availabilityWeekdays,
+      availability_weekdays: Object.entries(calendarSettings.availabilityWeeklyIntervals).filter(([,ranges])=>ranges.length).map(([day])=>Number(day)),
+      availability_weekly_intervals: calendarSettings.availabilityWeeklyIntervals,
       availability_start_time: calendarSettings.availabilityStartTime,
       availability_end_time: calendarSettings.availabilityEndTime,
       availability_slot_minutes: Number(calendarSettings.availabilitySlotMinutes) || 60,
@@ -894,7 +910,7 @@ export const TeacherScheduling = () => {
     });
 
     if (error) {
-      alert(error.message);
+      setAvailabilityError(error.message);
     } else {
       try {
         const syncResult = await runAutomaticSchedulingSync({
@@ -1204,7 +1220,7 @@ export const TeacherScheduling = () => {
               </div>
 
               <div className="mt-3">
-                <div className="inline-flex min-w-[32rem] rounded-2xl bg-brand-900/70 p-1.5 ring-1 ring-white/10">
+                <div className="inline-flex w-full min-w-0 flex-wrap rounded-2xl bg-brand-900/70 p-1.5 ring-1 ring-white/10 sm:min-w-[32rem]">
                   <button
                     type="button"
                     onClick={() => setActiveView("events")}
@@ -2368,12 +2384,12 @@ export const TeacherScheduling = () => {
                   Disponibilidade
                 </p>
                 <h2 className="mt-2 text-2xl font-bold text-white">
-                  Agendas que bloqueiam horarios livres
+                  Configurar disponibilidade semanal
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">
-                  Selecione aqui as agendas que devem entrar no calculo de conflitos.
-                  Elas nao aparecem na agenda ativa da plataforma, mas impedem
-                  que voce fique disponivel quando tiver compromissos pessoais ou paralelos.
+                  Defina a janela de atendimento e as faixas disponíveis em cada dia.
+                  As agendas selecionadas abaixo continuam bloqueando horários
+                  quando houver compromissos pessoais ou paralelos.
                 </p>
               </div>
 
@@ -2524,52 +2540,21 @@ export const TeacherScheduling = () => {
                   </Field>
 
                   <div className="rounded-2xl bg-brand-900/40 p-4 text-sm leading-6 text-white/60 ring-1 ring-white/10">
-                    A plataforma so publicara horarios dentro desta janela e fora
-                    dos conflitos detectados nas agendas marcadas acima.
+                    Os horários automáticos serão gerados nas faixas semanais abaixo,
+                    dentro desta janela e fora dos conflitos das agendas selecionadas.
+                    {calendarSettings.availabilityEndTime<=calendarSettings.availabilityStartTime&&<p className="mt-2 text-xs">Esta janela termina no dia seguinte. As faixas da madrugada pertencem à noite iniciada no dia selecionado.</p>}
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <p className="ml-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
-                    Dias da semana
-                  </p>
-                  <div className="mt-3 grid gap-3 md:grid-cols-3">
-                    {[
-                      { label: "Seg", value: 1 },
-                      { label: "Ter", value: 2 },
-                      { label: "Qua", value: 3 },
-                      { label: "Qui", value: 4 },
-                      { label: "Sex", value: 5 },
-                      { label: "Sab", value: 6 },
-                      { label: "Dom", value: 7 },
-                    ].map((weekday) => (
-                      <label
-                        key={weekday.value}
-                        className="flex items-center gap-3 rounded-2xl bg-brand-900/60 px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/10"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={calendarSettings.availabilityWeekdays.includes(
-                            weekday.value,
-                          )}
-                          onChange={(event) => {
-                            const nextWeekdays = event.target.checked
-                              ? [...calendarSettings.availabilityWeekdays, weekday.value].sort()
-                              : calendarSettings.availabilityWeekdays.filter(
-                                  (value) => value !== weekday.value,
-                                );
+                <WeeklyAvailabilityEditor
+                  value={calendarSettings.availabilityWeeklyIntervals}
+                  start={calendarSettings.availabilityStartTime}
+                  end={calendarSettings.availabilityEndTime}
+                  slotMinutes={Number(calendarSettings.availabilitySlotMinutes)}
+                  onChange={availabilityWeeklyIntervals=>{setAvailabilityError('');setCalendarSettings({...calendarSettings,availabilityWeeklyIntervals});}}
+                />
+                {availabilityError && <p role="alert" className="mt-3 text-sm text-rose-200">{availabilityError}</p>}
 
-                            setCalendarSettings({
-                              ...calendarSettings,
-                              availabilityWeekdays: nextWeekdays,
-                            });
-                          }}
-                        />
-                        {weekday.label}
-                      </label>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row">

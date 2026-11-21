@@ -24,7 +24,10 @@
     "test:pedagogy": "node --test --test-concurrency=1 tests/pedagogy.test.mjs tests/pedagogy-browser.test.mjs",
     "test:curriculum": "node --test --test-concurrency=1 tests/curriculum-v2.test.mjs tests/curriculum-v2-browser.test.mjs",
     "test:flashcards": "node --test --test-concurrency=1 tests/flashcards.test.mjs tests/flashcards-browser.test.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:availability": "node --experimental-strip-types --test tests/weekly-availability.test.mjs",
+    "test:availability:browser": "node --experimental-strip-types --test tests/weekly-availability-browser.test.mjs",
+    "test:availability:edge": "deno test --config tests/deno-availability.json --allow-read --no-check tests/weekly-availability-edge.test.ts"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
