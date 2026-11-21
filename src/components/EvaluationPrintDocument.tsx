@@ -1,6 +1,8 @@
 import {evaluationCriteria} from '../lib/evaluationDraft';
 import {evaluationTitle} from '../lib/evaluationPeriods';
-import logo from '../assets/logo/logo-horizontal.png';
+import logo from '../assets/logo/logo-horizontal-para-fundo-escuro.png';
+import {EvaluationStars} from './EvaluationStars';
+export const evaluationMascot = '/biblioteca-bitara/images/bitara-002.webp';
 
 export type PrintableEvaluation = {
   created_at?: string; reference_month?: string | null; modules?: {title?: string; courses?: {title?: string} | null} | null;
@@ -8,23 +10,36 @@ export type PrintableEvaluation = {
   [key: string]: unknown;
 };
 export const evaluationPrintCss = `
-@page { size: A4; margin: 15mm 16mm; }
+@page { size: A4; margin: 12mm 14mm 18mm;
+  @bottom-left {content:"Bitaria · Aprenda. Crie. Evolua.\\A Acompanhamento pedagógico · Documento individual para o aluno e seus responsáveis."; white-space:pre; font:7.5pt Arial,sans-serif; color:#653078;}
+  @bottom-right {content:counter(page) " / " counter(pages); font:8pt Arial,sans-serif; color:#653078;}
+}
 * { box-sizing: border-box; }
 html,body { margin:0; padding:0; background:white; color:#231b33; font-family:Arial,sans-serif; font-size:11pt; }
-.evaluation-paper { width:100%; line-height:1.5; }
-.evaluation-head { border-bottom:2px solid #aa54cc; padding-bottom:12px; margin-bottom:16px; }
-.evaluation-logo { width:180px; height:auto; max-height:60px; object-fit:contain; object-position:left; }
-h1 { font-size:21pt; line-height:1.2; margin:10px 0; }
-h2 { font-size:12pt; margin:0 0 6px; break-after:avoid; }
+.evaluation-paper { width:100%; line-height:1.45; }
+.evaluation-head { position:relative; background:#201831; color:white; border-bottom:3px solid #db52c5; border-radius:12px; padding:12px 20px; margin-bottom:10px; break-inside:avoid; }
+.evaluation-logo { width:148px; height:45px; object-fit:contain; object-position:left; }
+.evaluation-slogan {font-size:9pt; margin:0 0 6px; color:#e5d8ec;}
+.evaluation-mascot {position:absolute; right:8px; top:8px; width:110px; height:135px; object-fit:contain;}
+.evaluation-head h1 {font-size:18pt; line-height:1.2; margin:4px 0 8px; padding-right:100px;}
+.evaluation-student {font-size:13pt; margin:0 0 6px; font-weight:bold; padding-right:100px; overflow-wrap:anywhere;}
+h2 { font-size:11pt; margin:0 0 6px; break-after:avoid; }
 .evaluation-meta { display:grid; grid-template-columns:1fr 1fr; gap:5px 22px; font-size:10pt; }
 .evaluation-meta p { margin:0; overflow-wrap:anywhere; }
-.evaluation-criterion { border-bottom:1px solid #ded8e5; padding:4px 0; break-inside:avoid; }
-.evaluation-score { float:right; font-weight:bold; color:#663285; margin-left:14px; }
+.evaluation-criteria {columns:2; column-gap:12px;}
+.evaluation-criterion { display:inline-block; width:100%; vertical-align:top; background:#faf7fc; border:1px solid #e6dbee; border-top:3px solid #a64fcc; border-radius:10px; padding:8px 12px; margin-bottom:8px; break-inside:avoid; }
+.evaluation-stars {display:inline-flex; gap:3px; margin:0 0 4px;}
+.evaluation-unrated {font-size:9pt; color:#62516f;}
 .evaluation-text { white-space:pre-wrap; overflow-wrap:anywhere; margin:4px 0; orphans:3; widows:3; }
-.evaluation-section { margin-top:18px; }
+.evaluation-section { margin-top:10px; padding:10px 16px; border-radius:12px; background:#f6edf9; border-left:4px solid #bd42af; break-inside:avoid; }
+.evaluation-section h2 {font-size:15pt; color:#653078;}
+.evaluation-section .evaluation-text {line-height:1.4;}
+.evaluation-subtitle {font-size:10pt; color:#653078; margin:0 0 8px;}
+.evaluation-foot strong {color:#653078;}
 .evaluation-foot { display:table; width:100%; margin-top:8px; padding-top:4px; border-top:1px solid #ded8e5; font-size:9pt; line-height:1.3; color:#555; break-inside:avoid; }
 @media print {
-  button,nav {display:none!important;} .evaluation-paper {max-width:none;}
+  * {-webkit-print-color-adjust:exact; print-color-adjust:exact;} button,nav {display:none!important;} .evaluation-paper {max-width:none;}
+  .evaluation-foot {display:none;}
 }
 `;
 
@@ -38,28 +53,29 @@ export function EvaluationPrintDocument({evaluation, studentName}: {evaluation: 
   return <article className="evaluation-paper">
     <header className="evaluation-head">
       <img className="evaluation-logo" src={logo} alt="Bitaria" />
+      <p className="evaluation-slogan">Aprenda. Crie. Evolua.</p>
+      <img className="evaluation-mascot" src={evaluationMascot} alt="Bitara sorrindo, com um braço levantado em sinal de vitória." />
       <h1>Avaliação individual do aluno</h1>
+      <p className="evaluation-student">{studentName || 'Nome não informado'}</p>
       <div className="evaluation-meta">
-        <p><strong>Aluno:</strong> {studentName || 'Nome não informado'}</p>
         <p><strong>Registrada em:</strong> {date && Number.isFinite(date.getTime()) ? date.toLocaleDateString('pt-BR', {timeZone: 'America/Bahia'}) : 'Não informada'}</p>
         <p><strong>{evaluation.reference_month ? 'Período' : 'Módulo'}:</strong> {evaluationTitle(evaluation)}</p>
         <p><strong>Modalidade:</strong> {evaluation.reference_month ? 'Mentoria' : 'Curso'}{course ? ` — ${course}` : ''}</p>
       </div>
     </header>
-    <section aria-label="Critérios avaliados">
+    <section className="evaluation-criteria" aria-label="Critérios avaliados">
       {evaluationCriteria.map(({id, label}) => {
         const value = evaluation[`score_${id}`];
-        const score = typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5 ? `${value}/5` : 'Não registrado';
         const text = typeof feedback[id] === 'string' ? feedback[id] as string : '';
         return <section className="evaluation-criterion" key={id}>
-          <span className="evaluation-score">{score}</span><h2>{label}</h2>
+          <h2>{label}</h2><EvaluationStars value={value} />
           {text && <p className="evaluation-text">{text}</p>}
         </section>;
       })}
     </section>
-    {general && <section className="evaluation-section"><h2>Avaliação geral</h2><p className="evaluation-text">{general}</p></section>}
+    {general && <section className="evaluation-section" aria-label="Avaliação geral"><h2>Sua evolução merece destaque!</h2><p className="evaluation-subtitle">Uma mensagem especial sobre sua jornada</p><p className="evaluation-text">{general}</p></section>}
     {comment && comment !== general && <section className="evaluation-section"><h2>Observações da professora</h2><p className="evaluation-text">{comment}</p></section>}
     {!general && !comment && <p className="evaluation-text">Sem observações registradas.</p>}
-    <footer className="evaluation-foot">Bitaria · Acompanhamento pedagógico<br />Documento individual para o aluno e seus responsáveis.</footer>
+    <footer className="evaluation-foot"><strong>Bitaria · Aprenda. Crie. Evolua.</strong><br />Acompanhamento pedagógico · Documento individual para o aluno e seus responsáveis.</footer>
   </article>;
 }

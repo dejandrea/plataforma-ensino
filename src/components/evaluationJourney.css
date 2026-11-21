@@ -1,0 +1,9 @@
+.evaluation-digital-head {position:relative; padding-right:140px; border-bottom:3px solid #d454c4;}
+.evaluation-digital-head h2,.evaluation-digital-head h3,.evaluation-digital-head p {overflow-wrap:anywhere;}
+.evaluation-digital-bitara {position:absolute; right:12px; top:20px; width:120px; height:170px; object-fit:contain; animation:bitara-welcome 700ms ease-out, bitara-float 4s 700ms ease-in-out infinite;}
+.evaluation-digital-stars .evaluation-stars {display:inline-flex; gap:5px; background:#faf4fc; border-radius:8px; padding:6px 9px;}
+.evaluation-digital-message {background:linear-gradient(120deg,#38203f,#24203c); border-left:4px solid #d454c4;}
+@keyframes bitara-welcome {from {opacity:0; transform:translateY(8px);} to {opacity:1; transform:translateY(0);}}
+@keyframes bitara-float {0%,100% {transform:translateY(0);} 50% {transform:translateY(-4px);}}
+@media (prefers-reduced-motion:reduce) {.evaluation-digital-bitara {animation:none;}}
+@media print {.evaluation-digital-bitara {animation:none;}}

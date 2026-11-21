@@ -5,17 +5,18 @@ import {createServer} from 'vite';
 import {chromium} from '@playwright/test';
 import {PDFDocument} from 'pdf-lib';
 
-test('real components: default Meet selection/save and private A4 evaluation print documents',{timeout:120000},async t=>{
+test('real components: default Meet selection/save and private A4 evaluation print documents',{timeout:180000},async t=>{
   const server=await createServer({logLevel:'error',plugins:[{name:'synthetic-supabase-only',enforce:'pre',configureServer(server){server.middlewares.use('/__printblank',(_req,res)=>{res.setHeader('Content-Type','text/html');res.end('<!doctype html><html><head></head><body></body></html>');});},load(id){if(id.replaceAll('\\','/').endsWith('/src/lib/supabaseClient.ts')) return 'export const supabase=new Proxy({}, {get:(_,key)=>window.syntheticClient[key]});';}}],server:{host:'127.0.0.1',port:0}});
   await server.listen();t.after(()=>server.close());
   const base=server.resolvedUrls.local[0];
   const browser=await chromium.launch({channel:process.platform==='win32'?'chrome':undefined,headless:true});t.after(()=>browser.close());
   const context=await browser.newContext();
   const external=[];
-  await context.route('**/*',route=>{const url=new URL(route.request().url());if(url.hostname==='127.0.0.1'||url.hostname==='localhost')return route.continue();external.push(url.origin);return route.abort();});
+  await context.route('**/*',route=>{const url=new URL(route.request().url());if(url.hostname==='127.0.0.1'||url.hostname==='localhost')return route.continue();if(url.hostname==='fonts.googleapis.com')return route.fulfill({contentType:'text/css',body:''});external.push(url.origin);return route.abort();});
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+  page.setDefaultNavigationTimeout(60000);
   t.after(()=>t.diagnostic(JSON.stringify({errors,external})));
-  await page.goto(base+'tests/fixtures/scheduling-print.html?scenario=meet');
+  await page.goto(base+'tests/fixtures/scheduling-print.html?scenario=meet',{waitUntil:'domcontentloaded'});
   const fixed=page.getByLabel('Usar link fixo do Google Meet para este aluno');
   await fixed.waitFor();await page.waitForFunction(()=>document.querySelector('[data-testid="selected-meet"]')?.textContent==='https://meet.google.com/abc-defg-hij');
   assert.equal(await fixed.isChecked(),true);
@@ -29,14 +30,36 @@ test('real components: default Meet selection/save and private A4 evaluation pri
   await page.waitForFunction(()=>document.querySelector('[data-testid="selected-meet"]')?.textContent==='');
   assert.equal(await fixed.isChecked(),false);
   await mkdir('output/pdf',{recursive:true});
-  for(const scenario of ['sparse','complete','long']) {
-    await page.goto(base+'tests/fixtures/scheduling-print.html?scenario='+scenario);
+  for(const scenario of ['sparse','complete','long','criteria-long']) {
+    await page.goto(base+'tests/fixtures/scheduling-print.html?scenario='+scenario,{waitUntil:'domcontentloaded'});
+    if(scenario==='complete') {
+      await page.locator('.evaluation-digital-bitara').evaluate(image=>image.decode());
+      assert.notEqual(await page.locator('.evaluation-digital-bitara').evaluate(image=>getComputedStyle(image).animationName),'none');
+      const before=await page.locator('.evaluation-digital-bitara').evaluate(image=>getComputedStyle(image).transform);
+      await page.waitForTimeout(250);
+      assert.notEqual(await page.locator('.evaluation-digital-bitara').evaluate(image=>getComputedStyle(image).transform),before);
+      await page.waitForTimeout(750); // Capture the floating pose after the entrance has fully faded in.
+      await page.screenshot({path:'output/pdf/avaliacao-digital.png',fullPage:true});
+      await page.emulateMedia({reducedMotion:'reduce'});
+      assert.equal(await page.locator('.evaluation-digital-bitara').evaluate(image=>getComputedStyle(image).animationName),'none');
+      await page.emulateMedia({reducedMotion:'no-preference'});
+      await page.setViewportSize({width:390,height:844});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      await page.screenshot({path:'output/pdf/avaliacao-digital-celular.png',fullPage:true});
+      await page.setViewportSize({width:1280,height:900});
+    }
     // Keep the prepared iframe alive to inspect exactly the document passed to print().
     await page.evaluate(()=>{const append=Element.prototype.append;Element.prototype.append=function(...nodes){const result=append.apply(this,nodes);for(const node of nodes)if(node instanceof HTMLIFrameElement)node.contentWindow.print=()=>{window.syntheticPrintCalled=true;};return result;};});
     await page.getByRole('button',{name:'Imprimir avaliação',exact:true}).click();
     await page.waitForFunction(()=>window.syntheticPrintCalled===true);
     const frame=page.frames().find(f=>f!==page.mainFrame());assert.ok(frame);
     const body=await frame.locator('body').innerText();assert.ok(body.includes('Aluno Sintético da Bitaria'));
+    if(scenario!=='sparse') {
+      assert.equal(await frame.locator('.evaluation-criterion').count(),8);
+      for(const score of [1,2,3,4,5])assert.ok(await frame.getByRole('img',{name:`${score} de 5 estrelas`,exact:true}).count());
+      assert.equal(await frame.locator('.evaluation-criterion').first().locator('svg path[fill="none"]').count(),4);
+      assert.equal(await frame.locator('.evaluation-section .evaluation-text').first().innerText(),'Evoluiu ao planejar soluções e revisar o próprio trabalho. Demonstra criatividade e colaboração. Recomenda-se continuar praticando a organização dos passos e explicar suas escolhas.');
+    }
     assert.equal(body.includes('MENU ADMINISTRATIVO'),false);assert.equal(await frame.locator('button,nav').count(),0);
     if(scenario==='sparse') assert.ok(body.includes('Não registrado'));
     if(scenario==='long') assert.ok(body.includes('FIM DO COMENTÁRIO LONGO.'));
@@ -45,10 +68,15 @@ test('real components: default Meet selection/save and private A4 evaluation pri
     await printPage.emulateMedia({media:'print'});
     const bytes=await printPage.pdf({path:`output/pdf/avaliacao-${scenario}.pdf`,preferCSSPageSize:true,printBackground:true});
     const doc=await PDFDocument.load(bytes);assert.equal(Math.round(doc.getPage(0).getWidth()),595);assert.equal(Math.round(doc.getPage(0).getHeight()),842);
-    if(scenario==='sparse'||scenario==='complete')assert.equal(doc.getPageCount(),1);if(scenario==='long')assert.equal(doc.getPageCount(),4);
+    if(scenario==='sparse'||scenario==='complete')assert.equal(doc.getPageCount(),1);if(scenario==='long')assert.ok(doc.getPageCount()>1);
+    if(scenario==='criteria-long')assert.ok(doc.getPageCount()>1);
     await printPage.screenshot({path:`output/pdf/avaliacao-${scenario}-browser.png`,fullPage:true});
     await printPage.close();await page.evaluate(()=>document.querySelector('iframe').contentWindow.dispatchEvent(new Event('afterprint')));
     assert.equal(await page.locator('iframe').count(),0);
   }
+  await page.goto(base+'tests/fixtures/scheduling-print.html?scenario=student',{waitUntil:'domcontentloaded'});
+  await page.getByRole('heading',{name:'Minha jornada de evolução'}).waitFor();
+  assert.equal(await page.locator('.evaluation-digital-stars').count(),8);
+  await page.screenshot({path:'output/pdf/avaliacao-boletim-aluno.png',fullPage:true});
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
 });

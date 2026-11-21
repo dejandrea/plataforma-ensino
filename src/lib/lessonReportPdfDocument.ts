@@ -30,19 +30,25 @@ function wrap(value: string, font: PDFFont, size: number, width: number): string
 }
 
 /** Presentation only: financial totals come unchanged from the existing billing flow. */
-export async function createLessonReportPdf(data: LessonReportParams, assets: ReportAssets): Promise<Uint8Array> {
+export async function createLessonReportPdf(data: LessonReportParams, assets: ReportAssets, layout: 'cards' | 'table' = 'cards'): Promise<Uint8Array> {
   const doc = await PDFDocument.create(); doc.registerFontkit(fontkit);
   const [body, heading, logo] = await Promise.all([
     doc.embedFont(assets.bodyFont, {subset: false}), doc.embedFont(assets.headingFont, {subset: true}), doc.embedPng(assets.logo),
   ]);
+  const mascot = assets.mascot ? await doc.embedPng(assets.mascot) : null;
+  // Exceptional descriptions use full-width, paginated rows rather than squeezing two columns.
+  if(data.lessons.some(lesson=>wrap(lesson.title,body,10,(CONTENT-12)/2-24).length>3))layout='table';
   doc.setTitle(`Relatório de aulas realizadas - ${data.studentName}`); doc.setAuthor('Bitaria');
   doc.setSubject(data.periodLabel); doc.setLanguage('pt-BR');
-  let page: PDFPage; let y = 0; let rowsOnPage = 0;
+  let page!: PDFPage; let y = 0; let rowsOnPage = 0;
   const ink = color(C.ink), lineColor = color('#D8D1DF'), soft = color('#F5F0F8');
   function text(value: string, x: number, top: number, size = 10, font = body) {
     page.drawText(value, {x, y: H - top - size, size, font, color: ink});
   }
   function line(top: number) {page.drawLine({start: {x: M, y: H-top}, end: {x: W-M, y: H-top}, thickness: .5, color: lineColor});}
+  function box(x:number,top:number,width:number,height:number,r=8) {
+    page.drawSvgPath(`M ${r} 0 H ${width-r} Q ${width} 0 ${width} ${r} V ${height-r} Q ${width} ${height} ${width-r} ${height} H ${r} Q 0 ${height} 0 ${height-r} V ${r} Q 0 0 ${r} 0 Z`,{x,y:H-top,color:ink});
+  }
   function paragraph(value: string, top: number, width = CONTENT, size = 10, font = body) {
     const lines = wrap(value, font, size, width);
     for (const item of lines) {if (top + size + 4 > BOTTOM) {newPage(); top = y;} text(item, M, top, size, font); top += size+4;}
@@ -56,22 +62,64 @@ export async function createLessonReportPdf(data: LessonReportParams, assets: Re
   }
   function newPage(first = false) {
     page = doc.addPage([W,H]); rowsOnPage = 0;
-    // A small ink-saving brand bar; all text remains dark on white paper.
-    page.drawRectangle({x:M,y:H-31,width:CONTENT,height:2,color:color('#A64FCC')});
+    page.drawRectangle({x:0,y:H-88,width:W,height:88,color:ink});
+    page.drawRectangle({x:0,y:H-91,width:W,height:3,color:color(C.pink)});
+    const ratio=logo.width/logo.height;
+    page.drawImage(logo,{x:M,y:H-65,width:160,height:160/ratio});
+    page.drawText('Aprenda. Crie. Evolua.',{x:M+186,y:H-54,size:11,font:body,color:color(C.white)});
     if (first) {
-      const ratio=logo.width/logo.height; page.drawImage(logo,{x:M,y:H-73,width:148,height:148/ratio});
-      text('Relatório de aulas realizadas',M+170,43,16,heading);
-      y=86; y=paragraph(`Aluno: ${data.studentName}`,y,CONTENT,11,heading)+2;
-      y=paragraph(`Período: ${data.periodLabel}`,y,CONTENT,10)+10;
+      text('Relatório de aulas realizadas',M,108,19,heading);
+      y=140; y=paragraph(`Aluno: ${data.studentName}`,y,CONTENT-65,11,heading)+2;
+      y=paragraph(`Período: ${data.periodLabel}`,y,CONTENT-65,10)+2;
+      const tracks=[...new Set(data.lessons.map(l=>l.session_track==='course'?'Curso completo':'Mentoria'))];
+      y=paragraph(`Modalidade: ${tracks.join(' e ') || 'Não informada'}`,y,CONTENT-65,9)+12;
+      if(mascot)page.drawImage(mascot,{x:W-M-60,y:H-192,width:58,height:58});
     } else {
-      text('Relatório de aulas realizadas · continuação',M,42,12,heading);
-      y=64; y=paragraph(`${data.studentName} | ${data.periodLabel}`,y,CONTENT,9)+10;
+      text('Relatório de aulas realizadas · continuação',M,108,12,heading);
+      y=132; y=paragraph(`${data.studentName} | ${data.periodLabel}`,y,CONTENT,9)+10;
     }
   }
-  newPage(true); tableHeader();
+  newPage(true); if(layout==='table')tableHeader();
   const lessons=data.lessons.map((lesson,index)=>({lesson,index})).sort((a,b)=>Date.parse(b.lesson.starts_at)-Date.parse(a.lesson.starts_at)||a.index-b.index);
   if (!lessons.length) {text('Nenhuma aula registrada neste período.',M+7,y+8); y+=35;}
-  for (const {lesson} of lessons) {
+  if(layout==='cards') {
+    const width=(CONTENT-12)/2, lineHeight=13;
+    for(let start=0;start<lessons.length;start+=10) {
+      if(start)newPage();
+      const group=lessons.slice(start,start+10), split=Math.ceil(group.length/2);
+      const columnHeight=(items:typeof group)=>items.reduce((sum,{lesson})=>sum+55+wrap(lesson.title,body,10,width-24).length*lineHeight,0);
+      if(y+Math.max(columnHeight(group.slice(0,split)),columnHeight(group.slice(split)))>BOTTOM)newPage();
+      const top=y;let bottom=top;
+      for(let column=0;column<2;column++) {
+        y=top;
+        for(const {lesson} of group.slice(column*split,(column+1)*split)) {
+          const date=new Date(lesson.starts_at), end=new Date(lesson.ends_at);
+          const valid=Number.isFinite(date.getTime())&&Number.isFinite(end.getTime());
+          const stamp=valid?date.toLocaleDateString('pt-BR',{timeZone:'America/Bahia'})+' · '+date.toLocaleTimeString('pt-BR',{timeZone:'America/Bahia',hour:'2-digit',minute:'2-digit'}):'Data não registrada';
+          const track=lesson.session_track==='course'?'Curso completo':'Mentoria';
+          const detail=`${track} · ${valid?number((end.getTime()-date.getTime())/3600000)+'h':'—'} · Realizada`;
+          const lines=wrap(lesson.title,body,10,width-24);let offset=0;
+          while(offset<lines.length) {
+            const desired=47+(lines.length-offset)*lineHeight;
+            if(y+Math.min(desired,590)>BOTTOM && y>top) {newPage();bottom=y;}
+            const capacity=Math.max(1,Math.floor((BOTTOM-y-47)/lineHeight));
+            const chunk=lines.slice(offset,offset+capacity), height=47+chunk.length*lineHeight;
+            const x=M+column*(width+12);
+            box(x,y,width,height);
+            page.drawRectangle({x,y:H-y-height,width:3,height,color:color(C.pink)});
+            const light=(value:string,top:number,size:number,font=body)=>page.drawText(value,{x:x+12,y:H-top-size,size,font,color:color(C.white)});
+            light(stamp+(offset?' · cont.':''),y+8,9,heading);
+            light(detail,y+23,8);
+            chunk.forEach((line,i)=>light(line,y+39+i*lineHeight,10));
+            y+=height+8;offset+=chunk.length;
+            if(offset<lines.length){newPage();bottom=y;}
+          }
+          bottom=Math.max(bottom,y);
+        }
+      }
+      y=bottom;
+    }
+  } else for (const {lesson} of lessons) {
     const start=new Date(lesson.starts_at),end=new Date(lesson.ends_at);
     const valid=Number.isFinite(start.getTime())&&Number.isFinite(end.getTime());
     const day=valid?start.toLocaleDateString('pt-BR',{timeZone:'America/Bahia'}):'Não registrada';
@@ -96,26 +144,29 @@ export async function createLessonReportPdf(data: LessonReportParams, assets: Re
     }
   }
   // Reserve the complete financial summary. No calculations or discount rules are changed here.
-  if(y+155>BOTTOM)newPage();
+  if(y+163>BOTTOM)newPage();
   y+=14; text('RESUMO DO PERÍODO',M,y,11,heading); y+=24;
   const metrics=[
     ['Aulas no período',number(data.totalLessons)],['Carga horária',`${number(data.totalHours)}h`],
     ['Hora/aula',data.hourlyRate==null?'Não definido':money(data.hourlyRate)],
     ['Valor bruto',data.grossAmount==null?'Não informado':money(data.grossAmount)],
     ['Descontos',data.discountAmount==null?'Não informado':money(data.discountAmount)],
-    ['Total final',data.hourlyRate==null?'A definir':money(data.totalAmount)],
   ];
-  const cellWidth=(CONTENT-20)/2;
-  for(let i=0;i<metrics.length;i+=2){
-    const values=metrics.slice(i,i+2).map(([label,value],j)=>({label,lines:wrap(value,heading,11,cellWidth-12),x:M+j*(cellWidth+20)}));
-    const height=20+Math.max(...values.map(v=>v.lines.length))*14;
-    if(y+height>BOTTOM)newPage();
-    for(const value of values){
-      text(value.label.toUpperCase(),value.x,y,8.5);
-      value.lines.forEach((item,k)=>text(item,value.x+cellWidth-heading.widthOfTextAtSize(item,11),y+14+k*14,11,heading));
-    }
-    y+=height;line(y);y+=5;
+  const cellWidth=(CONTENT-24)/5;
+  const values=metrics.map(([label,value],j)=>({label,lines:wrap(value,heading,11,cellWidth-12),x:M+j*(cellWidth+6)}));
+  const height=29+Math.max(...values.map(v=>v.lines.length))*14;
+  if(y+height+62>BOTTOM)newPage();
+  for(const value of values){
+    box(value.x,y,cellWidth,height);
+    page.drawText(value.label.toUpperCase(),{x:value.x+6,y:H-y-14,size:8,font:body,color:color(C.muted)});
+    value.lines.forEach((item,k)=>page.drawText(item,{x:value.x+6,y:H-y-33-k*14,size:11,font:heading,color:color(C.white)}));
   }
+  y+=height+8;
+  box(M,y,CONTENT,45);
+  page.drawRectangle({x:M,y:H-y-45,width:3,height:45,color:color(C.pink)});
+  page.drawText('TOTAL FINAL',{x:M+12,y:H-y-28,size:10,font:heading,color:color(C.white)});
+  const total=data.hourlyRate==null?'A definir':money(data.totalAmount);
+  page.drawText(total,{x:W-M-14-heading.widthOfTextAtSize(total,20),y:H-y-30,size:20,font:heading,color:color(C.white)});
   doc.getPages().forEach((p,index)=>{
     page=p;line(H-43);text('Bitaria · Aprenda. Crie. Evolua.',M,H-31,8.5);
     const count=`${index+1} / ${doc.getPageCount()}`;text(count,W-M-body.widthOfTextAtSize(count,9),H-31,9);

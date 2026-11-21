@@ -1,8 +1,8 @@
-import {PrintEvaluationButton} from '../components/PrintEvaluationButton';
+import {EvaluationDetails} from '../components/EvaluationDetails';
+import type {PrintableEvaluation} from '../components/EvaluationPrintDocument';
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { evaluationTitle } from "../lib/evaluationPeriods";
-import { evaluationCriteria } from "../lib/evaluationDraft";
 
 export const StudentReport = () => {
   const [evaluations, setEvaluations] = useState<any[]>([]);
@@ -153,80 +153,6 @@ export const StudentReport = () => {
   );
 };
 
-const EvaluationCard = ({ evaluation, studentName }: { evaluation: any; studentName: string }) => {
-  const feedback =
-    evaluation.ai_feedback_json &&
-    typeof evaluation.ai_feedback_json === "object" &&
-    !Array.isArray(evaluation.ai_feedback_json) &&
-    !("error" in evaluation.ai_feedback_json)
-      ? evaluation.ai_feedback_json
-      : null;
-  const generalFeedback = typeof feedback?.general === "string" ? feedback.general.trim() : "";
-  const teacherComment = typeof evaluation.teacher_comment === "string" ? evaluation.teacher_comment.trim() : "";
-
-  return (
-    <article className="overflow-hidden rounded-[2rem] bg-surface shadow-soft ring-1 ring-white/10">
-      <div className="bg-gradient-to-r from-brand-purple/80 to-brand-pink/80 p-5 text-white">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-white/60">
-              {evaluation.reference_month ? "Avaliação mensal de mentoria" : "Módulo avaliado"}
-            </p>
-            <h2 className="mt-2 text-2xl font-bold">
-              {evaluationTitle(evaluation)}
-            </h2>
-          </div>
-
-          <span className="rounded-full bg-surface-elevated px-3 py-1 text-xs font-semibold ring-1 ring-white/15">
-            {new Date(evaluation.created_at).toLocaleDateString()}
-          </span>
-        </div>
-      </div>
-
-      <div className="space-y-6 p-6">
-        <PrintEvaluationButton evaluation={evaluation} studentName={studentName} />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {evaluationCriteria.map(({ id, label }) => {
-            const score = Number(evaluation[`score_${id}`]);
-            const hasScore = Number.isInteger(score) && score >= 1 && score <= 5;
-            const areaFeedback = typeof feedback?.[id] === "string" ? feedback[id].trim() : "";
-            return (
-            <div
-              key={id}
-              className="min-w-0 rounded-2xl bg-surface p-5 ring-1 ring-white/10"
-            >
-              <h3 className="text-sm font-bold text-white/80">
-                {label}
-              </h3>
-              <div className="mt-3 flex gap-1 text-2xl" role="img" aria-label={hasScore ? `${label}: ${score} de 5 estrelas` : `${label}: sem nota registrada`}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span key={star} aria-hidden="true" className={hasScore && star <= score ? "text-amber-400" : "text-white/20"}>★</span>
-                ))}
-              </div>
-              {!hasScore && <p className="mt-2 text-xs text-white/50">Sem nota registrada</p>}
-              <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-white/75">
-                {areaFeedback || "Nenhuma observação registrada para esta área."}
-              </p>
-            </div>
-            );
-          })}
-        </div>
-
-        {generalFeedback && teacherComment && teacherComment !== generalFeedback && <div className="rounded-3xl bg-surface p-5 ring-1 ring-white/10">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
-            Comentário da professora
-          </p>
-          <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-white/75">
-            {teacherComment}
-          </p>
-        </div>}
-        <section className="rounded-3xl bg-brand-lavender/10 p-5 ring-1 ring-brand-lavender/20">
-          <h3 className="text-sm font-bold text-brand-ice">Avaliação geral</h3>
-          <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-white/85">
-            {generalFeedback || teacherComment || "Nenhuma avaliação geral foi registrada."}
-          </p>
-        </section>
-      </div>
-    </article>
-  );
-};
+const EvaluationCard = ({ evaluation, studentName }: { evaluation: PrintableEvaluation; studentName: string }) => (
+  <EvaluationDetails evaluation={evaluation} studentName={studentName} />
+);

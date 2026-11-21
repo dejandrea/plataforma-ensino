@@ -10,6 +10,7 @@ export function PrintEvaluationButton({evaluation, studentName}: {evaluation: Pr
       catch {setError('Não foi possível preparar a impressão. Tente novamente.');}
       finally {setBusy(false);}
     }}>{busy ? 'Preparando impressão…' : 'Imprimir avaliação'}</button>
+    <p className="mt-2 text-xs text-white/60">Para salvar em PDF: selecione A4, habilite gráficos de fundo e desative os cabeçalhos e rodapés do navegador.</p>
     {error && <p role="alert" className="mt-2 text-sm text-rose-200">{error}</p>}
   </div>;
 }
