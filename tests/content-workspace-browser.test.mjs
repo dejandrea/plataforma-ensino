@@ -29,6 +29,7 @@ test('Currículo e editor dedicados: navegação, cinco abas, proteção local e
   const lessonGate=options.holdLesson?Promise.withResolvers():null;
   t.after(()=>lessonGate?.resolve());
   const role=options.role??'admin';
+  let kitOrigin=kit.origin;
   if(role!=='anon')await context.addInitScript(({role})=>{
    const user={id:'00000000-0000-4000-8000-000000000005',email:'admin@example.invalid',aud:'authenticated',role:'authenticated',user_metadata:{}};
    const token='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'+btoa(JSON.stringify({sub:user.id,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600}))+'.synthetic';
@@ -49,7 +50,7 @@ test('Currículo e editor dedicados: navegação, cinco abas, proteção local e
    if(url.pathname.includes('/rpc/')){
     const args=req.postDataJSON();
     if(name==='admin_editorial_lesson')return json({document:doc,lessonTitle:lesson.title,sourceToken:'source-synthetic',hasHistory:false,draft:options.draft?{version:1,document:doc,source_token:'source-synthetic',status:'draft'}:null,events:[]});
-    if(name==='lesson_package_state')return json({kit,eligible:true,eligibilityReason:null,operation:options.pending?{id:id(9991),semantic_hash:'0'.repeat(64),status:'preparing',document:doc,manifest:{},draft_version:null,last_error:'Preparação interrompida: exemplo sintético.',intents:[]}:null});
+    if(name==='lesson_package_state')return json({kit:options.withoutKit?null:{...kit,origin:kitOrigin},eligible:true,eligibilityReason:null,operation:options.pending?{id:id(9991),semantic_hash:'0'.repeat(64),status:'preparing',document:doc,manifest:{},draft_version:null,last_error:'Preparação interrompida: exemplo sintético.',intents:[]}:null});
     if(name==='lesson_web_presentations')return json([]);
     if(name==='web_presentation_state')return json({presentations:[{id:id(9930),title:'Deck sintético salvo',active_version_id:null,versions:[{id:id(9940),version_number:1,slide_count:1,files:[],warnings:[],package_hash:'a'.repeat(64)}]}],activities:[]});
     if(name==='plan_editorial_lesson')return json({lessonId,args,sourceToken:'source-synthetic',draftVersion:0,needsIdentity:false,canSave:true,issues:[],document:args.p_document,lessonBefore:{},lessonAfter:{},lessonClasses:[],teacherChanges:[],activities:[]});
@@ -69,7 +70,7 @@ test('Currículo e editor dedicados: navegação, cinco abas, proteção local e
   const page=await context.newPage();page.on('pageerror',e=>{errors.push(e.message);console.error('Synthetic browser error:',e.message);});page.setDefaultTimeout(15000);page.setDefaultNavigationTimeout(60000);
   const goto=async path=>{await page.goto(origin+path);};
   const clean=async()=>{assert.deepEqual(errors,[]);assert.deepEqual(mutations,[]);await context.close();};
-  return {page,context,goto,errors,mutations,requests,clean,releaseLesson:()=>lessonGate?.resolve()};
+  return {page,context,goto,errors,mutations,requests,clean,releaseLesson:()=>lessonGate?.resolve(),setKitOrigin:value=>{kitOrigin=value;}};
  }
 
  await t.test('Currículo: seleção acessível, editor em rota real e retorno preservado',async()=>{
@@ -132,6 +133,17 @@ test('Currículo e editor dedicados: navegação, cinco abas, proteção local e
   const a=await app({pending:true}),{page}=a;await a.goto('/gestao/aulas/'+lessonId+'?aba=publication');
   await page.getByRole('button',{name:'Pacote completo',exact:true}).click();await page.getByRole('heading',{name:'Operação em preparação',exact:true}).waitFor();
   await page.getByRole('tab',{name:'Visão geral',exact:true}).click();await page.getByRole('tab',{name:'Publicação',exact:true}).click();await page.getByRole('heading',{name:'Operação em preparação'}).waitFor();await a.clean();
+ });
+
+ await t.test('Origem real no localhost e sincronização ao recuperar o Kit',async()=>{
+  const productionOrigin='https://plataforma-ensino-chi.vercel.app';
+  const empty=await app({withoutKit:true});await empty.goto('/gestao/aulas/'+lessonId+'?aba=import');await empty.page.getByRole('button',{name:/Importar aula por ZIP/}).click();
+  const input=empty.page.getByLabel('Origem HTTPS da plataforma');await input.waitFor();assert.equal(await input.inputValue(),productionOrigin);
+  assert.equal(await empty.page.getByRole('button',{name:'Importar ZIP da aula',exact:true}).isDisabled(),true);await empty.clean();
+  const existing=await app();await existing.goto('/gestao/aulas/'+lessonId+'?aba=import');await existing.page.getByRole('button',{name:/Importar aula por ZIP/}).click();
+  await existing.page.getByLabel('Origem HTTPS da plataforma').waitFor();assert.equal(await existing.page.getByLabel('Origem HTTPS da plataforma').inputValue(),kit.origin);
+  existing.setKitOrigin(productionOrigin);await existing.page.getByRole('button',{name:'Recuperar operação',exact:true}).click();
+  await existing.page.getByText('Operação recuperada do servidor.',{exact:true}).waitFor();assert.equal(await existing.page.getByLabel('Origem HTTPS da plataforma').inputValue(),productionOrigin);await existing.clean();
  });
 
  await t.test('A02 mantém modo de reconciliação legado sem gravar',async()=>{

@@ -13,13 +13,13 @@ import {useLessonChanges} from '../../lib/lessonChanges';
 export default function UnifiedLessonImporter({lessonId,onClose,workspaceView}:{lessonId:string;onClose:()=>void;workspaceView?:'import'|'publication'}){
  const [state,setState]=useState<PackageState|null>(null),[parsed,setParsed]=useState<ParsedLessonPackage|null>(null);
  const [file,setFile]=useState<File|null>(null),[approved,setApproved]=useState(false),[publishApproved,setPublishApproved]=useState(false);
- const [origin,setOrigin]=useState(window.location.protocol==='https:'?window.location.origin:'https://example.invalid');
+ const [origin,setOrigin]=useState('https://plataforma-ensino-chi.vercel.app');
  const [busy,setBusy]=useState(true),[message,setMessage]=useState(''),[showLesson,setShowLesson]=useState(false);
  const [deck,setDeck]=useState<PresentationBundle|null>(null);const dispose=useRef<(()=>void)|null>(null);const flight=useRef(false);
  const upload=useRef<HTMLInputElement>(null);
  useEffect(()=>{let alive=true;packageState(lessonId).then(next=>{if(alive){setState(next);if(next.kit)setOrigin(next.kit.origin);}}).catch(error=>{if(alive)setMessage(error.message);}).finally(()=>{if(alive)setBusy(false);});return()=>{alive=false;dispose.current?.();};},[lessonId]);
  async function run(action:()=>Promise<void>){if(flight.current)return;flight.current=true;setBusy(true);setMessage('');try{await action();}catch(error){setMessage(error instanceof Error?error.message:'Operação não concluída.');}finally{flight.current=false;setBusy(false);}}
- async function reload(){const next=await packageState(lessonId);setState(next);setPublishApproved(false);return next;}
+ async function reload(){const next=await packageState(lessonId);setState(next);if(next.kit)setOrigin(next.kit.origin);setPublishApproved(false);return next;}
  function clearPreview(){dispose.current?.();dispose.current=null;setDeck(null);}
  const op=state?.operation;const document=parsed?.document??op?.document;
  useLessonChanges('package',Boolean(parsed&&parsed.semanticHash!==op?.semantic_hash),busy&&Boolean(file));
