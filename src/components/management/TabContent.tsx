@@ -1,10 +1,7 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {Link,useSearchParams} from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import { CurriculumLessonPublication } from './CurriculumLessonPublication';
 
-const AdminLessonPreview = lazy(() => import('../learning/AdminLessonPreview'));
-const LessonContentImporter = lazy(() => import('../learning/LessonContentImporter'));
-const WebPresentationManager = lazy(() => import('./WebPresentationManager'));
 
 const emptyModuleForm = {
   title: "",
@@ -31,13 +28,18 @@ export const TabContent = () => {
   const [modules, setModules] = useState<any[]>([]);
   const [submodules, setSubmodules] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]);
-  const [previewLessonId, setPreviewLessonId] = useState<string | null>(null);
-  const [importLessonId, setImportLessonId] = useState<string | null>(null);
-  const [presentationLessonId,setPresentationLessonId]=useState<string|null>(null);
 
-  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
-  const [selectedSubmoduleId, setSelectedSubmoduleId] = useState<string | null>(null);
+  const [params,setParams]=useSearchParams();
+  const selectedCourseId=params.get('curso'),selectedModuleId=params.get('modulo'),selectedSubmoduleId=params.get('submodulo');
+  const lastLessonId=params.get('aula');
+  function select(level:'curso'|'modulo'|'submodulo',id:string|null){setParams(previous=>{const next=new URLSearchParams(previous);if(id)next.set(level,id);else next.delete(level);if(level==='curso'){next.delete('modulo');next.delete('submodulo');}if(level==='modulo')next.delete('submodulo');next.delete('aula');return next;},{replace:true});}
+  const setSelectedCourseId=(id:string|null)=>select('curso',id);
+  const setSelectedModuleId=(id:string|null)=>select('modulo',id);
+  const setSelectedSubmoduleId=(id:string|null)=>select('submodulo',id);
+  const [loadError,setLoadError]=useState('');
+  const [pending,setPending]=useState(0);
+  const selection=useRef({course:selectedCourseId,module:selectedModuleId,submodule:selectedSubmoduleId});
+  useLayoutEffect(()=>{selection.current={course:selectedCourseId,module:selectedModuleId,submodule:selectedSubmoduleId};},[selectedCourseId,selectedModuleId,selectedSubmoduleId]);
 
   const [isCreatingCourse, setIsCreatingCourse] = useState(false);
   const [isEditingModule, setIsEditingModule] = useState(false);
@@ -84,29 +86,23 @@ export const TabContent = () => {
       setModules([]);
       setSubmodules([]);
       setLessons([]);
-      setSelectedModuleId(null);
-      setSelectedSubmoduleId(null);
       return;
     }
 
     fetchModules(selectedCourseId);
     setSubmodules([]);
     setLessons([]);
-    setSelectedModuleId(null);
-    setSelectedSubmoduleId(null);
   }, [selectedCourseId]);
 
   useEffect(() => {
     if (!selectedModuleId) {
       setSubmodules([]);
       setLessons([]);
-      setSelectedSubmoduleId(null);
       return;
     }
 
     fetchSubmodules(selectedModuleId);
     setLessons([]);
-    setSelectedSubmoduleId(null);
   }, [selectedModuleId]);
 
   useEffect(() => {
@@ -119,38 +115,28 @@ export const TabContent = () => {
   }, [selectedSubmoduleId]);
 
   const fetchCourses = async () => {
-    const { data } = await supabase.from("courses").select("*").order("title");
-    if (data) setCourses(data);
+    setPending(n=>n+1);setLoadError('');
+    const {data,error}=await supabase.from('courses').select('*').order('title');
+    if(error)setLoadError('Não foi possível carregar os cursos.');else if(data)setCourses(data);
+    setPending(n=>n-1);
   };
-
-  const fetchModules = async (courseId: string) => {
-    const { data } = await supabase
-      .from("modules")
-      .select("*")
-      .eq("course_id", courseId)
-      .order("order_index", { ascending: true });
-
-    if (data) setModules(data);
+  const fetchModules = async (courseId:string) => {
+    setPending(n=>n+1);setLoadError('');
+    const {data,error}=await supabase.from('modules').select('*').eq('course_id',courseId).order('order_index',{ascending:true});
+    if(selection.current.course===courseId){if(error)setLoadError('Não foi possível carregar os módulos.');else setModules(data??[]);}
+    setPending(n=>n-1);
   };
-
-  const fetchSubmodules = async (moduleId: string) => {
-    const { data } = await supabase
-      .from("submodules")
-      .select("*")
-      .eq("module_id", moduleId)
-      .order("order_index", { ascending: true });
-
-    if (data) setSubmodules(data);
+  const fetchSubmodules = async (moduleId:string) => {
+    setPending(n=>n+1);setLoadError('');
+    const {data,error}=await supabase.from('submodules').select('*').eq('module_id',moduleId).order('order_index',{ascending:true});
+    if(selection.current.module===moduleId){if(error)setLoadError('Não foi possível carregar os submódulos.');else setSubmodules(data??[]);}
+    setPending(n=>n-1);
   };
-
-  const fetchLessons = async (submoduleId: string) => {
-    const { data } = await supabase
-      .from("lessons")
-      .select("*")
-      .eq("submodule_id", submoduleId)
-      .order("order_index", { ascending: true });
-
-    if (data) setLessons(data);
+  const fetchLessons = async (submoduleId:string) => {
+    setPending(n=>n+1);setLoadError('');
+    const {data,error}=await supabase.from('lessons').select('*').eq('submodule_id',submoduleId).order('order_index',{ascending:true});
+    if(selection.current.submodule===submoduleId){if(error)setLoadError('Não foi possível carregar as aulas.');else setLessons(data??[]);}
+    setPending(n=>n-1);
   };
 
   const resetModuleForm = () => {
@@ -306,12 +292,15 @@ export const TabContent = () => {
 
   return (
     <div className="mt-8 space-y-8 animate-in fade-in duration-500">
+      {pending>0&&<p role="status" className="text-sm text-white/65">Carregando currículo…</p>}
+      {loadError&&<div role="alert" className="rounded-xl border border-red-300/30 p-4 text-red-100">{loadError} <button className="underline" onClick={()=>{void fetchCourses();if(selectedCourseId)void fetchModules(selectedCourseId);if(selectedModuleId)void fetchSubmodules(selectedModuleId);if(selectedSubmoduleId)void fetchLessons(selectedSubmoduleId);}}>Tentar novamente</button></div>}
+      <p aria-label="Seleção atual" className="text-sm text-brand-ice">{[courses.find(c=>c.id===selectedCourseId)?.title,modules.find(m=>m.id===selectedModuleId)?.title,submodules.find(s=>s.id===selectedSubmoduleId)?.title].filter(Boolean).join(' / ')||'Selecione um curso para começar.'}</p>
       <div className="relative flex flex-wrap items-center gap-4 rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur-sm">
         <div className="min-w-[250px] flex-1">
-          <label className="ml-1 text-[10px] font-black uppercase text-white/40">
+          <label htmlFor="curriculum-course" className="ml-1 text-[10px] font-black uppercase text-white/40">
             Curso atual
           </label>
-          <select
+          <select id="curriculum-course"
             className="mt-1 w-full rounded-2xl bg-gray-900 p-3 text-white ring-1 ring-white/20 outline-none transition-all focus:ring-2 focus:ring-brand-lavender"
             value={selectedCourseId || ""}
             onChange={(e) => setSelectedCourseId(e.target.value || null)}
@@ -417,6 +406,7 @@ export const TabContent = () => {
               {modules.map((module) => (
                 <div
                   key={module.id}
+                  role="button" tabIndex={0} aria-label={'Selecionar '+module.title} aria-pressed={selectedModuleId===module.id} onKeyDown={event=>{if(event.target===event.currentTarget&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setSelectedModuleId(module.id);}}}
                   onClick={() => setSelectedModuleId(module.id)}
                   className={`cursor-pointer rounded-3xl border p-5 transition-all ${
                     selectedModuleId === module.id
@@ -497,6 +487,7 @@ export const TabContent = () => {
                 {submodules.map((submodule) => (
                   <div
                     key={submodule.id}
+                    role="button" tabIndex={0} aria-label={'Selecionar '+submodule.title} aria-pressed={selectedSubmoduleId===submodule.id} onKeyDown={event=>{if(event.target===event.currentTarget&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setSelectedSubmoduleId(submodule.id);}}}
                     onClick={() => setSelectedSubmoduleId(submodule.id)}
                     className={`cursor-pointer rounded-3xl border p-5 transition-all ${
                       selectedSubmoduleId === submodule.id
@@ -707,7 +698,8 @@ export const TabContent = () => {
                   {lessons.map((lesson) => (
                     <div
                       key={lesson.id}
-                      className="rounded-[2rem] bg-surface p-6 ring-1 ring-white/10"
+                      data-selected={lastLessonId===lesson.id}
+                      className={`rounded-[2rem] bg-surface p-6 ring-1 ${lastLessonId===lesson.id?'ring-brand-lavender':'ring-white/10'}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex gap-4">
@@ -752,37 +744,10 @@ export const TabContent = () => {
                         </button>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-2 border-t border-white/5 pt-4">
-                        <button type="button" className="btn-secondary" onClick={() => setImportLessonId(lesson.id)}>Importar atividades JSON</button>
-                        <button type="button" className="btn-secondary" onClick={()=>setPresentationLessonId(lesson.id)}>Apresentações web</button>
-                        <button type="button" className="btn-secondary" onClick={() => setPreviewLessonId(lesson.id)}>Visualizar aula</button>
-                        {lesson.meet_link && (
-                          <span className="rounded-lg bg-blue-500/20 px-2 py-1 text-[9px] font-black text-blue-400">
-                            MEET
-                          </span>
-                        )}
-                        {lesson.video_url && (
-                          <span className="rounded-lg bg-red-500/20 px-2 py-1 text-[9px] font-black text-red-400">
-                            VIDEO
-                          </span>
-                        )}
-                        {lesson.pdf_url && (
-                          <span className="rounded-lg bg-emerald-500/20 px-2 py-1 text-[9px] font-black text-emerald-300">
-                            PDF
-                          </span>
-                        )}
-                        {lesson.slides_url && (
-                          <span className="rounded-lg bg-amber-500/20 px-2 py-1 text-[9px] font-black text-amber-300">
-                            SLIDES
-                          </span>
-                        )}
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
+                        <span className="text-xs text-white/55">{lesson.publication_status==='published'?'Publicada para alunos':lesson.publication_status==='draft'?'Rascunho':'Em preparação'} · {lesson.duration_minutes??'—'} min</span>
+                        <Link className="btn-primary inline-block" to={'/gestao/aulas/'+lesson.id} aria-label={'Abrir editor de '+lesson.title}>Abrir editor</Link>
                       </div>
-                      {previewLessonId === lesson.id && <Suspense fallback={<p role="status">Carregando...</p>}><AdminLessonPreview lessonId={lesson.id} onClose={() => setPreviewLessonId(null)} /></Suspense>}
-                      {presentationLessonId===lesson.id&&<Suspense fallback={<p role="status">Carregando apresentações…</p>}><WebPresentationManager key={lesson.id} lessonId={lesson.id} onClose={()=>setPresentationLessonId(null)}/></Suspense>}
-                      {lesson.publication_status === 'planned' && <CurriculumLessonPublication lessonId={lesson.id} onPublished={() => { if (selectedSubmoduleId) void fetchLessons(selectedSubmoduleId); }}/>}
-                      {importLessonId === lesson.id && <Suspense fallback={<p role="status" className="mt-4 text-sm text-white/65">Carregando importação…</p>}>
-                        <LessonContentImporter key={lesson.id} lessonId={lesson.id} lessonTitle={lesson.title} onClose={() => setImportLessonId(null)} />
-                      </Suspense>}
                     </div>
                   ))}
 

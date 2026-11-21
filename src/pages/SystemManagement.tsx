@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { TabContent } from "../components/management/TabContent";
+import {useNavigate} from "react-router-dom";
 import { TabLinks } from "../components/management/TabLinks";
 import { TabUsers } from "../components/management/TabUsers";
 
@@ -13,6 +13,7 @@ const managementTabs = [
 ] as const;
 
 export const SystemManagement = () => {
+  const navigate=useNavigate();
   const [tab, setTab] = useState<typeof managementTabs[number]["id"]>("users");
   const [userRole, setUserRole] = useState<string | null>(null);
 
@@ -45,7 +46,7 @@ export const SystemManagement = () => {
               key={t.id}
               type="button"
               aria-pressed={tab === t.id}
-              onClick={() => setTab(t.id)}
+              onClick={() => t.id==='content'?navigate('/gestao/conteudo'):setTab(t.id)}
               className={`pb-4 text-sm font-bold transition-all ${
                 tab === t.id ? "border-b-2 border-brand-pink text-white" : "text-white/40 hover:text-white"
               }`}
@@ -58,7 +59,7 @@ export const SystemManagement = () => {
         {/* RENDERIZAÇÃO CONDICIONAL DOS COMPONENTES */}
         <div className="animate-in fade-in duration-500">
           {tab === "users" && <TabUsers />}
-          {tab === "content" && <TabContent />}
+
           {tab === "links" && <TabLinks />}
 
         </div>

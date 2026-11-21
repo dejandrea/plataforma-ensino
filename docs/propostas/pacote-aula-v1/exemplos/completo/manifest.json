@@ -1,0 +1,45 @@
+{
+  "packageVersion": 1,
+  "productionId": "exemplo-completo-r01",
+  "targetLessonId": "00000000-0000-4000-8000-000000008001",
+  "platformOrigin": "https://example.invalid",
+  "files": [
+    {
+      "path": "aula.json",
+      "bytes": 15986,
+      "sha256": "474938b262e83c1df198f323a913858a7910c78331116786c4f6f2eedab44ec5"
+    },
+    {
+      "path": "apresentacoes/principal.zip",
+      "bytes": 508,
+      "sha256": "49c99ffeac61586ffd5aecb2684f3c1bde1c61fe681a650f29fffcccffa8fb9d"
+    },
+    {
+      "path": "apresentacoes/revisao.zip",
+      "bytes": 504,
+      "sha256": "8a778f98b1369ee4c48bd306f43b57ab5b9c33cfd2785e23b409becd16a5c6e0"
+    }
+  ],
+  "presentations": [
+    {
+      "key": "principal",
+      "activityKey": "estrutura-slides",
+      "presentationId": "00000000-0000-4000-8000-000000008101",
+      "path": "apresentacoes/principal.zip"
+    },
+    {
+      "key": "revisao",
+      "activityKey": "exemplo-slides-revisao",
+      "presentationId": "00000000-0000-4000-8000-000000008102",
+      "path": "apresentacoes/revisao.zip"
+    }
+  ],
+  "teacherResources": [
+    {
+      "key": "orientacoes",
+      "title": "Orientações docentes fictícias",
+      "kind": "notes",
+      "url": "https://drive.google.com/file/d/EXEMPLO_DOCENTE_NAO_PUBLICAR/view"
+    }
+  ]
+}

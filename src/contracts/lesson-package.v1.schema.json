@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:bitaria:lesson-package:1",
+  "title": "Bitaria Lesson Package v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["packageVersion", "productionId", "targetLessonId", "platformOrigin", "files"],
+  "properties": {
+    "packageVersion": {"const": 1},
+    "productionId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,99}$"},
+    "targetLessonId": {"$ref": "#/definitions/uuid"},
+    "platformOrigin": {"type": "string", "pattern": "^https://[a-zA-Z0-9.-]+(:443)?$", "maxLength": 253},
+    "files": {
+      "type": "array", "minItems": 1, "maxItems": 4,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["path", "bytes", "sha256"],
+        "properties": {
+          "path": {"type": "string", "pattern": "^(aula\\.json|apresentacoes/[a-z][a-z0-9-]{0,63}\\.zip)$"},
+          "bytes": {"type": "integer", "minimum": 1, "maximum": 10485760},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "presentations": {
+      "type": "array", "maxItems": 3,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["key", "activityKey", "presentationId", "path"],
+        "properties": {
+          "key": {"$ref": "#/definitions/key"},
+          "activityKey": {"$ref": "#/definitions/key"},
+          "presentationId": {"$ref": "#/definitions/uuid"},
+          "path": {"type": "string", "pattern": "^apresentacoes/[a-z][a-z0-9-]{0,63}\\.zip$"}
+        }
+      }
+    },
+    "teacherResources": {
+      "type": "array", "maxItems": 50,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["key", "title", "url", "kind"],
+        "properties": {
+          "key": {"$ref": "#/definitions/key"},
+          "title": {"type": "string", "minLength": 1, "maxLength": 200, "pattern": "\\S"},
+          "url": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "^https://[^\\s]+$"},
+          "kind": {"enum": ["lesson_plan", "notes", "exercise", "other"]}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "key": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+    "uuid": {"type": "string", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"}
+  }
+}

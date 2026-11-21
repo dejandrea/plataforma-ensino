@@ -1,0 +1,5 @@
+project_id = "bitaria-local-development"
+
+[functions.import-lesson-package]
+verify_jwt = true
+entrypoint = "./functions/import-lesson-package/index.ts"

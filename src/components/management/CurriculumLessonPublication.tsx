@@ -1,9 +1,11 @@
 import {useState} from 'react';
 import {supabase} from '../../lib/supabaseClient';
+import {useLessonChanges} from '../../lib/lessonChanges';
 
 export function CurriculumLessonPublication({lessonId,onPublished}:{lessonId:string;onPublished:()=>void}) {
  const [saving,setSaving]=useState(false);
  const [error,setError]=useState('');
+ useLessonChanges('curriculum-publication',false,saving);
  async function publish() {
   if(saving||!window.confirm('Liberar esta aula para os alunos da nova grade? Confira as atividades e a prévia antes de continuar.'))return;
   setSaving(true);setError('');

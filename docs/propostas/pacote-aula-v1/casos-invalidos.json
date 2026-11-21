@@ -1,0 +1,13 @@
+{
+  "status": "Exemplos de teste da PROPOSTA, não contrato de mutações ou pacote importável",
+  "base": "exemplos/completo",
+  "cases": [
+    {"id": "unsupported-manifest", "mutation": "Acrescentar publish:true ao manifesto", "expected": "MANIFEST_INVALID"},
+    {"id": "changed-bytes", "mutation": "Alterar aula.json sem atualizar bytes e SHA-256", "expected": "FILE_INTEGRITY"},
+    {"id": "unknown-activity-binding", "mutation": "Referenciar activityKey inexistente na primeira apresentação", "expected": "BINDING_INVALID"},
+    {"id": "duplicate-key", "mutation": "Duplicar uma key de atividade, recalculando o hash para testar o validador semântico", "expected": "LESSON_INVALID"},
+    {"id": "private-folder", "mutation": "Acrescentar professor/gabarito.md no diretório do pacote", "expected": "PATH_INVALID"},
+    {"id": "invalid-deck", "mutation": "Substituir o ZIP web por bytes inválidos, recalculando a integridade externa", "expected": "PRESENTATION_INVALID"},
+    {"id": "teacher-link-public", "mutation": "Copiar uma URL docente para a descrição pública da aula, recalculando a integridade", "expected": "PRIVACY_INVALID"}
+  ]
+}

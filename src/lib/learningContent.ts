@@ -1,17 +1,30 @@
 import Ajv from 'ajv';
-import schema from '../contracts/learning-content.v1.schema.json';
-import schemaV2 from '../contracts/learning-content.v2.schema.json';
-import type { LessonImport } from '../types/learning';
+import schema from '../contracts/learning-content.v1.schema.json' with {type:'json'};
+import schemaV2 from '../contracts/learning-content.v2.schema.json' with {type:'json'};
+import type { LessonImport } from '../types/learning.ts';
 
 const ajv = new Ajv({ allErrors: true, jsonPointers: true });
 const validateShape = ajv.compile(schema);
 const validateShapeV2 = ajv.compile(schemaV2);
 export type ContentValidation = { valid: true; data: LessonImport } | { valid: false; errors: string[] };
 
+/** Export the same official schemas used by validation, without mutable aliases. */
+export function getLearningContentSchemas(){return structuredClone({v1:schema,v2:schemaV2});}
+
+export const lessonDocumentByteLimit=2_000_000;
+/** PostgreSQL jsonb text uses a space after commas/colons; key order does not affect size.
+ * Contract numbers are bounded integers. No whitespace inside strings is changed. */
+export function lessonDocumentBytes(input:unknown):number{
+  const jsonbText=(value:unknown):string=>Array.isArray(value)?`[${value.map(jsonbText).join(', ')}]`:
+    value!==null&&typeof value==='object'?`{${Object.entries(value).map(([key,item])=>`${JSON.stringify(key)}: ${jsonbText(item)}`).join(', ')}}`:JSON.stringify(value);
+  return new TextEncoder().encode(jsonbText(input)).byteLength;
+}
+
 /** No coercion, default injection or removal of unknown fields. Input is never mutated. */
 export function validateLessonImport(input: unknown): ContentValidation {
   const validator = input && typeof input === 'object' && 'schemaVersion' in input && input.schemaVersion === 2 ? validateShapeV2 : validateShape;
   if (!validator(input)) return { valid: false, errors: (validator.errors ?? []).map(e => `${e.dataPath || '/'}: ${e.message}`) };
+  if(lessonDocumentBytes(input)>lessonDocumentByteLimit)return {valid:false,errors:['O JSON normalizado deve ter no máximo 2.000.000 bytes UTF-8.']};
   const data = input as LessonImport;
   const errors: string[] = [];
   function unique(keys: string[], path: string) {

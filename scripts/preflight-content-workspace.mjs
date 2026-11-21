@@ -1,0 +1,24 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import {parseEnv} from 'node:util';
+const root='test-results/content-workspace',old='test-results/implantacao-e1a-e2a-20261120';
+const base=JSON.parse(fs.readFileSync(old+'/frontend-manifest-311.json'));
+const candidate=JSON.parse(fs.readFileSync(root+'/frontend-manifest.json'));
+const remote=JSON.parse(fs.readFileSync(root+'/remote-source-files.json'));
+const hash=(bytes,algorithm='sha256')=>crypto.createHash(algorithm).update(bytes).digest('hex');
+const mismatches=base.frontend.filter(file=>remote.find(item=>item.path==='src/'+file.path)?.uid!==hash(fs.readFileSync(old+'/frontend/'+file.path),'sha1')).map(file=>file.path);
+if(mismatches.length||remote.length!==311)throw Error('Fontes remotas divergentes da baseline publicada');
+for(const file of candidate.frontend){if(hash(fs.readFileSync(root+'/frontend/'+file.path))!==file.sha256||hash(fs.readFileSync(file.path))!==file.sha256)throw Error('Fonte local/pacote divergente: '+file.path);}
+const config=parseEnv(fs.readFileSync(old+'/frontend/.vercel/.env.production.local','utf8'));
+const origin=config.VITE_SUPABASE_URL,key=config.VITE_SUPABASE_ANON_KEY;
+if(origin!=='https://gnyiyhnbpjhdgrhsevbh.supabase.co'||!key)throw Error('Destino inesperado');
+const publicOrigin='https://plataforma-ensino-chi.vercel.app';
+const html=await fetch(publicOrigin).then(response=>{if(!response.ok)throw Error('Frontend inacessível');return response.text();});
+const entry=html.match(/src="([^"\s]+\.js)"/)[1];
+const bytes=Buffer.from(await fetch(new URL(entry,publicOrigin)).then(response=>response.arrayBuffer()));
+if(!bytes.includes(Buffer.from(origin)))throw Error('Supabase divergente no bundle publicado');
+const options=await fetch(origin+'/functions/v1/import-lesson-package',{method:'OPTIONS'});
+const anonymous=await fetch(origin+'/functions/v1/import-lesson-package',{method:'POST',headers:{apikey:key,authorization:'Bearer '+key}});
+if(!options.ok||anonymous.status!==401)throw Error('Ativação/autenticação Edge divergente');
+const result={checkedAt:new Date().toISOString(),readOnly:true,publishedDeployment:'dpl_FUJ4esvXUevvPbJ4Tj4P4nsZGAeL',deploymentSource:'cli',gitCommitReportedByVercel:null,documentedBaseCommit:base.baseCommit,remoteFiles:remote.length,remoteMatchesPublished311:true,publishedEntry:entry,publishedEntrySha256:hash(bytes),supabaseProject:'gnyiyhnbpjhdgrhsevbh',candidateFiles:316,candidateHashesMatchReviewedSource:true,candidateManifestSha256:hash(fs.readFileSync(root+'/frontend-manifest.json')),edge:{options:options.status,anonymousRequest:anonymous.status,noZipSent:true},administrativeBrowserSessionVerified:false};
+fs.writeFileSync(root+'/preflight-production.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));

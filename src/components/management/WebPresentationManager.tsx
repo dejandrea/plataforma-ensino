@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {PresentationFrame} from '../learning/PresentationFrame';
 import {bindPresentation,fetchPresentationState,localPresentationBundle,managedPresentationPath,parseWebPresentation,publishPresentation,resolvePresentationBundle,savePresentationPackage} from '../../lib/webPresentations';
 import type {ParsedPresentation,PresentationBundle,PresentationState} from '../../types/presentations';
+import {useLessonChanges} from '../../lib/lessonChanges';
 
 export default function WebPresentationManager({lessonId,onClose}:{lessonId:string;onClose:()=>void}){
   const [state,setState]=useState<PresentationState|null>(null);const [error,setError]=useState('');const [notice,setNotice]=useState('');
@@ -10,6 +11,7 @@ export default function WebPresentationManager({lessonId,onClose}:{lessonId:stri
   const [preview,setPreview]=useState<PresentationBundle|null>(null);const [previewed,setPreviewed]=useState<string|null>(null);
   const [approved,setApproved]=useState(false);const [bindingReview,setBindingReview]=useState(false);const [bindApproved,setBindApproved]=useState(false);
   const [busy,setBusy]=useState(false);const inFlight=useRef(false);const disposePreview=useRef<(()=>void)|null>(null);
+  useLessonChanges('presentations',Boolean(file||parsed||approved||bindApproved),busy);
   useEffect(()=>{
     let alive=true;
     fetchPresentationState(lessonId).then(next=>{if(alive){setState(next);setError('');}}).catch(cause=>{if(alive)setError(cause.message);});

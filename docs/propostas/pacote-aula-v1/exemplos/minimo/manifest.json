@@ -1,0 +1,13 @@
+{
+  "packageVersion": 1,
+  "productionId": "exemplo-minimo-r01",
+  "targetLessonId": "00000000-0000-4000-8000-000000008001",
+  "platformOrigin": "https://example.invalid",
+  "files": [
+    {
+      "path": "aula.json",
+      "bytes": 1225,
+      "sha256": "deb4b106b53f086e3f23d0161cca9ab17cd42159a9e6ee8312759db09dcf190f"
+    }
+  ]
+}

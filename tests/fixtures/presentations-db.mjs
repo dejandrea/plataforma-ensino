@@ -27,6 +27,7 @@ export async function presentationRpc(d,user,name,args=[],role='authenticated'){
 export function localImportPipeline(d){
   const objects=new Map();let failAfter=Infinity;let uploaded=0;
   const storage={from:()=>({
+    download:async path=>{const object=objects.get(path);return object?{data:new Blob([object.bytes],{type:object.mime}),error:null}:{data:null,error:{message:'not found'}};},
     upload:async(path,bytes,options)=>{
       if(uploaded++>=failAfter)return {error:{message:'simulated failure'}};
       try{
@@ -57,7 +58,9 @@ export function localImportPipeline(d){
   };
   const module={exports:{}};const require=createRequire(import.meta.url);
   const compiled=ts.transpileModule(readFileSync('supabase/functions/import-web-presentation/index.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
-  const localRequire=name=>name.includes('_shared/supabase')?dependencies:name.endsWith('package.js')?parser:name.endsWith('.json')?JSON.parse(readFileSync('public/apresentacoes/presentation.schema.json','utf8')):require(name);
+  const preparedModule={exports:{}};
+  new Function('module','exports',ts.transpileModule(readFileSync('supabase/functions/_shared/prepare-web-presentation.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(preparedModule,preparedModule.exports);
+  const localRequire=name=>name.includes('_shared/supabase')?dependencies:name.endsWith('prepare-web-presentation.ts')?preparedModule.exports:name.endsWith('package.js')?parser:name.endsWith('.json')?JSON.parse(readFileSync('public/apresentacoes/presentation.schema.json','utf8')):require(name);
   new Function('require','module','exports','Deno',compiled)(localRequire,module,module.exports,{serve:()=>{}});
-  return {objects,handle:module.exports.handleImport,failUploadAfter:count=>{failAfter=count;uploaded=0;}};
+  return {objects,admin,dependencies,preparePresentation:preparedModule.exports,handle:module.exports.handleImport,failUploadAfter:count=>{failAfter=count;uploaded=0;}};
 }

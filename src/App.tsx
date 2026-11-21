@@ -1,7 +1,8 @@
 import { Footer } from "./components/Footer";
+import './lib/lessonChanges';
 import { FinancialManagement } from "./pages/FinancialManagement";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "./lib/supabaseClient";
 import { Login } from "./components/Login";
 import { Dashboard } from "./pages/Dashboard";
@@ -26,6 +27,9 @@ import {MyMasteries} from './pages/MyMasteries';
 import {AchievementsManagement} from './pages/AchievementsManagement';
 import {PedagogicalMonitoring} from './pages/PedagogicalMonitoring';
 import {ManagedPresentation} from './pages/ManagedPresentation';
+
+const ContentCurriculum=lazy(()=>import('./pages/ContentCurriculum'));
+const LessonEditor=lazy(()=>import('./pages/LessonEditor'));
 
 const RoleRoute = ({
   children,
@@ -229,6 +233,8 @@ function App() {
               }
             />
 
+            <Route path="/gestao/conteudo" element={<RoleRoute allowedRole="admin"><StaffNavbar/><Suspense fallback={<p role="status">Carregando currículo…</p>}><ContentCurriculum/></Suspense></RoleRoute>}/>
+            <Route path="/gestao/aulas/:lessonId" element={<RoleRoute allowedRole="admin"><Suspense fallback={<p role="status">Carregando editor…</p>}><LessonEditor/></Suspense></RoleRoute>}/>
             <Route
               path="/gestao"
               element={

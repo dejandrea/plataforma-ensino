@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "context": {
+    "courseTitle": "Curso de exemplo",
+    "moduleTitle": "Módulo de exemplo",
+    "submoduleTitle": "Submódulo de exemplo"
+  },
+  "lesson": {
+    "key": "exemplo-pacote-minimo",
+    "title": "Exemplo sintético mínimo",
+    "description": "Exemplo de contrato para planejamento; não importar em produção.",
+    "objectives": [
+      "Verificar a organização do pacote sem registrar aprendizagem."
+    ],
+    "durationMinutes": 5
+  },
+  "activities": [
+    {
+      "key": "estrutura-slides",
+      "type": "slides",
+      "title": "Estrutura de uma página",
+      "orderIndex": 0,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "format": "pdf",
+        "resourceUrl": "https://drive.google.com/file/d/EXEMPLO_NAO_PUBLICAR/view",
+        "altText": "PDF fictício; acessibilidade não verificada."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [],
+    "interactiveKeys": [],
+    "lessonPlans": []
+  }
+}
