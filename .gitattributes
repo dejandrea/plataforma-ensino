@@ -1,0 +1,4 @@
+# Preserve the audited SQL hash and the byte-level hashes in synthetic packages.
+supabase/migrations/20261112220958_editorial_foundation.sql text eol=lf
+supabase/migrations/20261115234003_unified_lesson_packages.sql text eol=lf
+docs/propostas/pacote-aula-v1/exemplos/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

@@ -1,0 +1,506 @@
+{
+  "schemaVersion": 2,
+  "context": {
+    "courseTitle": "Curso de exemplo",
+    "moduleTitle": "Módulo de exemplo",
+    "submoduleTitle": "Submódulo de exemplo"
+  },
+  "lesson": {
+    "key": "exemplo-pacote-completo",
+    "title": "Exemplo sintético de pacote completo",
+    "description": "Exemplo de contrato para planejamento; não importar em produção.",
+    "objectives": [
+      "Verificar a organização do pacote sem registrar aprendizagem."
+    ],
+    "durationMinutes": 30
+  },
+  "activities": [
+    {
+      "key": "estrutura-slides",
+      "type": "slides",
+      "title": "Estrutura de uma página",
+      "orderIndex": 0,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "format": "link",
+        "resourceUrl": "https://example.invalid/apresentacoes/gerenciada/00000000-0000-4000-8000-000000008101",
+        "altText": "Apresentação sintética, sem autorização de importação real."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "estrutura-mapa",
+      "type": "mindmap",
+      "title": "Mapa de referências HTML",
+      "orderIndex": 1,
+      "required": false,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "mindmap",
+        "resourceUrl": "https://developer.mozilla.org/pt-BR/docs/Web/HTML/Reference/Elements",
+        "format": "link",
+        "altText": "Referência de elementos para construir um mapa mental"
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "estrutura-quiz",
+      "type": "quiz",
+      "title": "Confira o que aprendeu",
+      "orderIndex": 2,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "quiz",
+        "passingScore": 70,
+        "maxAttempts": 3,
+        "questions": [
+          {
+            "key": "conteudo-visivel",
+            "prompt": "Qual elemento contém o conteúdo visível da página?",
+            "options": [
+              {
+                "key": "head",
+                "text": "head"
+              },
+              {
+                "key": "body",
+                "text": "body"
+              },
+              {
+                "key": "title",
+                "text": "title"
+              }
+            ]
+          },
+          {
+            "key": "estrutura",
+            "prompt": "Qual tecnologia descreve a estrutura de uma página?",
+            "options": [
+              {
+                "key": "correct",
+                "text": "HTML"
+              },
+              {
+                "key": "wrong",
+                "text": "CSS"
+              }
+            ]
+          },
+          {
+            "key": "arquivo",
+            "prompt": "Qual extensão identifica um documento HTML?",
+            "options": [
+              {
+                "key": "correct",
+                "text": ".html"
+              },
+              {
+                "key": "wrong",
+                "text": ".jpg"
+              }
+            ]
+          },
+          {
+            "key": "navegador",
+            "prompt": "Onde podemos visualizar uma página HTML?",
+            "options": [
+              {
+                "key": "correct",
+                "text": "Em um navegador"
+              },
+              {
+                "key": "wrong",
+                "text": "Somente numa calculadora"
+              }
+            ]
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_quiz",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "encontro-pratico",
+      "type": "online_lesson",
+      "title": "Vamos criar uma página juntas",
+      "orderIndex": 3,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "online_lesson",
+        "objective": "Construir uma página HTML com orientação.",
+        "preparation": [
+          "Instale um editor de texto",
+          "Crie uma pasta para o projeto"
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_online",
+        "awardOn": "teacher_confirmed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "pagina-pessoal",
+      "type": "project",
+      "title": "Minha página pessoal",
+      "orderIndex": 4,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "project",
+        "instructions": "Crie index.html com uma breve apresentação pessoal. Envie um link HTTPS público para o código ou resultado.",
+        "objectives": [
+          "Aplicar estrutura HTML",
+          "Explicar suas escolhas"
+        ],
+        "requirements": [
+          "Usar doctype, html, head e body",
+          "Definir idioma e charset",
+          "Incluir h1 e dois parágrafos"
+        ],
+        "assessmentCriteria": [
+          "Estrutura válida",
+          "Conteúdo legível",
+          "Uso de títulos semânticos"
+        ],
+        "resources": [
+          {
+            "title": "Referência HTML",
+            "url": "https://developer.mozilla.org/pt-BR/docs/Web/HTML"
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_project",
+        "awardOn": "approved",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "tecnologias-web",
+      "type": "interactive",
+      "title": "Cada tecnologia tem sua função",
+      "orderIndex": 5,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "interactive",
+        "interactionType": "matching",
+        "instructions": "Associe cada tecnologia a sua função na página.",
+        "passingScore": 100,
+        "maxAttempts": 5,
+        "leftItems": [
+          {
+            "id": "html",
+            "label": "HTML"
+          },
+          {
+            "id": "css",
+            "label": "CSS"
+          },
+          {
+            "id": "javascript",
+            "label": "JavaScript"
+          }
+        ],
+        "rightItems": [
+          {
+            "id": "interacao",
+            "label": "Interatividade da página"
+          },
+          {
+            "id": "estrutura",
+            "label": "Estrutura da página"
+          },
+          {
+            "id": "aparencia",
+            "label": "Aparencia visual"
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_interactive",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "web-vocabulary-cards",
+      "type": "flashcards",
+      "title": "Seis conceitos para explorar",
+      "orderIndex": 6,
+      "required": true,
+      "prerequisites": [],
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      },
+      "content": {
+        "schemaVersion": 2,
+        "type": "flashcards",
+        "cards": [
+          {
+            "id": "html",
+            "front": {
+              "title": "HTML",
+              "question": "Qual é o papel do HTML?"
+            },
+            "back": {
+              "summary": "Estrutura e conteúdo.",
+              "explanation": "HTML organiza elementos de uma página.",
+              "impact": "Ajuda a criar páginas compreensíveis."
+            }
+          },
+          {
+            "id": "css",
+            "front": {
+              "title": "CSS",
+              "question": "Como definimos a apresentação?"
+            },
+            "back": {
+              "summary": "Apresentação visual.",
+              "explanation": "CSS descreve estilos dos elementos.",
+              "impact": "Permite adaptar a página a diferentes telas."
+            }
+          },
+          {
+            "id": "javascript",
+            "front": {
+              "title": "JavaScript",
+              "question": "Como adicionamos comportamentos?"
+            },
+            "back": {
+              "summary": "Comportamento e interação.",
+              "explanation": "JavaScript permite responder a ações.",
+              "impact": "Ajuda a construir experiências interativas."
+            }
+          },
+          {
+            "id": "browser",
+            "front": {
+              "title": "Navegador",
+              "question": "O que exibe uma página web?"
+            },
+            "back": {
+              "summary": "Um programa para navegar.",
+              "explanation": "O navegador interpreta recursos da web.",
+              "impact": "Permite acessar informações e aplicações."
+            }
+          },
+          {
+            "id": "link",
+            "front": {
+              "title": "Link",
+              "question": "Como páginas se conectam?"
+            },
+            "back": {
+              "summary": "Uma conexão entre recursos.",
+              "explanation": "Um hiperlink aponta para um endereço.",
+              "impact": "Organiza caminhos de navegação."
+            }
+          },
+          {
+            "id": "accessibility",
+            "front": {
+              "title": "Acessibilidade",
+              "question": "Como incluir diferentes formas de uso?"
+            },
+            "back": {
+              "summary": "Acesso para mais pessoas.",
+              "explanation": "Texto alternativo e teclado são exemplos.",
+              "impact": "Melhora a participação de todos.",
+              "curiosity": "Boas práticas beneficiam muitas pessoas."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "exemplo-video",
+      "type": "video",
+      "title": "Vídeo externo de exemplo",
+      "orderIndex": 7,
+      "required": true,
+      "prerequisites": [],
+      "durationMinutes": 3,
+      "content": {
+        "schemaVersion": 2,
+        "type": "video",
+        "resourceUrl": "https://drive.google.com/file/d/EXEMPLO_NAO_PUBLICAR/view"
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "exemplo-slides-revisao",
+      "type": "slides",
+      "title": "Apresentação de revisão",
+      "orderIndex": 8,
+      "required": false,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "format": "link",
+        "resourceUrl": "https://example.invalid/apresentacoes/gerenciada/00000000-0000-4000-8000-000000008102",
+        "altText": "Apresentação sintética, sem autorização de importação real."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [
+      {
+        "activityKey": "estrutura-quiz",
+        "content": {
+          "schemaVersion": 1,
+          "answers": [
+            {
+              "questionKey": "conteudo-visivel",
+              "optionKey": "body",
+              "feedback": "O body reúne o conteúdo exibido; head armazena metadados."
+            },
+            {
+              "questionKey": "estrutura",
+              "optionKey": "correct",
+              "feedback": "HTML descreve a estrutura; CSS cuida da apresentação."
+            },
+            {
+              "questionKey": "arquivo",
+              "optionKey": "correct",
+              "feedback": "Arquivos HTML usam a extensão .html."
+            },
+            {
+              "questionKey": "navegador",
+              "optionKey": "correct",
+              "feedback": "O navegador interpreta o documento HTML e apresenta a página."
+            }
+          ]
+        }
+      }
+    ],
+    "lessonPlans": [
+      {
+        "activityKey": "encontro-pratico",
+        "content": {
+          "schemaVersion": 1,
+          "objectives": [
+            "Construir uma página e explicar sua estrutura"
+          ],
+          "prerequisites": [
+            "Reconhecer arquivos e pastas"
+          ],
+          "preparation": [
+            "Conferir editor e navegador",
+            "Abrir o exemplo localmente"
+          ],
+          "durationMinutes": 45,
+          "steps": [
+            {
+              "key": "criar-documento",
+              "title": "Criar o primeiro documento",
+              "objective": "Separar metadados e conteúdo visível.",
+              "durationMinutes": 25,
+              "guidance": "Peça ao aluno para digitar, salvar e abrir o arquivo no navegador.",
+              "code": {
+                "language": "html",
+                "file": "index.html",
+                "source": "<!doctype html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Minha página</title>\n</head>\n<body>\n  <h1>Olá, mundo!</h1>\n  <p>Estou aprendendo HTML.</p>\n</body>\n</html>",
+                "expectedResult": "Uma página com título e parágrafo; o nome aparece na aba."
+              },
+              "questions": [
+                {
+                  "prompt": "Onde aparece o conteúdo de title?",
+                  "expectedAnswer": "Na aba do navegador."
+                }
+              ],
+              "detailedExplanation": "O navegador interpreta os elementos e organiza a página. HTML descreve a estrutura.",
+              "playfulExplanation": "O head é a etiqueta da mochila; o body guarda o que mostramos na apresentação.",
+              "commonDifficulties": [
+                "Salvar como .txt",
+                "Esquecer uma tag de fechamento"
+              ],
+              "challenge": "Adicione um segundo parágrafo."
+            },
+            {
+              "key": "revisar-semantica",
+              "title": "Revisar e explicar",
+              "objective": "Verificar a compreensão.",
+              "durationMinutes": 20,
+              "guidance": "Peça que explique cada elemento e revise as alterações.",
+              "questions": [
+                {
+                  "prompt": "Por que usar h1?",
+                  "expectedAnswer": "Para identificar o título principal do conteúdo."
+                }
+              ],
+              "detailedExplanation": "Os títulos expressam a hierarquia do conteúdo.",
+              "playfulExplanation": "O h1 é o nome na capa do livro.",
+              "commonDifficulties": [
+                "Confundir title e h1"
+              ],
+              "challenge": "Explique a diferença entre o título da aba e o título da página."
+            }
+          ],
+          "assessmentCriteria": [
+            "Explica head e body",
+            "Altera o arquivo com autonomia"
+          ]
+        }
+      }
+    ],
+    "interactiveKeys": [
+      {
+        "activityKey": "tecnologias-web",
+        "content": {
+          "schemaVersion": 2,
+          "interactionType": "matching",
+          "pairs": [
+            {
+              "leftId": "html",
+              "rightId": "estrutura"
+            },
+            {
+              "leftId": "css",
+              "rightId": "aparencia"
+            },
+            {
+              "leftId": "javascript",
+              "rightId": "interacao"
+            }
+          ],
+          "feedback": "HTML organiza o conteúdo, CSS cuida da aparência e JavaScript permite interações."
+        }
+      }
+    ]
+  }
+}

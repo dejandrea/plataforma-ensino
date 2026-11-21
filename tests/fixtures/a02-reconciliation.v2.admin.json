@@ -1,0 +1,590 @@
+{
+  "schemaVersion": 2,
+  "context": {
+    "courseTitle": "HTML Básico — Do primeiro computador ao primeiro site",
+    "moduleTitle": "HTML Básico",
+    "submoduleTitle": "As origens da tecnologia"
+  },
+  "lesson": {
+    "key": "html-m01-s01-a02",
+    "title": "Grandes Nomes da Tecnologia",
+    "description": "Investigue as histórias e as contribuições de seis pessoas. Assista ao vídeo, aprofunde os conceitos nos slides, revise os cartões, associe pessoas e ideias e consolide com mapa e quiz. Percurso principal estimado em 25 minutos; materiais opcionais acrescentam até nove minutos.",
+    "objectives": [
+      "Reconhecer contribuições de Babbage, Lovelace, Turing, Hopper, Johnson e Berners-Lee.",
+      "Associar pessoas às ideias estudadas sem reduzir a história a datas ou a um único inventor.",
+      "Conectar algoritmos, tradução de código, verificação de resultados e páginas com links ao cotidiano.",
+      "Compreender que a evolução tecnológica envolve muitas pessoas e equipes.",
+      "Perceber criatividade, colaboração, persistência e resolução de problemas na construção de tecnologia."
+    ],
+    "durationMinutes": 25
+  },
+  "activities": [
+    {
+      "key": "a02-v2-video-genios",
+      "type": "video",
+      "title": "DESCOBRIR — Missão: Gênios dos Códigos",
+      "description": "Assista ao vídeo dos seis arquivos históricos. Pause nas perguntas e tente pensar em uma resposta. Depois, confirme a conclusão pelo botão da Bitaria.",
+      "orderIndex": 0,
+      "durationMinutes": 11,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "video",
+        "resourceUrl": "https://drive.google.com/file/d/1yOx-T5GZVlJEKMk0BDQ28Woa8X0xZ3sd/view"
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a02-v2-arquivos-secretos",
+      "type": "slides",
+      "title": "COMPREENDER — Ideias que fazem a tecnologia funcionar",
+      "orderIndex": 1,
+      "durationMinutes": 4,
+      "required": true,
+      "prerequisites": [],
+      "description": "Após o vídeo, percorra os oito slides complementares. Observe os exemplos de jogo, tradução de código e conferência de resultados. As perguntas dos slides são pausas mentais, sem envio.",
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "format": "pdf",
+        "altText": "Apresentação web complementar: algoritmos, instruções, compiladores, verificação de cálculos, internet e Web; seis retratos históricos com créditos.",
+        "resourceUrl": "https://drive.google.com/file/d/1OOF_5U749fcCkNFSvR9RakbgL1XdvlGR/view"
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a02-v2-flashcards-seis-nomes",
+      "type": "flashcards",
+      "title": "CONSOLIDAR — Seis pessoas, grandes ideias",
+      "description": "Leia a pergunta de cada cartão e pense antes de virar. Revise os seis versos para concluir o conjunto. Você pode voltar aos cartões sempre que quiser.",
+      "orderIndex": 2,
+      "durationMinutes": 3,
+      "required": true,
+      "prerequisites": [],
+      "content": {
+        "schemaVersion": 2,
+        "type": "flashcards",
+        "cards": [
+          {
+            "id": "charles-babbage",
+            "front": {
+              "title": "Charles Babbage",
+              "question": "É possível planejar uma máquina antes de conseguir construí-la?"
+            },
+            "back": {
+              "summary": "Projetou máquinas de cálculo e a Máquina Analítica.",
+              "explanation": "Imaginou uma máquina mecânica programável: suas operações seriam orientadas por instruções.",
+              "impact": "Seu projeto reuniu ideias importantes para pensar em máquinas capazes de realizar diferentes tarefas.",
+              "curiosity": "A Máquina Analítica não ficou completa durante sua vida."
+            }
+          },
+          {
+            "id": "ada-lovelace",
+            "front": {
+              "title": "Ada Lovelace",
+              "question": "Como explicar uma tarefa para uma máquina, passo a passo?"
+            },
+            "back": {
+              "summary": "Publicou notas sobre a Máquina Analítica, incluindo um algoritmo destinado a ela.",
+              "explanation": "Um algoritmo organiza operações para realizar uma tarefa. Ada também imaginou usos de símbolos além de fazer contas.",
+              "impact": "Suas ideias ajudam a compreender como instruções e representações ampliam o que uma máquina pode fazer.",
+              "curiosity": "As notas acompanharam sua tradução de um artigo sobre o projeto de Babbage."
+            }
+          },
+          {
+            "id": "alan-turing",
+            "front": {
+              "title": "Alan Turing",
+              "question": "Como saber o que uma máquina pode fazer seguindo regras?"
+            },
+            "back": {
+              "summary": "Descreveu um modelo teórico de computação.",
+              "explanation": "Seu modelo matemático ajudou a estudar máquinas que leem símbolos e seguem instruções. Também trabalhou em equipes de decifração de mensagens.",
+              "impact": "Suas ideias contribuíram para os fundamentos dos computadores e dos programas.",
+              "curiosity": "A máquina universal era um modelo matemático. O trabalho de decifração envolveu muitas pessoas."
+            }
+          },
+          {
+            "id": "grace-hopper",
+            "front": {
+              "title": "Grace Hopper",
+              "question": "Quem ajuda a traduzir o código de um programa?"
+            },
+            "back": {
+              "summary": "Foi pioneira em compiladores e contribuiu para linguagens mais acessíveis.",
+              "explanation": "Um compilador é um programa que traduz código para outra forma. Hopper também contribuiu para o desenvolvimento coletivo do COBOL.",
+              "impact": "Essas ferramentas ajudaram a tornar a criação de programas mais acessível às pessoas.",
+              "curiosity": "COBOL é uma linguagem voltada a negócios e teve a participação de uma equipe."
+            }
+          },
+          {
+            "id": "katherine-johnson",
+            "front": {
+              "title": "Katherine Johnson",
+              "question": "Por que conferir um resultado que veio de um computador?"
+            },
+            "back": {
+              "summary": "Realizou e conferiu cálculos essenciais para missões espaciais.",
+              "explanation": "Seu trabalho matemático ajudou a calcular trajetórias e a verificar resultados de computadores eletrônicos.",
+              "impact": "Mostrou a importância da matemática e da conferência de resultados em decisões importantes.",
+              "curiosity": "Pessoas e computadores trabalharam juntos nas equipes das missões espaciais."
+            }
+          },
+          {
+            "id": "tim-berners-lee",
+            "front": {
+              "title": "Tim Berners-Lee",
+              "question": "Como um link consegue conectar páginas da Web?"
+            },
+            "back": {
+              "summary": "Propôs a World Wide Web e desenvolveu tecnologias para conectar páginas e recursos.",
+              "explanation": "A Web permite navegar entre páginas por links. Ela funciona usando a internet, que já existia.",
+              "impact": "Sua contribuição abriu caminho para compartilhar informações e criar páginas como as que estudamos em HTML.",
+              "curiosity": "A Web se desenvolveu com a contribuição de outras pessoas e equipes."
+            }
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a02-v2-seis-descobertas",
+      "type": "interactive",
+      "title": "MISSÃO — Seis pessoas e contribuições",
+      "orderIndex": 3,
+      "durationMinutes": 2,
+      "required": true,
+      "prerequisites": [],
+      "description": "Associe os seis nomes às contribuições estudadas. Cada pista será usada uma vez. Consulte os cartões, os slides ou o mapa. Acerte todos os pares para concluir; até dez tentativas.",
+      "content": {
+        "schemaVersion": 2,
+        "type": "interactive",
+        "interactionType": "matching",
+        "instructions": "Use os seletores para associar cada pessoa a uma contribuição apresentada. Cada contribuição será usada uma vez. As posições não indicam a resposta. Consulte os materiais e revise antes de enviar.",
+        "leftItems": [
+          {
+            "id": "babbage",
+            "label": "Charles Babbage"
+          },
+          {
+            "id": "ada",
+            "label": "Ada Lovelace"
+          },
+          {
+            "id": "turing",
+            "label": "Alan Turing"
+          },
+          {
+            "id": "hopper",
+            "label": "Grace Hopper"
+          },
+          {
+            "id": "katherine",
+            "label": "Katherine Johnson"
+          },
+          {
+            "id": "tim",
+            "label": "Tim Berners-Lee"
+          }
+        ],
+        "rightItems": [
+          {
+            "id": "contribuicao-01",
+            "label": "Projeto da Máquina Analítica"
+          },
+          {
+            "id": "contribuicao-02",
+            "label": "Notas e algoritmo para a máquina"
+          },
+          {
+            "id": "contribuicao-03",
+            "label": "Modelo teórico e trabalho em equipes"
+          },
+          {
+            "id": "contribuicao-04",
+            "label": "Compiladores e linguagens"
+          },
+          {
+            "id": "contribuicao-05",
+            "label": "Cálculos e conferência de trajetórias"
+          },
+          {
+            "id": "contribuicao-06",
+            "label": "Proposta e tecnologias da Web"
+          }
+        ],
+        "passingScore": 100,
+        "maxAttempts": 10
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_interactive",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a02-v2-mapa-grandes-ideias",
+      "type": "mindmap",
+      "title": "CONSOLIDAR — Mapa das grandes ideias",
+      "orderIndex": 4,
+      "durationMinutes": 1,
+      "required": true,
+      "prerequisites": [],
+      "description": "Abra o mapa e percorra os seis ramos. Retome o que cada pessoa contribuiu e observe a mensagem central sobre pessoas e equipes. O mapa continua disponível durante o quiz.",
+      "content": {
+        "schemaVersion": 1,
+        "type": "mindmap",
+        "resourceUrl": "https://drive.google.com/file/d/1I-W0TwnySzwXT6MBkhWlwZYy2XQGQRwz/view",
+        "format": "pdf",
+        "altText": "Mapa de seis ramos: Babbage e o projeto da Máquina Analítica; Ada e algoritmos; Turing e fundamentos teóricos; Hopper e compiladores; Johnson e cálculos espaciais; Berners-Lee e a Web. Centro: ideias, pessoas e equipes; as contribuições são selecionadas, não exclusivas."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a02-v2-detetive-tecnologia",
+      "type": "quiz",
+      "title": "DESAFIO FINAL — Detetive da tecnologia",
+      "orderIndex": 5,
+      "durationMinutes": 4,
+      "required": true,
+      "prerequisites": [],
+      "description": "Responda às seis perguntas. Acerte pelo menos quatro para concluir. Você tem até dez tentativas e pode consultar os slides e o mapa.",
+      "content": {
+        "schemaVersion": 1,
+        "type": "quiz",
+        "passingScore": 60,
+        "maxAttempts": 10,
+        "questions": [
+          {
+            "key": "q-projeto-maquina",
+            "prompt": "Um colega diz: “Babbage já usava a Máquina Analítica completa como um computador eletrônico”. Qual explicação corrige essa ideia?",
+            "options": [
+              {
+                "key": "projeto-mecanico",
+                "text": "Era um projeto mecânico programável, não concluído durante sua vida."
+              },
+              {
+                "key": "somente-ada",
+                "text": "A máquina foi concluída por Ada como um aparelho eletrônico."
+              },
+              {
+                "key": "modelo-web",
+                "text": "Era um modelo de navegador para abrir páginas da Web."
+              },
+              {
+                "key": "todos-celulares",
+                "text": "Era um aparelho que só funcionava conectado a celulares."
+              }
+            ]
+          },
+          {
+            "key": "q-passos-ada",
+            "prompt": "Você precisa explicar a uma máquina como realizar uma tarefa. Qual ideia se relaciona às notas de Ada Lovelace?",
+            "options": [
+              {
+                "key": "aparencia",
+                "text": "Mudar a aparência da máquina é suficiente para definir a tarefa."
+              },
+              {
+                "key": "sequencia",
+                "text": "Organizar uma sequência de operações que a máquina possa seguir."
+              },
+              {
+                "key": "sem-instrucoes",
+                "text": "Deixar a máquina descobrir a tarefa sem receber instruções."
+              },
+              {
+                "key": "somente-memoria",
+                "text": "Decorar a data de criação da máquina antes de escolher os passos."
+              }
+            ]
+          },
+          {
+            "key": "q-linguagens-hopper",
+            "prompt": "Uma equipe usa uma ferramenta para traduzir o código que escreveu. Qual contribuição estudada se aproxima dessa situação?",
+            "options": [
+              {
+                "key": "trajetorias",
+                "text": "Os cálculos de trajetórias realizados por Katherine Johnson."
+              },
+              {
+                "key": "projeto-mecanico",
+                "text": "O projeto mecânico da Máquina Analítica de Babbage."
+              },
+              {
+                "key": "compiladores",
+                "text": "O trabalho de Grace Hopper com compiladores e linguagens."
+              },
+              {
+                "key": "paginas",
+                "text": "A proposta de Tim Berners-Lee para conectar páginas por links."
+              }
+            ]
+          },
+          {
+            "key": "q-conferir-johnson",
+            "prompt": "Um computador produz um resultado que será usado em uma missão espacial. Que atitude se conecta ao trabalho de Katherine Johnson?",
+            "options": [
+              {
+                "key": "conferir",
+                "text": "Conferir os cálculos e verificar se o resultado faz sentido."
+              },
+              {
+                "key": "aceitar",
+                "text": "Aceitar o resultado sem revisão porque veio de um computador."
+              },
+              {
+                "key": "trocar-maquina",
+                "text": "Concluir que trocar a cor da máquina elimina possíveis erros."
+              },
+              {
+                "key": "eliminar-equipe",
+                "text": "Dispensar todas as pessoas que acompanham a missão."
+              }
+            ]
+          },
+          {
+            "key": "q-web-internet",
+            "prompt": "Uma aluna diz: “Tim Berners-Lee criou a internet inteira”. Qual resposta explica melhor sua contribuição?",
+            "options": [
+              {
+                "key": "mesmo-nome",
+                "text": "Internet e Web são apenas dois nomes para exatamente o mesmo sistema."
+              },
+              {
+                "key": "navegador-rede",
+                "text": "Um navegador substitui a rede que conecta os computadores."
+              },
+              {
+                "key": "sem-rede",
+                "text": "A Web liga páginas sem usar nenhuma rede de comunicação."
+              },
+              {
+                "key": "web-sobre-internet",
+                "text": "Ele desenvolveu a Web, que conecta páginas e recursos sobre uma internet já existente."
+              }
+            ]
+          },
+          {
+            "key": "q-coletivo",
+            "prompt": "Turing trabalhou com equipes para decifrar mensagens, e muitas pessoas ampliaram a Web. O que esses exemplos mostram?",
+            "options": [
+              {
+                "key": "so-seis",
+                "text": "Toda a tecnologia foi criada apenas pelos seis nomes desta aula."
+              },
+              {
+                "key": "coletivo",
+                "text": "Ideias tecnológicas crescem com trabalho, trocas e contribuições de muitas pessoas."
+              },
+              {
+                "key": "unica-equipe",
+                "text": "Os seis nomes trabalharam sempre na mesma equipe e na mesma época."
+              },
+              {
+                "key": "sem-estudo",
+                "text": "Grandes descobertas dispensam estudo e revisão de ideias."
+              }
+            ]
+          }
+        ]
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_quiz",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a02-v2-associacao-parte1",
+      "type": "interactive",
+      "title": "REVISÃO OPCIONAL — Três pistas da história",
+      "orderIndex": 6,
+      "durationMinutes": 3,
+      "required": false,
+      "prerequisites": [],
+      "description": "Se quiser reforçar os três primeiros nomes, associe-os às pistas. Este apoio opcional não bloqueia a conclusão. Consulte os materiais e tente novamente se precisar.",
+      "content": {
+        "schemaVersion": 2,
+        "type": "interactive",
+        "interactionType": "matching",
+        "instructions": "Use os seletores para associar cada pessoa a uma contribuição apresentada. Cada contribuição será usada uma vez. As posições não indicam a resposta. Consulte os materiais e revise antes de enviar.",
+        "leftItems": [
+          {
+            "id": "babbage",
+            "label": "Charles Babbage"
+          },
+          {
+            "id": "ada",
+            "label": "Ada Lovelace"
+          },
+          {
+            "id": "turing",
+            "label": "Alan Turing"
+          }
+        ],
+        "rightItems": [
+          {
+            "id": "contribuicao-01",
+            "label": "Projeto da Máquina Analítica"
+          },
+          {
+            "id": "contribuicao-02",
+            "label": "Notas e algoritmo para a máquina"
+          },
+          {
+            "id": "contribuicao-03",
+            "label": "Modelo teórico e trabalho em equipes"
+          }
+        ],
+        "passingScore": 100,
+        "maxAttempts": 10
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_interactive",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    },
+    {
+      "key": "a02-v2-novas-pistas",
+      "type": "slides",
+      "title": "CONSULTA OPCIONAL — Arquivos históricos anteriores",
+      "orderIndex": 7,
+      "durationMinutes": 6,
+      "required": false,
+      "prerequisites": [],
+      "description": "Material anterior preservado para consulta. Nas páginas 7 a 11 do PDF, reveja Hopper, Johnson, Berners-Lee e a síntese das contribuições. Esta consulta é opcional e não repete uma etapa obrigatória.",
+      "content": {
+        "schemaVersion": 1,
+        "type": "slides",
+        "resourceUrl": "https://drive.google.com/file/d/1b142Pe-hcjg0cOy5CuytrufH8npAZxfl/view",
+        "format": "pdf",
+        "altText": "Páginas 7 a 11: compiladores e linguagens; cálculos e conferência de trajetórias espaciais; páginas conectadas por links. A Web usa a internet. Muitas pessoas e equipes contribuíram."
+      },
+      "gamification": {
+        "rewardRuleKey": "activity_study",
+        "awardOn": "completed",
+        "achievementKeys": []
+      }
+    }
+  ],
+  "teacherOnly": {
+    "quizKeys": [
+      {
+        "activityKey": "a02-v2-detetive-tecnologia",
+        "content": {
+          "schemaVersion": 1,
+          "answers": [
+            {
+              "questionKey": "q-projeto-maquina",
+              "optionKey": "projeto-mecanico",
+              "feedback": "Distinguir projeto de construção ajuda a entender a contribuição de Babbage. A Máquina Analítica era mecânica e não ficou completa durante sua vida."
+            },
+            {
+              "questionKey": "q-passos-ada",
+              "optionKey": "sequencia",
+              "feedback": "Ada publicou notas que incluíam um algoritmo para a Máquina Analítica. A conexão atual é organizar passos, não executar um programa num computador eletrônico que ela já possuísse."
+            },
+            {
+              "questionKey": "q-linguagens-hopper",
+              "optionKey": "compiladores",
+              "feedback": "Hopper foi pioneira em compiladores e contribuiu para linguagens mais acessíveis. O compilador traduz código; testar e conferir o resultado continuam sendo tarefas importantes."
+            },
+            {
+              "questionKey": "q-conferir-johnson",
+              "optionKey": "conferir",
+              "feedback": "Johnson realizou e conferiu cálculos de missões espaciais. Pessoas podem verificar resultados de computadores; tecnologia e conhecimento humano se complementam."
+            },
+            {
+              "questionKey": "q-web-internet",
+              "optionKey": "web-sobre-internet",
+              "feedback": "A Web e a internet têm papéis diferentes. A internet conecta redes; a Web usa essa estrutura para permitir acesso a páginas e recursos por links."
+            },
+            {
+              "questionKey": "q-coletivo",
+              "optionKey": "coletivo",
+              "feedback": "As contribuições são individuais e coletivas. Os seis nomes são uma seleção; equipes, conhecimentos anteriores e contextos diferentes também fazem parte da história."
+            }
+          ]
+        }
+      }
+    ],
+    "interactiveKeys": [
+      {
+        "activityKey": "a02-v2-associacao-parte1",
+        "content": {
+          "schemaVersion": 2,
+          "interactionType": "matching",
+          "pairs": [
+            {
+              "leftId": "babbage",
+              "rightId": "contribuicao-01"
+            },
+            {
+              "leftId": "ada",
+              "rightId": "contribuicao-02"
+            },
+            {
+              "leftId": "turing",
+              "rightId": "contribuicao-03"
+            }
+          ],
+          "feedback": "As pistas distinguem o projeto de uma máquina, a descrição de operações e o estudo teórico das regras. São contribuições selecionadas, não papéis exclusivos."
+        }
+      },
+      {
+        "activityKey": "a02-v2-seis-descobertas",
+        "content": {
+          "schemaVersion": 2,
+          "interactionType": "matching",
+          "pairs": [
+            {
+              "leftId": "babbage",
+              "rightId": "contribuicao-01"
+            },
+            {
+              "leftId": "ada",
+              "rightId": "contribuicao-02"
+            },
+            {
+              "leftId": "turing",
+              "rightId": "contribuicao-03"
+            },
+            {
+              "leftId": "hopper",
+              "rightId": "contribuicao-04"
+            },
+            {
+              "leftId": "katherine",
+              "rightId": "contribuicao-05"
+            },
+            {
+              "leftId": "tim",
+              "rightId": "contribuicao-06"
+            }
+          ],
+          "feedback": "Conecte cada nome à contribuição apresentada. Diferentes pessoas podem colaborar, desenvolver ideias e atuar em mais de uma área."
+        }
+      }
+    ],
+    "lessonPlans": []
+  }
+}

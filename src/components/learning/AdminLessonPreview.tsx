@@ -12,8 +12,10 @@ export default function AdminLessonPreview({ lessonId, activities, onClose }: {
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(!activities);
+  const [reload,setReload]=useState(0);
   useEffect(() => {
     if (activities) return;
+    setLoading(true);setError('');setSaved([]);setSelected(null);
     let active = true;
     supabase.from('lesson_activities').select('id,lesson_id,key,title,description,activity_type,content_json,order_index,duration_minutes,is_required,is_active,publication_status,revision,created_at,updated_at,published_at')
       .eq('lesson_id', lessonId).eq('is_active', true).order('order_index').then(async ({ data, error: cause }) => {
@@ -27,11 +29,12 @@ export default function AdminLessonPreview({ lessonId, activities, onClose }: {
         if(active)setLoading(false);
       });
     return () => { active = false; };
-  }, [lessonId, activities]);
+  }, [lessonId, activities,reload]);
   const rows = activities ?? saved;
   return <section aria-label="Visualização como aluno" className="my-5 min-w-0 space-y-4 rounded-3xl border border-brand-purple/40 p-3 md:p-5">
     <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-xl font-bold text-white">Visualização como aluno</h3>{onClose && <button type="button" className="btn-secondary" onClick={onClose}>Fechar visualização</button>}</div>
     <p className="text-sm text-white/65">Prévia dos materiais e enunciados, incluindo rascunhos. As seções podem ser abertas livremente. Não registra progresso, entregas ou XP.</p>
+    {!activities&&<button type="button" className="btn-secondary" disabled={loading} onClick={()=>setReload(n=>n+1)}>Atualizar atividades salvas</button>}
     {loading && <p role="status">Carregando conteúdo…</p>}
     {error && <p role="alert">{error}</p>}
     {!loading && !error && !rows.length && <p className="text-white/65">Nenhuma atividade importada nesta aula.</p>}
