@@ -6,6 +6,7 @@ import { toStudentLesson, validateLessonImport } from '../../lib/learningContent
 import { importLearningLesson, publishLearningActivities } from '../../lib/studentLearning';
 import { safeHttpsUrl } from '../../lib/learningProgress';
 import type { ActivityDefinition, LearningActivity } from '../../types/learning';
+import {useLessonChanges} from '../../lib/lessonChanges';
 
 function definitionActivity(a: ActivityDefinition, lessonId: string): LearningActivity {
   return { id: a.key, lesson_id: lessonId, key: a.key, title: a.title, description: a.description ?? null,
@@ -37,6 +38,7 @@ export default function LessonContentImporter({ lessonId, lessonTitle, onClose }
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [imported, setImported] = useState<{ activityIds: string[]; published: boolean } | null>(null);
+  useLessonChanges('legacy-json',Boolean(source.trim())&&!imported,saving);
   const validation = useMemo(() => {
     if (!source.trim()) return null;
     if (source.length > 2000000) return { valid: false as const, errors: ['O arquivo deve ter no máximo 2 MB.'] };

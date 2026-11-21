@@ -1,0 +1,36 @@
+{
+  "lesson_id": "00000000-0000-4000-8000-000000009925",
+  "lesson_key": "aula-pacote-local",
+  "origin": "https://example.invalid",
+  "slots": [
+    {
+      "key": "principal",
+      "presentationId": "00000000-0000-4000-8000-000000009930"
+    },
+    {
+      "key": "revisao",
+      "presentationId": "00000000-0000-4000-8000-000000009931"
+    },
+    {
+      "key": "complementar",
+      "presentationId": "00000000-0000-4000-8000-000000009932"
+    }
+  ],
+  "context": {
+    "courseTitle": "Aula antiga",
+    "moduleTitle": "Aula antiga",
+    "submoduleTitle": "Conteúdo"
+  },
+  "curriculum": {
+    "courseId": "00000000-0000-4000-8000-000000000025",
+    "moduleId": "00000000-0000-4000-8000-000000000026",
+    "submoduleId": "00000000-0000-4000-8000-000000000027"
+  },
+  "lesson": {
+    "title": "Aula pacote sintetico",
+    "description": null,
+    "duration_minutes": null
+  },
+  "metadata": null,
+  "inventory": []
+}

@@ -1,6 +1,6 @@
 # Evolução editorial e pacote unificado da Bitaria
 
-Proposta integrada — 12/11/2026. **Planejamento para aprovação; nenhuma arquitetura nova foi instalada.** A decisão de manter materiais no Google Drive prevalece sobre a proposta anterior de Storage gerenciado. Os nomes de tabelas/RPCs novos neste documento são desenhos propostos, não interfaces já disponíveis.
+Arquitetura aprovada — 12/11/2026, atualizada em 16/11/2026. **E1a e E2a implementadas somente no checkout local isolado; não implantadas em produção.** A decisão de manter materiais no Google Drive prevalece. O estado efetivo está em [fundacao-editorial-e1a.md](fundacao-editorial-e1a.md) e [importador-unificado-e2a.md](importador-unificado-e2a.md). Por decisão da usuária, a homologação PostgreSQL real foi adiada para uma rodada integrada E1a/E2a, sem impedir o desenvolvimento local; continua obrigatória antes de implantação. Demais modelos e etapas permanecem planejados.
 
 ## 1. Recomendação e menor entrega
 
@@ -237,16 +237,16 @@ Alunos/coortes, versões de currículo e grades não são migrados por importaç
 | Etapa | Objetivo e componentes | Dependências | Aceite | Risco e complexidade | Migration / deploy / compatibilidade |
 |---|---|---|---|---|---|
 | P0 — esta entrega | Auditoria, política e contrato candidato | Código/metadata atuais | Decisões identificadas, limites e exemplos candidatos claros | Baixa; contrato ainda não aprovado | Nenhuma migration/deploy; fluxos atuais mantidos |
-| E1 — editor sem histórico | TabContent, formulários/JSON, camada de plano/draft/publicação, recarga persistente | Política de mudanças simples e identidade de aula | Editar qualquer aula sem histórico, manter UUID/key, diff, concorrência/rollback, zero XP; testes de todos os 8 tipos | Média/alta: guard e corrida com aprendizagem | Migration aditiva + frontend/RPC; manter inclusão legada e A02 temporariamente |
-| E2a — pacote em aula vazia | Novo coordenador do envelope, reaproveitando validators/Edge web; prévia completa | E1 + contrato aprovado + kit de produção | Um ZIP, aula existente vazia, Drive + até 3 decks, rascunho privado recuperável, idempotência; nenhuma publicação automática | Alta: falhas distribuídas e permissões | Migration de operações/identidades/bindings pendentes + Edge coordenadora + frontend; parser/renderer atuais preservados |
-| E2b — pacote em aula sem histórico | Seleção de mudanças, reimportação sem efeito, reuso de versões web | E2a + classificações E1 | Seis casos de conflito/seleção, preservação de omitidas, nenhuma duplicação, publicar conjunto consistente | Média/alta; consistência do conjunto final | Adaptar RPC/Edge/frontend; migration só se dados adicionais comprovadamente necessários |
+| E1a — fundação editorial | JSON v1/v2 existente, identidade, comparação, rascunho privado persistente, publicação separada, UI mínima | Política e identidade aprovadas | Aulas elegíveis sem histórico, oito tipos, UUID/key/recompensas preservados, concorrência/rollback, zero XP | Média/alta: guard e corrida com aprendizagem | Implementada localmente; migration aditiva e quatro RPCs, sem aplicar. Inclusão legada, web e A02 mantidos |
+| E2a — importação unificada inicial | Kit Work, ZIP externo, aula v2 e ZIPs web v1, inventário Drive, intenções persistentes e publicação coordenada | Base E1a aprovada para desenvolvimento; homologação PostgreSQL integrada antes da implantação | Implementada localmente para aula existente vazia e sem histórico; rascunho recuperável, idempotência e publicação única de atividades/versões/vínculos | Alta: falhas distribuídas e permissões | Migration E2a e nova Edge preparadas, sem aplicar/deploy; pipeline web e validadores reutilizados |
+| E1b + E2b — editor completo e atualização por pacote | Formulários dos oito tipos, metadados/ordenação/links, seleção de mudanças e atualização ZIP, histórico e arquivamento controlado sem uso | E1a homologada + E2a | Reusar a mesma fundação, fechamento de dependências, preservação de omitidas, publicação consistente | Média/alta | Planejada; adaptar RPC/Edge/frontend sem novo parser |
 | E3a — versões pedagógicas | Coleção de revisões/gabaritos, composição de publicação, leitura compatível | Backfill e matriz pedagógica aprovados | Conteúdo histórico reproduzível no que está sob controle da Bitaria; FKs validadas; clientes antigos compatíveis | Muito alta: nota, progresso e XP | Migrations graduais + RPCs de aprendizagem + frontend; ponte de leitura obrigatória |
 | E3b — alunos em andamento/concluintes | Fixação de publicação, crédito histórico/desbloqueios, sessão avaliativa versionada | E3a + aprovação de política | Todos os dez cenários da seção 7; sem perda de crédito nem pagamento duplicado em ressincronização | Muito alta; liberar por piloto autorizado, não por coorte automática | Migrações/serviços/frontend; A02 pode ser aposentada após prova de equivalência |
 | E4 — manutenção/editor avançado | Arquivamento com histórico, restauração como nova revisão e reexecução opcional | E3b | Sem deletes históricos, retomada de sessão, referência correta de recurso | Alta; escopo separável | Deploy e eventual migration específica; nenhuma contratação obrigatória |
 
 **Etapa removida:** armazenamento gerenciado de materiais complementares. **Postergados:** upload de vídeo/PDF/áudio, bucket docente, migração de Drive e deduplicação global de arquivos. Isso reduz o coordenador a metadados + apresentações existentes.
 
-As complexidades são relativas, não promessa de calendário. Estimar esforço após aprovar política e fatiar E1/E2. E1 não precisa esperar E3; E2a não precisa esperar atualização de aulas usadas. Aulas 02/03 podem continuar pelo JSON e ZIP web atuais.
+Ordem aprovada: **E1a → E2a → E1b/E2b → E3a/E3b**. E2a não exige concluir os formulários especializados de E1b. A edição com histórico continua bloqueada até E3 comprovar preservação dos créditos e execuções. Aulas 02/03 podem continuar pelos fluxos atuais, sujeitos às proteções existentes.
 
 ## 14. Plano de testes e liberação
 
@@ -266,12 +266,12 @@ Para cada migration: ensaio isolado, avaliação de locks/FKs, hash do SQL, inve
 
 Nesta entrega documental, os dois exemplos estruturais foram verificados pelos validadores existentes e a suíte do candidato passou com **9 testes: 2 exemplos válidos e 7 negativos**. Isso valida os artefatos da proposta, não implementa/testa a arquitetura futura. Não foi necessário rebuild da aplicação, que não foi alterada.
 
-## 15. Decisões que precisam de aprovação
+## 15. Decisões aprovadas e autorizações futuras
 
-1. Aceitar a política da seção 7: manter publicação antiga para iniciados/concluintes e não impor refazer por padrão.
-2. Aprovar E1 como primeira implementação de valor, restrita a aulas sem histórico, incluindo rascunhos persistentes e publicação separada.
-3. Aprovar o envelope candidato com ZIPs web internos, limites e kit de produção, em vez de exigir outra forma de deck; ver contrato complementar.
-4. Definir quem revisa impacto semântico de recursos/textos e direitos de acesso do professor ao editor.
+1. Aprovada a política da seção 7: manter publicação antiga para iniciados/concluintes e não impor refazer por padrão; liberação depende de E3.
+2. Autorizada a implementação **local de E1a**, restrita a aulas sem histórico, com JSON, rascunhos persistentes e publicação separada. Formulários completos ficam em E1b.
+3. Aprovados o envelope com ZIPs web internos, os limites iniciais e o kit para o Work; implementação de E2a continua posterior à homologação de E1a.
+4. A administração revisa as mudanças e é a única autorizada ao gerenciamento editorial nesta fase. Nenhuma ampliação de permissão de professor.
 5. Aprovar a proteção de créditos históricos de módulos/XP antes da fase E3b; não extrapolar o tratamento da conta de teste.
 6. Definir retenção de rascunhos/operações abandonadas e processo manual de limpeza, preservando publicados/histórico.
 7. Aprovar migrations/deploys individualmente e o risco/estratégia de recuperação vigente. Esta documentação não autoriza nenhuma dessas ações.

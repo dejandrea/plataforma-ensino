@@ -1,5 +1,7 @@
 # Contrato real de entrega — ChatGPT Work → Bitaria
 
+**Atualização de 16/11/2026:** este documento continua descrevendo o ZIP isolado de apresentação v1. Para **uma aula inteira em um ZIP**, consultar o [guia Work E2a](work-pacote-aula.md) e o kit exportado pelo novo painel. E2a está implementada apenas localmente, sem implantação. A situação de implantação registrada em 02/11 abaixo é histórica, não um preflight atual.
+
 Verificado em **02/11/2026**, no código local da branch main, commit-base `06cac4e`. Documento de autoria e operação; não altera o contrato e não autoriza publicação. O gerenciador está implementado, mas ainda não implantado em produção.
 
 ## 1. O que o Work deve entregar

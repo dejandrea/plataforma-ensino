@@ -1,5 +1,7 @@
 # Bitaria Lesson Package — contrato candidato v1
 
+**Atualização de 16/11/2026:** contrato aprovado, implementado no recorte E2a local para aulas existentes vazias e sem histórico. O schema operacional é `src/contracts/lesson-package.v1.schema.json`; sua estrutura preserva a proposta, com identificação/título oficiais. Ver [guia atual](work-pacote-aula.md) e [entrega E2a](importador-unificado-e2a.md). Não implantado em produção. Trechos abaixo sobre atualização de aulas, seleção de alterações e versionamento continuam planejados; não descrevem capacidades da E2a inicial.
+
 12/11/2026. **Proposta para aprovação, não contrato oficial implantado.** O painel atual aceita JSON de aula ou ZIP de apresentação separadamente. Não enviar os ZIPs deste documento ao importador atual de apresentações.
 
 Este documento complementa [a arquitetura editorial](arquitetura-editorial-e-pacote-unificado.md). A decisão vigente mantém materiais volumosos e docentes no Drive e apresentações no gerenciador web já instalado. Não há bucket novo, integração Drive obrigatória ou serviço pago.

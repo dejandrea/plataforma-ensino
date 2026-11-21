@@ -1,5 +1,7 @@
 # Instruções candidatas para o ChatGPT Work
 
+**Histórico preservado. Em 16/11/2026, a E2a local passou a ter um [guia operacional](work-pacote-aula.md) e instruções incorporadas ao kit exportado. Usar esses arquivos com as identidades reais do kit. Este texto original continua como referência de arquitetura; não implica implantação em produção.**
+
 **Status: proposta de produção futura, 12/11/2026. Não substituir o fluxo atual das aulas urgentes.** O painel ainda não importa este envelope. Depois de aprovar o contrato e homologar a funcionalidade, estas instruções podem tornar-se o guia oficial. Até lá, usar o JSON de atividades e o ZIP web separados já aceitos.
 
 Documentos de referência: [contrato candidato](contrato-pacote-aula-proposto.md), [arquitetura editorial](arquitetura-editorial-e-pacote-unificado.md) e [schema candidato do manifesto](propostas/pacote-aula-v1/manifest.proposta.schema.json).

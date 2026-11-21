@@ -1,4 +1,5 @@
 import {createAdminClient,createUserClient} from '../_shared/supabase.ts';
+import {prepareWebPresentation} from '../_shared/prepare-web-presentation.ts';
 // Shared parser and exact existing JSON v1 schema; no independent slide renderer.
 import {parsePresentationPackage,readLimited,packageLimits} from '../../../public/apresentacoes/package.js';
 import schema from '../../../public/apresentacoes/presentation.schema.json' with {type:'json'};
@@ -25,7 +26,6 @@ export async function handleImport(req:Request){
   if(!uuid.test(lessonId)||(supplied&&!uuid.test(supplied)))return json({error:'Identificação de aula ou apresentação inválida.'},400);
   const presentationId=supplied??crypto.randomUUID();
   const versionId=crypto.randomUUID();
-  const uploaded:string[]=[];
   try{
     // Verify target ownership before consuming/decompressing a potentially large body.
     const {data:lesson,error:lessonError}=await admin.from('lessons').select('id').eq('id',lessonId).single();
@@ -37,23 +37,10 @@ export async function handleImport(req:Request){
     if(Number(req.headers.get('content-length'))>packageLimits.zip)return json({error:'O ZIP deve ter até 10 MB.'},413);
     const bytes=await readLimited(req.body,packageLimits.zip);
     const parsed=await parsePresentationPackage(bytes,schema);
-    const prefix=`presentations/${presentationId}/versions/${versionId}/`;
-    for(const file of parsed.files){
-      if(!file.data)throw new Error('Arquivo validado sem conteúdo.');
-      const path=prefix+file.path;
-      const {error}=await admin.storage.from('web-presentations').upload(path,file.data,{contentType:file.mime,upsert:false,cacheControl:'300'});
-      if(error)throw new Error('Falha no upload privado. A versão não foi publicada.');
-      uploaded.push(path);
-    }
-    const files=parsed.files.map(({path,mime,size,sha256}:{path:string;mime:string;size:number;sha256:string})=>({path,mime,size,sha256}));
-    const {data,error}=await admin.rpc('register_web_presentation',{
-      p_actor:user.id,p_lesson_id:lessonId,p_presentation_id:presentationId,p_version_id:versionId,
-      p_title:parsed.deck.title,p_hash:parsed.packageHash,p_files:files,p_warnings:parsed.warnings,p_slide_count:parsed.slideCount,
-    });
-    if(error)throw new Error(error.code==='23505'?'Este pacote já está salvo nesta apresentação. Use a versão existente ou a reversão.':'Não foi possível registrar a versão validada. Nenhuma publicação foi alterada.');
+    const data=await prepareWebPresentation(admin,parsed,{actor:user.id,lessonId,presentationId,versionId});
     return json({...data,warnings:parsed.warnings});
   }catch(cause){
-    if(uploaded.length)await admin.storage.from('web-presentations').remove(uploaded);
+
     return json({error:cause instanceof Error?cause.message:'Não foi possível validar e salvar o pacote.'},400);
   }
 }

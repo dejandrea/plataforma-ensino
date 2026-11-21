@@ -1,0 +1,34 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createLearningBrowser} from './fixtures/learning-browser-harness.mjs';
+import {packageLesson} from './fixtures/lesson-package-db.mjs';
+
+test('empty lesson → kit → single ZIP → preview → recoverable draft → one atomic publication',{timeout:180000},async t=>{
+ const app=await createLearningBrowser(t,{flashcards:true,presentations:true,lessonPackages:true});app.setIdentity('admin');const {page}=app;
+ await page.goto(`${app.appUrl}tests/fixtures/lesson-package.html`);
+ const kitDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar kit para o Work'}).click();const kit=await kitDownload;await kit.saveAs('test-results/work-kit.zip');assert.match(kit.suggestedFilename(),/^kit-work-/);
+ await page.getByRole('status').filter({hasText:'Kit exportado'}).waitFor();
+ const exampleDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Baixar pacote sintético'}).click();await (await exampleDownload).saveAs('test-results/pacote-sintetico-completo.zip');
+ await page.getByRole('status').filter({hasText:'Exemplo sintético'}).waitFor();
+ await page.getByLabel('Pacote ZIP completo').setInputFiles('test-results/pacote-sintetico-completo.zip');
+ await page.getByRole('status').filter({hasText:'Pacote válido'}).waitFor();assert.equal(await page.getByRole('button',{name:'Salvar pacote em rascunho'}).isDisabled(),true);
+ await page.getByRole('button',{name:'Prévia principal',exact:true}).click();
+ await page.frameLocator('iframe[title="Prévia da apresentação"]').getByText('Exemplo de conceito',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Fechar prévia da apresentação'}).click();
+ await page.getByRole('checkbox',{name:/Revisei destino/}).check();await page.getByRole('button',{name:'Salvar pacote em rascunho'}).click();
+ await page.getByRole('status').filter({hasText:'Rascunho privado salvo'}).waitFor();
+ await app.login('admin','postgres');assert.equal((await app.query('select count(*) n from lesson_activities where lesson_id=$1',[packageLesson])).rows[0].n,0);
+ await page.reload();await page.getByText('Operação pronta em rascunho',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Conferir apresentação principal',exact:true}).click();
+ await page.frameLocator('iframe[title="Prévia da apresentação"]').getByText('Exemplo de conceito',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Fechar prévia da apresentação'}).click();
+ await page.getByRole('button',{name:'Conferir atividades como aluno'}).click();await page.getByRole('region',{name:'Visualização como aluno'}).waitFor();
+ await page.screenshot({path:'test-results/lesson-package-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.screenshot({path:'test-results/lesson-package-mobile.png',fullPage:true});
+ await page.getByRole('checkbox',{name:/Revisei o rascunho recuperado/}).check();await page.getByRole('button',{name:'Publicar conjunto revisado'}).click();
+ await page.getByRole('status').filter({hasText:'Conjunto publicado'}).waitFor();
+ await app.login('admin','postgres');assert.equal((await app.query('select count(*) n from lesson_activities where lesson_id=$1',[packageLesson])).rows[0].n,9);
+ assert.equal((await app.query('select count(*) n from web_presentation_links l join lesson_activities a on a.id=l.activity_id where a.lesson_id=$1',[packageLesson])).rows[0].n,2);
+ assert.equal(app.requests.filter(r=>r.name==='import-lesson-package').length,1);assert.equal(app.requests.filter(r=>r.name==='publish_lesson_package').length,1);
+ assert.equal(app.requests.some(r=>/start_student|complete_student|submit_student|review_student/.test(r.name)),false);assert.deepEqual(app.pageErrors,[]);
+});

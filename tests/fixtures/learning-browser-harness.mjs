@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false,flashcards = false,presentations=false} = {}) {
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false,flashcards = false,presentations=false,lessonPackages=false} = {}) {
   const database = improvements||pedagogy||curriculum||flashcards ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
@@ -24,9 +24,15 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
     await preparePresentations(database);presentationPipeline=localImportPipeline(database);
   }
   const requests = [];
+  let lessonPipeline;
+  if(lessonPackages){await (await import('./lesson-package-db.mjs')).prepareLessonPackages(database);lessonPipeline=(await import('./lesson-package-runtime.mjs')).lessonPackagePipeline(database,presentationPipeline);}
   let loseQuizResponse = false;
   let identity = 'student';
   const rpcArguments = {
+    create_lesson_package_kit:['p_lesson_id','p_origin','p_lesson_key'],lesson_package_state:['p_lesson_id'],publish_lesson_package:['p_operation','p_expected_version','p_confirmed'],
+    admin_editorial_lesson:['p_lesson_id'],plan_editorial_lesson:['p_lesson_id','p_document'],
+    save_editorial_draft:['p_lesson_id','p_document','p_expected_source','p_expected_version','p_confirm_identity'],
+    publish_editorial_draft:['p_lesson_id','p_expected_source','p_expected_version','p_confirmed'],
     plan_a02_reconciliation:['p_document'],apply_a02_reconciliation:['p_document','p_expected_token','p_confirmed'],
     lesson_web_presentations:['p_lesson_id'],
     web_presentation_state:['p_lesson_id'],resolve_web_presentation:['p_presentation_id','p_version_id'],
@@ -52,8 +58,13 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   // runs the actual migration's function as authenticated inside a transaction.
   const api = createHttpServer(async (req,res) => {
     res.setHeader('Access-Control-Allow-Origin','*');
-    res.setHeader('Access-Control-Allow-Headers','authorization,apikey,content-type,x-client-info,x-lesson-id,x-presentation-id');
+    res.setHeader('Access-Control-Allow-Headers','authorization,apikey,content-type,x-client-info,x-lesson-id,x-presentation-id,x-confirmed');
     if (req.method==='OPTIONS') { res.writeHead(204); res.end(); return; }
+    if(lessonPipeline&&req.url?.startsWith('/functions/v1/import-lesson-package')){
+      const chunks=[];for await(const chunk of req)chunks.push(chunk);requests.push({name:'import-lesson-package',params:{}});
+      const response=await lessonPipeline.handle(new Request('http://local/import-lesson',{method:'POST',headers:{authorization:`Bearer ${identity}`,'x-lesson-id':req.headers['x-lesson-id'],'x-confirmed':req.headers['x-confirmed']},body:Buffer.concat(chunks)}));
+      res.writeHead(response.status,{'Content-Type':'application/json'});res.end(await response.text());return;
+    }
     if(presentationPipeline&&req.url?.startsWith('/functions/v1/import-web-presentation')){
       const chunks=[];for await(const chunk of req)chunks.push(chunk);
       requests.push({name:'import-web-presentation',params:{}});
