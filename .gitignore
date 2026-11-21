@@ -13,6 +13,8 @@ dist-ssr
 test-results/
 tmp/
 output/
+/exports/
+supabase/.temp/
 *.local
 
 # Editor directories and files
