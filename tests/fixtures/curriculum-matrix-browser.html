@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teste local da matriz curricular</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import {createElement, useState} from 'react';
+    import {createRoot} from 'react-dom/client';
+    import {CurriculumMatrix} from '/src/components/management/CurriculumMatrix.tsx';
+    import '/src/index.css';
+
+    function MatrixFixture() {
+      const [courses, setCourses] = useState([]);
+      return createElement('main', {className: 'app-bg min-h-screen p-4 text-white'},
+        createElement(CurriculumMatrix, {
+          courses,
+          selectedCourseId: courses[0]?.id ?? null,
+          onImported: id => setCourses([{id, title: 'Curso sintético'}]),
+        }));
+    }
+    createRoot(document.getElementById('root')).render(createElement(MatrixFixture));
+  </script>
+</body>
+</html>

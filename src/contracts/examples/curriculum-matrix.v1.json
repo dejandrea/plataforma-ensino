@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "course": {
+    "title": "Curso sintético de raciocínio lógico",
+    "description": "Pratique a decomposição de problemas.",
+    "totalHours": 2,
+    "modules": [
+      {
+        "title": "Instruções",
+        "description": "Organize instruções em uma sequência.",
+        "orderIndex": 1,
+        "submodules": [
+          {
+            "title": "Sequências",
+            "description": "Compare sequências de instruções.",
+            "orderIndex": 1,
+            "lessons": [
+              {
+                "title": "Do problema à sequência",
+                "description": "Escreva instruções para uma tarefa cotidiana.",
+                "objectives": [
+                  "Decompor uma tarefa em passos ordenados."
+                ],
+                "durationMinutes": 30,
+                "orderIndex": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

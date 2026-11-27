@@ -1,0 +1,40 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createLearningBrowser} from './fixtures/learning-browser-harness.mjs';
+
+test('curriculum matrix upload, confirmation and round trip on mobile', {timeout: 150000}, async t => {
+  const app = await createLearningBrowser(t, {curriculum: true, flashcards: true, presentations: true, lessonPackages: true, curriculumMatrix: true});
+  const {page, requests} = app;
+  app.setIdentity('admin');
+  await page.setViewportSize({width: 390, height: 844});
+  page.setDefaultTimeout(60_000);
+  await page.goto(app.appUrl + 'tests/fixtures/curriculum-matrix-browser.html', {waitUntil: 'commit', timeout: 60_000});
+  await page.getByRole('button', {name: 'Importar matriz curricular'}).click();
+  const file = page.getByLabel('Arquivo JSON');
+  await file.setInputFiles({name: 'invalid.json', mimeType: 'application/json', buffer: Buffer.from('{broken')});
+  await page.getByRole('button', {name: 'Validar e gerar prévia'}).click();
+  await page.getByRole('alert').filter({hasText: 'O arquivo contém JSON inválido.'}).waitFor();
+  assert.equal(requests.some(request => request.name === 'preview_curriculum_matrix'), false);
+
+  await file.setInputFiles('src/contracts/examples/curriculum-matrix.v1.json');
+  await page.getByRole('button', {name: 'Validar e gerar prévia'}).click();
+  await page.getByRole('region', {name: 'Prévia da importação'}).waitFor();
+  const confirm = page.getByRole('button', {name: 'Confirmar importação'});
+  assert.equal(await confirm.isDisabled(), true);
+  await page.getByRole('checkbox', {name: 'Revisei e autorizo as operações exibidas.'}).check();
+  await confirm.click();
+  await page.getByRole('region', {name: 'Resultado da importação'}).waitFor();
+  assert.equal(requests.filter(request => request.name === 'confirm_curriculum_matrix').length, 1);
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', {name: 'Exportar matriz curricular'}).click();
+  const download = await downloadEvent;
+  const exported = await readFile(await download.path());
+  assert.ok(JSON.parse(exported).course.id);
+  await page.getByLabel('Modo de importação').selectOption('complement');
+  await file.setInputFiles({name: 'exported.json', mimeType: 'application/json', buffer: exported});
+  await page.getByRole('button', {name: 'Validar e gerar prévia'}).click();
+  await page.getByText('A matriz já corresponde ao curso.').waitFor();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+  assert.deepEqual(app.pageErrors, []);
+});

@@ -2,6 +2,7 @@
 
 Leia primeiro identidade.json e os schemas deste kit. O kit NÃO é o ZIP de importação.
 Use exatamente lesson_id, lesson_key, contexto, origem HTTPS e identidades de apresentações fornecidos. Não invente UUIDs ou URLs gerenciadas. A primeira entrega aceita somente aula curricular existente, vazia e sem histórico.
+Use as descrições de `curriculum`, a descrição e a duração de `lesson` e os objetivos de `metadata.objectives` como referência pedagógica. Copie o objeto `context` para o pacote de aula.
 
 Entregue um único ZIP com manifest.json, aula.json e zero a três ZIPs em apresentacoes/{key}.zip. Arquivos na raiz, sem pasta envolvente. Não inclua este README, schemas, originais, relatórios ou arquivos administrativos no ZIP final. Use schemas/lesson-package.v1.schema.json para o manifesto e learning-content.v2.schema.json para aula.json. O exemplo ZIP é sintético; substitua seu conteúdo antes de qualquer uso pedagógico real.
 

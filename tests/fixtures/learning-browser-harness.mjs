@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react';
 import { createLearningTestDb, fixtureUsers, id, learningMigration, readSql } from './learning-test-db.mjs';
 
 
-export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false,flashcards = false,presentations=false,lessonPackages=false} = {}) {
+export async function createLearningBrowser(t, {teacher = false,officialXp = false,improvements = false,video = false,pedagogy = false,curriculum = false,flashcards = false,presentations=false,lessonPackages=false,curriculumMatrix=false} = {}) {
   const database = improvements||pedagogy||curriculum||flashcards ? await (await import('./improvements-db.mjs')).createImprovementsDb() : await createLearningTestDb({b1:true});
   const { db,query,login } = database;
   t.after(() => db.close());
@@ -26,6 +26,7 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
   const requests = [];
   let lessonPipeline;
   if(lessonPackages){await (await import('./lesson-package-db.mjs')).prepareLessonPackages(database);lessonPipeline=(await import('./lesson-package-runtime.mjs')).lessonPackagePipeline(database,presentationPipeline);}
+  if(curriculumMatrix) await (await import('./curriculum-matrix-db.mjs')).prepareCurriculumMatrix(database);
   let loseQuizResponse = false;
   let identity = 'student';
   const rpcArguments = {
@@ -52,6 +53,9 @@ export async function createLearningBrowser(t, {teacher = false,officialXp = fal
     pedagogy_activity_attempts:['p_student_id','p_activity_id','p_page','p_page_size'],
     pedagogy_projects:['p_search','p_course_id','p_teacher_id','p_status','p_page','p_page_size','p_student_id'],pedagogy_project_detail:['p_submission_id'],
     publish_curriculum_lesson:['p_lesson_id'],
+    export_curriculum_matrix:['p_course'],
+    preview_curriculum_matrix:['p_mode','p_course','p_document'],
+    confirm_curriculum_matrix:['p_mode','p_course','p_document','p_token','p_confirmed'],
     student_flashcard_progress:['p_activity_id'],review_student_flashcard:['p_activity_id','p_card_id'],
   };
   // Only PostgREST's HTTP shape/auth identity is replaced. Every operation below

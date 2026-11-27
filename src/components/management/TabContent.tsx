@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
+import {CurriculumMatrix} from "./CurriculumMatrix";
 
 
 const emptyModuleForm = {
@@ -294,6 +295,16 @@ export const TabContent = () => {
     <div className="mt-8 space-y-8 animate-in fade-in duration-500">
       {pending>0&&<p role="status" className="text-sm text-white/65">Carregando currículo…</p>}
       {loadError&&<div role="alert" className="rounded-xl border border-red-300/30 p-4 text-red-100">{loadError} <button className="underline" onClick={()=>{void fetchCourses();if(selectedCourseId)void fetchModules(selectedCourseId);if(selectedModuleId)void fetchSubmodules(selectedModuleId);if(selectedSubmoduleId)void fetchLessons(selectedSubmoduleId);}}>Tentar novamente</button></div>}
+      <CurriculumMatrix courses={courses} selectedCourseId={selectedCourseId} onImported={courseId => {
+        void fetchCourses();
+        if (courseId !== selectedCourseId) {
+          setSelectedCourseId(courseId);
+          return;
+        }
+        void fetchModules(courseId);
+        if (selectedModuleId) void fetchSubmodules(selectedModuleId);
+        if (selectedSubmoduleId) void fetchLessons(selectedSubmoduleId);
+      }}/>
       <p aria-label="Seleção atual" className="text-sm text-brand-ice">{[courses.find(c=>c.id===selectedCourseId)?.title,modules.find(m=>m.id===selectedModuleId)?.title,submodules.find(s=>s.id===selectedSubmoduleId)?.title].filter(Boolean).join(' / ')||'Selecione um curso para começar.'}</p>
       <div className="relative flex flex-wrap items-center gap-4 rounded-3xl bg-surface p-6 ring-1 ring-white/10 backdrop-blur-sm">
         <div className="min-w-[250px] flex-1">
